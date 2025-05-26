@@ -14,21 +14,31 @@ def run_command(cmd, cwd=None):
     print("Ejecutando:", " ".join(cmd))
     subprocess.run(cmd, cwd=cwd, check=True)
 
+def get_project_root():
+    """Obtener la ruta a la raíz del proyecto."""
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+
 def stop_services():
     """Detener todos los servicios de FungiGT."""
     print("Deteniendo todos los servicios de FungiGT...")
+    project_root = get_project_root()
+    compose_file = os.path.join(project_root, "docker-compose.yml")
+    
     run_command([
         "docker", "compose",
         "-p", "fungigt",
-        "-f", "docker-compose.yml",
+        "-f", compose_file,
         "down"
-    ])
+    ], cwd=project_root)
 
 def main():
     parser = argparse.ArgumentParser(description='Detener los servicios de FungiGT.')
     parser.add_argument('--remove-volumes', action='store_true',
                       help='Eliminar también los volúmenes de datos')
     args = parser.parse_args()
+
+    project_root = get_project_root()
+    compose_file = os.path.join(project_root, "docker-compose.yml")
 
     if args.remove_volumes:
         print("ADVERTENCIA: Se eliminarán todos los volúmenes de datos!")
@@ -38,9 +48,9 @@ def main():
             run_command([
                 "docker", "compose",
                 "-p", "fungigt",
-                "-f", "docker-compose.yml",
+                "-f", compose_file,
                 "down", "-v"
-            ])
+            ], cwd=project_root)
         else:
             print("Operación cancelada. Los volúmenes se conservarán.")
             stop_services()

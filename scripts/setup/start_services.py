@@ -17,34 +17,47 @@ def run_command(cmd, cwd=None):
     print("Ejecutando:", " ".join(cmd))
     subprocess.run(cmd, cwd=cwd, check=True)
 
+def get_project_root():
+    """Obtener la ruta a la raíz del proyecto."""
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+
 def stop_existing_containers():
     """Detener y eliminar contenedores existentes para nuestro proyecto ('fungigt')."""
     print("Deteniendo y eliminando contenedores existentes para el proyecto 'fungigt'...")
+    project_root = get_project_root()
+    compose_file = os.path.join(project_root, "docker-compose.yml")
+    
     run_command([
         "docker", "compose",
         "-p", "fungigt",
-        "-f", "docker-compose.yml",
+        "-f", compose_file,
         "down"
-    ])
+    ], cwd=project_root)
 
 def build_images():
     """Construir las imágenes de Docker para todos los servicios."""
     print("Construyendo imágenes de Docker para FungiGT...")
+    project_root = get_project_root()
+    compose_file = os.path.join(project_root, "docker-compose.yml")
+    
     run_command([
         "docker", "compose",
         "-p", "fungigt",
-        "-f", "docker-compose.yml",
+        "-f", compose_file,
         "build"
-    ])
+    ], cwd=project_root)
 
 def start_services(profile=None):
     """Iniciar todos los servicios de FungiGT."""
     print("Iniciando servicios de FungiGT...")
+    project_root = get_project_root()
+    compose_file = os.path.join(project_root, "docker-compose.yml")
+    
     cmd = ["docker", "compose", "-p", "fungigt"]
     if profile and profile != "all":
         cmd.extend(["--profile", profile])
-    cmd.extend(["-f", "docker-compose.yml", "up", "-d"])
-    run_command(cmd)
+    cmd.extend(["-f", compose_file, "up", "-d"])
+    run_command(cmd, cwd=project_root)
 
 def main():
     parser = argparse.ArgumentParser(description='Iniciar los servicios de FungiGT.')
