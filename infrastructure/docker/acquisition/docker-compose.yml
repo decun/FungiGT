@@ -1,0 +1,27 @@
+services:
+  datasets-cli:
+    image: ensemblorg/datasets-cli
+    container_name: fungigt-datasets-cli
+    volumes:
+      - ../../../data:/data
+    restart: unless-stopped
+    # El contenedor no tiene un servicio en ejecución continua, 
+    # lo ejecutaremos bajo demanda a través de la API
+    
+  acquisition-service:
+    build:
+      context: ../../../src/modules/acquisition/ncbi_cli
+      dockerfile: ../../../infrastructure/docker/acquisition/Dockerfile
+    container_name: fungigt-acquisition-service
+    ports:
+      - "3002:3002"
+    volumes:
+      - ../../../src/modules/acquisition/ncbi_cli:/app
+      - ../../../data:/data
+    environment:
+      - NODE_ENV=development
+      - DATA_DIR=/data
+      - PORT=3002
+    depends_on:
+      - datasets-cli
+    restart: unless-stopped 

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FungiTG</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<body class="bg-gradient-to-b from-green-200 to-green-400 min-h-screen text-gray-800">
+    <header class="py-6 px-4 sm:px-6 lg:px-8">
+        <nav class="flex justify-between items-center">
+            <div class="flex items-center">
+                <img src="/logo1.png" alt="Logo" class="h-10 w-10 mr-2">
+                <span class="text-2xl font-bold">FungiTG</span>
+            </div>
+            <div class="space-x-4">
+                <a href="#features" class="hover:text-green-800 transition duration-300">Características</a>
+                <a href="#about" class="hover:text-green-800 transition duration-300">Acerca de</a>
+                <a href="#contact" class="hover:text-green-800 transition duration-300">Contacto</a>
+                <a href="auth/login" class="inline-block bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition duration-300">
+                    Iniciar sesión
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <section class="text-center py-20">
+            <h1 class="text-5xl sm:text-6xl font-bold mb-6 animate-fade-in-down text-gray-800">
+                Análisis Genómico Simplificado
+            </h1>
+            <p class="text-xl mb-8 animate-fade-in-up text-gray-700">
+                Descarga, analiza y visualiza datos genómicos con nuestra plataforma integral
+            </p>
+            <button class="bg-green-600 text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-green-700 transition duration-300 transform hover:scale-105">
+                Comenzar
+            </button>
+        </section>
+
+        <section id="features" class="py-20">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Características Clave</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white bg-opacity-50 p-6 rounded-lg hover:bg-opacity-70 transition duration-300 transform hover:-translate-y-1">
+                    <i class="material-icons text-4xl mb-4 text-green-600">cloud_download</i>
+                    <h3 class="text-xl font-semibold mb-2">Descarga de Genomas</h3>
+                    <p>Acceso directo a bases de datos NCBI y otras fuentes para la descarga de genomas</p>
+                </div>
+                <div class="bg-white bg-opacity-50 p-6 rounded-lg hover:bg-opacity-70 transition duration-300 transform hover:-translate-y-1">
+                    <i class="material-icons text-4xl mb-4 text-green-600">science</i>
+                    <h3 class="text-xl font-semibold mb-2">Análisis Completo</h3>
+                    <p>Análisis filogenético y funcional con control de calidad integrado</p>
+                </div>
+                <div class="bg-white bg-opacity-50 p-6 rounded-lg hover:bg-opacity-70 transition duration-300 transform hover:-translate-y-1">
+                    <i class="material-icons text-4xl mb-4 text-green-600">bar_chart</i>
+                    <h3 class="text-xl font-semibold mb-2">Visualización Avanzada</h3>
+                    <p>Herramientas interactivas para visualizar resultados de análisis genómicos</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="py-20">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-8 md:mb-0">
+                    <img src="/land.jpeg" alt="Acerca de" class="rounded-lg shadow-xl animate-float">
+                </div>
+                <div class="md:w-1/2 md:pl-12">
+                    <h2 class="text-3xl font-bold mb-6 text-gray-800">Acerca de FungiTG</h2>
+                    <p class="text-lg mb-6 text-gray-700">
+                        FungiTG es una plataforma integral diseñada para investigadores y científicos que trabajan con datos genómicos. Desde la descarga de datos de NCBI hasta la anotación genómica, control de calidad, análisis filogenético y funcional, proporcionamos todas las herramientas necesarias en una única plataforma intuitiva.
+                    </p>
+                    <button class="bg-green-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-700 transition duration-300">
+                        Más Información
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="py-20">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Ponte en Contacto</h2>
+            <form class="max-w-lg mx-auto">
+                <div class="mb-6">
+                    <input type="text" placeholder="Tu Nombre" class="w-full px-4 py-2 rounded-lg bg-white bg-opacity-70 focus:bg-opacity-90 focus:outline-none transition duration-300 text-gray-800">
+                </div>
+                <div class="mb-6">
+                    <input type="email" placeholder="Tu Correo" class="w-full px-4 py-2 rounded-lg bg-white bg-opacity-70 focus:bg-opacity-90 focus:outline-none transition duration-300 text-gray-800">
+                </div>
+                <div class="mb-6">
+                    <textarea placeholder="Tu Mensaje" rows="4" class="w-full px-4 py-2 rounded-lg bg-white bg-opacity-70 focus:bg-opacity-90 focus:outline-none transition duration-300 text-gray-800"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-green-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-green-700 transition duration-300">
+                    Enviar Mensaje
+                </button>
+            </form>
+        </section>
+    </main>
+
+    <footer class="bg-green-600 text-white py-8 px-4 sm:px-6 lg:px-8">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+                <img src="/logo1.png" alt="Logo" class="h-8 w-8 inline-block mr-2">
+                <span class="text-xl font-bold">FungiTG</span>
+            </div>
+            <div class="flex space-x-4">
+                <a href="#" class="hover:text-green-200 transition duration-300">Política de Privacidad</a>
+                <a href="#" class="hover:text-green-200 transition duration-300">Términos de Servicio</a>
+                <a href="#" class="hover:text-green-200 transition duration-300">Contacto</a>
+            </div>
+        </div>
+    </footer>
+</body>
+
+<%- include('partials/footer') %>

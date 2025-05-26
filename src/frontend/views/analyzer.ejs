@@ -1,0 +1,761 @@
+<%- include('partials/header') %>
+
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <main class="flex-grow p-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row gap-6">
+                <!-- Panel lateral: Explorador de archivos -->
+                <div class="w-full md:w-1/3 lg:w-1/4">
+                    <%- include('partials/file-explorer') %>
+                </div>
+                
+                <!-- Panel principal -->
+                <div class="w-full md:w-2/3 lg:w-3/4">
+                    <h2 class="text-3xl font-bold mb-8 flex items-center text-gray-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        Analizador Funcional de Genomas
+                    </h2>
+
+                    <!-- Selector para elegir entre eggNOG y BlastN -->
+                    <div class="bg-white p-6 rounded-xl shadow-lg mb-8 border border-gray-200">
+                        <h3 class="text-xl font-semibold mb-4 flex items-center text-gray-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+                            </svg>
+                            Seleccionar Herramienta de Análisis
+                        </h3>
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                                Elige la herramienta que deseas utilizar:
+                            </label>
+                            <select id="toolSelector" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                <option value="">Seleccione una herramienta</option>
+                                <option value="eggnog">eggNOG-mapper - Anotación Funcional</option>
+                                <option value="blastn">BlastN - Búsqueda de Homología</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Configuración de eggNOG-mapper -->
+                    <div id="eggNOGConfig" class="bg-white p-8 rounded-xl shadow-lg mb-8 border border-gray-200" style="display: none;">
+                        <div class="border-l-4 border-green-500 pl-6 mb-6">
+                            <h3 class="text-2xl font-semibold mb-2 flex items-center text-gray-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V3m0 0a9 9 0 019 9h-3m0 0a9 9 0 01-9 9v-3m0 0a9 9 0 019-9z" />
+                                </svg>
+                                Configuración de eggNOG-mapper
+                            </h3>
+                            <p class="text-gray-600 text-sm">Herramienta para anotación funcional de proteínas y genes</p>
+                        </div>
+                        
+                        <form id="eggNOGForm" class="space-y-6">
+                            <!-- Configuración Principal -->
+                            <div class="bg-gray-50 p-6 rounded-lg">
+                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Datos de Entrada</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                            Ruta al Archivo de Entrada (-i)
+                                            <div class="relative ml-2 group">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                                                    <div class="text-center">
+                                                        <div class="font-semibold mb-1">Archivo de proteínas en formato FASTA</div>
+                                                        <div class="mt-1 text-yellow-300">Ejemplo: ./input/GCA_000167675.2.faa</div>
+                                                    </div>
+                                                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                                </div>
+                                            </div>
+                                        </label>
+                                        <input type="text" id="proteinFilePath" name="proteinFilePath" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" 
+                                               placeholder="./input/GCA_000167675.2.faa" required />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Nombre de Salida (-o)
+                                        </label>
+                                        <input type="text" id="outputName" name="outputName" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" 
+                                               placeholder="genomeresult" required />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Configuración Básica -->
+                            <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
+                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Configuración Básica</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Alcance Taxonómico (--tax_scope)
+                                        </label>
+                                        <input type="text" id="taxScope" name="taxScope" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                               placeholder="2759" required />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Número de CPUs (--cpu)
+                                        </label>
+                                        <input type="number" id="cpu" name="cpu" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                               min="1" value="1" required />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Opciones Avanzadas -->
+                            <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
+                                <div class="flex items-center mb-4">
+                                    <input type="checkbox" id="toggleAdvancedEggNOG" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                    <label for="toggleAdvancedEggNOG" class="ml-3 text-lg font-semibold text-gray-800">Mostrar Opciones Avanzadas</label>
+                                </div>
+                                
+                                <div id="advancedEggNOGOptions" class="space-y-4" style="display: none;">
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                Tipo de Datos (--itype)
+                                            </label>
+                                            <select id="itype" name="itype" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors">
+                                                <option value="proteins">Proteínas</option>
+                                                <option value="CDS">CDS</option>
+                                                <option value="genome">Genoma</option>
+                                                <option value="metagenome">Metagenoma</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                Predicción de Genes (--genepred)
+                                            </label>
+                                            <select id="genepred" name="genepred" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors">
+                                                <option value="search">Search</option>
+                                                <option value="prodigal">Prodigal</option>
+                                            </select>
+                                        </div>
+                                        <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                            <input type="checkbox" id="translate" name="translate" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                            <label for="translate" class="ml-3 text-sm text-gray-700 font-medium">Traducir CDS (--translate)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Opciones de Búsqueda -->
+                            <div class="bg-purple-50 p-6 rounded-lg border border-purple-200">
+                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Opciones de Búsqueda</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Modo de Búsqueda (-m)
+                                        </label>
+                                        <select id="mode" name="mode" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors">
+                                            <option value="diamond">Diamond</option>
+                                            <option value="mmseqs">MMseqs2</option>
+                                            <option value="hmmer">HMMER</option>
+                                            <option value="no_search">No Search</option>
+                                            <option value="cache">Cache</option>
+                                            <option value="novel_fams">Novel Families</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            E-value (--evalue)
+                                        </label>
+                                        <input type="number" step="any" id="evalue" name="evalue" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                               value="0.001" required />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Porcentaje de Identidad (--pident)
+                                        </label>
+                                        <input type="number" step="any" id="pident" name="pident" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                               min="0" max="100" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Opciones de Salida y Ejecución -->
+                            <div class="bg-green-50 p-6 rounded-lg border border-green-200">
+                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Opciones de Salida y Ejecución</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                        <input type="checkbox" id="noFileComments" name="noFileComments" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                        <label for="noFileComments" class="ml-3 text-sm text-gray-700 font-medium">Sin comentarios (--no_file_comments)</label>
+                                    </div>
+                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                        <input type="checkbox" id="resume" name="resume" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                        <label for="resume" class="ml-3 text-sm text-gray-700 font-medium">Reanudar (--resume)</label>
+                                    </div>
+                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                        <input type="checkbox" id="override" name="override" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                        <label for="override" class="ml-3 text-sm text-gray-700 font-medium">Sobrescribir (--override)</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Botones de Acción -->
+                            <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                                <button type="button" id="showEggNOGCommandBtn" 
+                                        class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors font-medium">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5-6h3" />
+                                    </svg>
+                                    Mostrar Comando
+                                </button>
+                                <button type="submit" 
+                                        class="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors font-medium">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m-9-4V8a2 2 0 012-2h8a2 2 0 012 2v2M7 16h10" />
+                                    </svg>
+                                    Ejecutar eggNOG-mapper
+                                </button>
+                            </div>
+                            
+                            <div id="eggNOGCommandDisplay" class="mt-4 p-4 bg-gray-100 rounded-lg hidden">
+                                <h5 class="font-semibold text-gray-800 mb-2">Comando eggNOG:</h5>
+                                <pre id="eggNOGCommand" class="text-sm text-gray-800 whitespace-pre-wrap bg-white p-3 rounded border"></pre>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Configuración de BlastN -->
+                    <div id="blastnConfig" class="bg-white p-8 rounded-xl shadow-lg mb-8 border border-gray-200" style="display: none;">
+                        <div class="border-l-4 border-purple-500 pl-6 mb-6">
+                            <h3 class="text-2xl font-semibold mb-2 flex items-center text-gray-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                                Configuración de BlastN
+                            </h3>
+                            <p class="text-gray-600 text-sm">Herramienta para búsqueda de homología de secuencias nucleotídicas</p>
+                        </div>
+                        
+                        <form id="blastnForm" class="space-y-6">
+                            <!-- Configuración Principal -->
+                            <div class="bg-gray-50 p-6 rounded-lg">
+                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Archivos de Entrada y Salida</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                            Archivo de Entrada (-query)
+                                            <div class="relative ml-2 group">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                                                    <div class="text-center">
+                                                        <div class="font-semibold mb-1">Archivo FASTA con secuencias query</div>
+                                                        <div class="mt-1 text-yellow-300">Ejemplo: E:/blastN/input/tu_archivo.fasta</div>
+                                                    </div>
+                                                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                                </div>
+                                            </div>
+                                        </label>
+                                        <input type="text" id="queryFilePath" name="queryFilePath" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                               placeholder="E:/blastN/input/tu_archivo.fasta" required />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Archivo de Salida (-out)
+                                        </label>
+                                        <input type="text" id="out_blastn" name="out_blastn" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                               placeholder="E:/blastN/output/resultados.txt" required />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Configuración de Base de Datos -->
+                            <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
+                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Configuración de Base de Datos</h4>
+                                <div class="grid grid-cols-1 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Tipo de Base de Datos
+                                        </label>
+                                        <select id="databaseType" name="databaseType" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors mb-3">
+                                            <option value="predefined">Base de Datos Predefinida</option>
+                                            <option value="custom">Base de Datos Personalizada</option>
+                                        </select>
+                                        
+                                        <select id="predefinedDatabase" name="database" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                            <option value="nt">NT (Nucleotide)</option>
+                                            <option value="nr">NR (Non-redundant)</option>
+                                            <option value="swissprot">SwissProt</option>
+                                        </select>
+
+                                        <input type="text" id="customDatabase" name="customDatabase" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                               placeholder="E:/blastn/output/tu_base_datos" style="display: none;" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Parámetros de Búsqueda -->
+                            <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
+                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Parámetros de Búsqueda</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            E-value (-evalue)
+                                        </label>
+                                        <input type="number" step="any" id="evalue_blastn" name="evalue_blastn" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors" 
+                                               value="0.001" required />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Tamaño de palabra (-word_size)
+                                        </label>
+                                        <input type="number" id="wordSize" name="wordSize" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors" 
+                                               min="4" value="11" required />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Número de hilos (-num_threads)
+                                        </label>
+                                        <input type="number" id="numThreads" name="numThreads" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors" 
+                                               min="1" value="1" required />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Opciones de Salida -->
+                            <div class="bg-purple-50 p-6 rounded-lg border border-purple-200">
+                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Opciones de Salida</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Formato de salida (-outfmt)
+                                        </label>
+                                        <select id="outfmt" name="outfmt" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" required>
+                                            <option value="0">0 (Pairwise)</option>
+                                            <option value="6">6 (Tabular)</option>
+                                            <option value="7">7 (Tabular with comments)</option>
+                                            <option value="8">8 (XML2 ASN.1)</option>
+                                            <option value="10">10 (CSV)</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                        <input type="checkbox" id="remote_blastn" name="remote_blastn" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                        <label for="remote_blastn" class="ml-3 text-sm text-gray-700 font-medium">Usar BLAST remoto (-remote)</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Botones de Acción -->
+                            <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                                <button type="button" id="showBlastNCommandBtn" 
+                                        class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors font-medium">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5-6h3" />
+                                    </svg>
+                                    Mostrar Comando
+                                </button>
+                                <button type="submit" 
+                                        class="flex-1 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors font-medium">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                    Ejecutar BlastN
+                                </button>
+                            </div>
+                            
+                            <div id="blastnCommandDisplay" class="mt-4 p-4 bg-gray-100 rounded-lg hidden">
+                                <h5 class="font-semibold text-gray-800 mb-2">Comando BlastN:</h5>
+                                <pre id="blastnCommand" class="text-sm text-gray-800 whitespace-pre-wrap bg-white p-3 rounded border"></pre>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Estado del Análisis -->
+                    <div class="bg-white p-6 rounded-xl shadow-lg mb-8 border border-gray-200">
+                        <h3 class="text-xl font-semibold mb-6 flex items-center text-gray-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                            Estado de Análisis Funcional
+                        </h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo de Análisis</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progreso</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="annotationsTable" class="bg-white divide-y divide-gray-200">
+                                    <!-- Análisis se añadirán dinámicamente aquí -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-auto">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-sm">© 2024 FungiTG. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Definir las URLs del backend para cada herramienta
+        const BACKEND_URLS = {
+            eggnog: 'http://localhost:3001',
+            blastn: 'http://localhost:5000'
+        };
+
+        // Función para obtener la URL correcta según la herramienta
+        function getBackendURL(tool) {
+            return BACKEND_URLS[tool];
+        }
+
+        // Función para extraer el nombre del archivo de una ruta
+        function getFilenameFromPath(filePath) {
+            return filePath.split('/').pop();
+        }
+
+        // Selección de herramientas para mostrar/ocultar configuraciones
+        document.getElementById('toolSelector').addEventListener('change', function(e) {
+            const tool = e.target.value;
+            document.getElementById('eggNOGConfig').style.display = tool === 'eggnog' ? 'block' : 'none';
+            document.getElementById('blastnConfig').style.display = tool === 'blastn' ? 'block' : 'none';
+        });
+
+        // Toggle para Opciones Avanzadas de eggNOG-mapper
+        document.getElementById('toggleAdvancedEggNOG').addEventListener('change', function(e) {
+            const isChecked = e.target.checked;
+            const advancedOptions = document.getElementById('advancedEggNOGOptions');
+            advancedOptions.style.display = isChecked ? 'block' : 'none';
+
+            // Si se deshabilita, deshabilitar los campos avanzados
+            const inputs = advancedOptions.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.disabled = !isChecked;
+                if (!isChecked) {
+                    if (input.type === 'checkbox' || input.type === 'radio') {
+                        input.checked = false;
+                    } else {
+                        input.value = '';
+                    }
+                }
+            });
+        });
+
+        // Función para agregar análisis a la tabla
+        function addAnalysisToTable(analysis) {
+            const table = document.getElementById('annotationsTable');
+            const row = table.insertRow();
+            const uniqueId = Date.now();
+            
+            row.setAttribute('data-id', uniqueId);
+            row.setAttribute('data-type', analysis.type);
+            row.setAttribute('data-outputPath', analysis.outputPath || '');
+            row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap capitalize">${analysis.type}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                        En progreso
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="w-full bg-gray-200 rounded-full h-4">
+                        <div id="progressBar-${uniqueId}" class="bg-green-600 h-4 rounded-full" style="width: 0%;"></div>
+                    </div>
+                    <span id="progressText-${uniqueId}" class="text-xs text-gray-700">0%</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap" id="actions-${uniqueId}">
+                    ${analysis.actions || ''}
+                </td>
+            `;
+
+            return uniqueId;
+        }
+
+        // Función para actualizar el estado del análisis en la tabla
+        function updateAnalysisStatus(analysisType, status, progress, outputPath) {
+            const table = document.getElementById('annotationsTable');
+            for (let row of table.rows) {
+                if (row.cells[0].textContent.toLowerCase() === analysisType.toLowerCase()) {
+                    row.cells[1].innerHTML = `
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${status === 'Completado' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                            ${status}
+                        </span>
+                    `;
+                    
+                    if (status === 'Completado') {
+                        const filename = getFilenameFromPath(outputPath);
+                        const tool = analysisType.toLowerCase() === 'eggnog-mapper' ? 'eggnog' : 'blastn';
+                        const downloadURL = `${BACKEND_URLS[tool]}/download-file/${encodeURIComponent(filename)}`;
+                        
+                        row.cells[3].innerHTML = `
+                            <div class="flex space-x-2">
+                                <a href="${downloadURL}" target="_blank" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs">
+                                    Ver resultados
+                                </a>
+                                <a href="${downloadURL}" download class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs">
+                                    Descargar
+                                </a>
+                            </div>
+                        `;
+                    }
+                    break;
+                }
+            }
+        }
+
+        // Manejo de la ejecución de eggNOG
+        document.getElementById('eggNOGForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const form = e.target;
+            
+            try {
+                // Mostrar el análisis en la tabla y comenzar animación
+                const uniqueId = addAnalysisToTable({
+                    type: 'eggNOG-mapper',
+                    status: 'En progreso',
+                    progress: '0%',
+                    actions: ''
+                });
+
+                // Crear un objeto JSON con los datos del formulario
+                const data = {
+                    proteinFilePath: form.proteinFilePath.value.trim(),
+                    outputName: form.outputName.value.trim(),
+                    taxScope: form.taxScope.value.trim(),
+                    cpu: form.cpu.value.trim(),
+                    mode: form.mode.value.trim(),
+                    evalue: form.evalue.value.trim(),
+                    pident: form.pident.value.trim(),
+                    noFileComments: form.noFileComments.checked,
+                    resume: form.resume.checked,
+                    override: form.override.checked,
+                    itype: form.itype.value.trim(),
+                    translate: form.translate.checked,
+                    genepred: form.genepred.value.trim()
+                };
+
+                console.log('Intentando conectar a:', `${BACKEND_URLS.eggnog}/run-eggnog`);
+                console.log('Datos a enviar:', data);
+
+                const response = await fetch(`${BACKEND_URLS.eggnog}/run-eggnog`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data),
+                    credentials: 'include'
+                }).catch(error => {
+                    console.error('Error en fetch:', error);
+                    throw new Error(`Error de conexión: ${error.message}`);
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Error del servidor: ${response.status}`);
+                }
+
+                const result = await response.json();
+                console.log('Respuesta del servidor:', result);
+
+                // Actualizar el estado del análisis en la tabla
+                updateAnalysisStatus('eggNOG-mapper', 'Completado', '100%', result.outputPath);
+
+                // Mostrar una notificación de éxito
+                alert('eggNOG-mapper ejecutado exitosamente');
+
+            } catch (error) {
+                console.error('Error detallado al ejecutar eggNOG-mapper:', error);
+                
+                // Actualizar el estado del análisis en la tabla como error
+                updateAnalysisStatus('eggNOG-mapper', 'Error', '0%', '');
+
+                // Mostrar mensaje de error más descriptivo
+                let errorMessage = 'Error al ejecutar eggNOG-mapper: ';
+                if (error.message.includes('Failed to fetch')) {
+                    errorMessage += 'No se pudo conectar al servidor. Por favor, verifica que el servidor de eggNOG (puerto 3001) esté funcionando.';
+                } else {
+                    errorMessage += error.message;
+                }
+                alert(errorMessage);
+            }
+        });
+
+        // Manejo de la ejecución de BlastN
+        document.getElementById('blastnForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const form = e.target;
+            const databaseType = form.databaseType.value;
+
+            try {
+                // Mostrar el análisis en la tabla y comenzar animación
+                const uniqueId = addAnalysisToTable({
+                    type: 'BlastN',
+                    status: 'En progreso',
+                    progress: '0%',
+                    actions: ''
+                });
+
+                // Preparar los datos
+                const data = {
+                    queryFilePath: form.queryFilePath.value.trim(),
+                    database: databaseType === 'custom' ? 
+                        form.customDatabase.value.trim() : 
+                        form.predefinedDatabase.value.trim(),
+                    databaseType: databaseType,
+                    evalue_blastn: form.evalue_blastn.value.trim(),
+                    wordSize: form.wordSize.value.trim(),
+                    numThreads: form.numThreads.value.trim(),
+                    outfmt: form.outfmt.value.trim(),
+                    out_blastn: form.out_blastn.value.trim(),
+                    remote_blastn: form.remote_blastn.checked
+                };
+
+                console.log('Enviando datos al servidor:', data);
+
+                // Validaciones
+                if (!data.queryFilePath || !data.out_blastn) {
+                    throw new Error('Las rutas de entrada y salida son requeridas.');
+                }
+
+                if (data.databaseType === 'custom' && !data.database) {
+                    throw new Error('Debe especificar la ruta de la base de datos personalizada.');
+                }
+
+                console.log('Intentando conectar a:', `${BACKEND_URLS.blastn}/run-blastn`);
+                
+                const response = await fetch(`${BACKEND_URLS.blastn}/run-blastn`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data),
+                    credentials: 'include'
+                }).catch(error => {
+                    console.error('Error en fetch:', error);
+                    throw new Error(`Error de conexión: ${error.message}`);
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Error del servidor: ${response.status}`);
+                }
+
+                const result = await response.json();
+                console.log('Respuesta del servidor:', result);
+                
+                // Actualizar UI con éxito
+                updateAnalysisStatus('BlastN', 'Completado', '100%', data.out_blastn);
+                alert('BlastN ejecutado exitosamente');
+
+            } catch (error) {
+                console.error('Error detallado al ejecutar BlastN:', error);
+                updateAnalysisStatus('BlastN', 'Error', '0%', '');
+                alert(`Error: ${error.message}`);
+            }
+        });
+
+        // Manejo de la selección de tipo de base de datos
+        document.getElementById('databaseType').addEventListener('change', function(e) {
+            const isCustom = e.target.value === 'custom';
+            document.getElementById('predefinedDatabase').style.display = isCustom ? 'none' : 'block';
+            document.getElementById('customDatabase').style.display = isCustom ? 'block' : 'none';
+        });
+
+        // Botones para mostrar comandos
+        document.getElementById('showEggNOGCommandBtn').addEventListener('click', function() {
+            const form = document.getElementById('eggNOGForm');
+            const data = {
+                proteinFilePath: form.proteinFilePath.value.trim(),
+                outputName: form.outputName.value.trim(),
+                taxScope: form.taxScope.value.trim(),
+                cpu: form.cpu.value.trim(),
+                mode: form.mode.value.trim(),
+                evalue: form.evalue.value.trim(),
+                pident: form.pident.value.trim(),
+                noFileComments: form.noFileComments.checked,
+                resume: form.resume.checked,
+                override: form.override.checked,
+                itype: form.itype.value.trim(),
+                translate: form.translate.checked,
+                genepred: form.genepred.value.trim()
+            };
+
+            const command = `python3 emapper.py \\
+-i "${data.proteinFilePath}" \\
+-o "${data.outputName}" \\
+${data.taxScope ? `--tax_scope ${data.taxScope}` : ''} \\
+${data.cpu ? `--cpu ${data.cpu}` : ''} \\
+${data.itype ? `--itype ${data.itype}` : ''} \\
+${data.translate ? '--translate' : ''} \\
+${data.genepred ? `--genepred ${data.genepred}` : ''} \\
+${data.mode ? `-m ${data.mode}` : ''} \\
+${data.evalue ? `--evalue ${data.evalue}` : ''} \\
+${data.pident ? `--pident ${data.pident}` : ''} \\
+${data.noFileComments ? '--no_file_comments' : ''} \\
+${data.resume ? '--resume' : ''} \\
+${data.override ? '--override' : ''}`;
+
+            document.getElementById('eggNOGCommand').textContent = command;
+            document.getElementById('eggNOGCommandDisplay').classList.toggle('hidden');
+        });
+
+        document.getElementById('showBlastNCommandBtn').addEventListener('click', function() {
+            const form = document.getElementById('blastnForm');
+            const databaseType = form.databaseType.value;
+            
+            const data = {
+                queryFilePath: form.queryFilePath.value.trim(),
+                database: databaseType === 'custom' ? 
+                    form.customDatabase.value.trim() : 
+                    form.predefinedDatabase.value.trim(),
+                evalue_blastn: form.evalue_blastn.value.trim(),
+                wordSize: form.wordSize.value.trim(),
+                numThreads: form.numThreads.value.trim(),
+                outfmt: form.outfmt.value.trim(),
+                out_blastn: form.out_blastn.value.trim(),
+                remote_blastn: form.remote_blastn.checked
+            };
+
+            const command = `blastn \\
+-query "${data.queryFilePath}" \\
+-db "${data.database}" \\
+-out "${data.out_blastn}" \\
+-evalue ${data.evalue_blastn} \\
+-word_size ${data.wordSize} \\
+-num_threads ${data.numThreads} \\
+-outfmt ${data.outfmt} \\
+${data.remote_blastn ? '-remote' : ''}`;
+
+            document.getElementById('blastnCommand').textContent = command;
+            document.getElementById('blastnCommandDisplay').classList.toggle('hidden');
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar el explorador para usar la categoría 'results' y subcategoría 'analysis' por defecto
+            if (window.FileExplorer) {
+                window.FileExplorer.navigateTo('results', 'analysis');
+            }
+        });
+    </script>
+</body>
+
+<%- include('partials/footer') %>

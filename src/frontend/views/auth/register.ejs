@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FungiGT - Registro</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #28a745;
+            --secondary-color: #1d8e3a;
+            --dark-color: #215c33;
+            --light-color: #e6f7e9;
+            --danger-color: #dc3545;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .auth-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            border-radius: 0.5rem;
+            background-color: #fff;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-header img {
+            max-width: 180px;
+            margin-bottom: 1rem;
+        }
+
+        .auth-title {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-subtitle {
+            color: #6c757d;
+            font-size: 1rem;
+        }
+
+        .auth-form .form-control {
+            height: 50px;
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+        }
+
+        .auth-form .form-control:focus {
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+            border-color: var(--primary-color);
+        }
+
+        .auth-btn {
+            width: 100%;
+            height: 50px;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .auth-btn:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .auth-links {
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+
+        .auth-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .auth-links a:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
+
+        .auth-separator {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 1.5rem 0;
+            color: #6c757d;
+        }
+
+        .auth-separator::before,
+        .auth-separator::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #ced4da;
+        }
+
+        .auth-separator::before {
+            margin-right: 1rem;
+        }
+
+        .auth-separator::after {
+            margin-left: 1rem;
+        }
+
+        .auth-alert {
+            display: none;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-password {
+            cursor: pointer;
+            position: absolute;
+            right: 10px;
+            top: 15px;
+            color: #6c757d;
+        }
+
+        .input-group-text {
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+        }
+
+        .form-floating label {
+            color: #6c757d;
+        }
+
+        .password-strength {
+            height: 5px;
+            margin-top: 5px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .password-requirements {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .requirement {
+            display: flex;
+            align-items: center;
+            margin-bottom: 3px;
+        }
+
+        .requirement i {
+            margin-right: 5px;
+            font-size: 0.8rem;
+        }
+
+        .requirement-met {
+            color: var(--success-color);
+        }
+
+        .requirement-unmet {
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <div class="auth-container my-4">
+            <div class="auth-header">
+                <img src="/img/logo.png" alt="FungiGT Logo" class="img-fluid">
+                <h1 class="auth-title">Crear cuenta</h1>
+                <p class="auth-subtitle">Únete a la comunidad de FungiGT</p>
+            </div>
+
+            <div class="alert alert-danger auth-alert" id="errorAlert" role="alert"></div>
+            
+            <form class="auth-form" id="registerForm">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="firstName" placeholder="Nombre" required>
+                            <label for="firstName"><i class="fas fa-user me-2"></i>Nombre</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="lastName" placeholder="Apellido" required>
+                            <label for="lastName"><i class="fas fa-user me-2"></i>Apellido</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="username" placeholder="Nombre de usuario" required>
+                        <label for="username"><i class="fas fa-user-tag me-2"></i>Nombre de usuario</label>
+                    </div>
+                    <small class="text-muted">Este será tu identificador único en la plataforma</small>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="form-floating">
+                        <input type="email" class="form-control" id="email" placeholder="correo@ejemplo.com" required>
+                        <label for="email"><i class="fas fa-envelope me-2"></i>Correo electrónico</label>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="form-floating position-relative">
+                        <input type="password" class="form-control" id="password" placeholder="Contraseña" required minlength="6">
+                        <label for="password"><i class="fas fa-lock me-2"></i>Contraseña</label>
+                        <span class="toggle-password" onclick="togglePasswordVisibility('password', 'toggleIcon')">
+                            <i class="fas fa-eye" id="toggleIcon"></i>
+                        </span>
+                    </div>
+                    <div class="password-strength" id="passwordStrength"></div>
+                    
+                    <div class="password-requirements mt-2">
+                        <div class="requirement" id="lengthReq">
+                            <i class="fas fa-circle requirement-unmet"></i>
+                            <span>Mínimo 6 caracteres</span>
+                        </div>
+                        <div class="requirement" id="upperReq">
+                            <i class="fas fa-circle requirement-unmet"></i>
+                            <span>Al menos una mayúscula</span>
+                        </div>
+                        <div class="requirement" id="lowerReq">
+                            <i class="fas fa-circle requirement-unmet"></i>
+                            <span>Al menos una minúscula</span>
+                        </div>
+                        <div class="requirement" id="numberReq">
+                            <i class="fas fa-circle requirement-unmet"></i>
+                            <span>Al menos un número</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="form-floating position-relative">
+                        <input type="password" class="form-control" id="confirmPassword" placeholder="Confirmar contraseña" required>
+                        <label for="confirmPassword"><i class="fas fa-lock me-2"></i>Confirmar contraseña</label>
+                        <span class="toggle-password" onclick="togglePasswordVisibility('confirmPassword', 'toggleConfirmIcon')">
+                            <i class="fas fa-eye" id="toggleConfirmIcon"></i>
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="termsCheck" required>
+                    <label class="form-check-label" for="termsCheck">
+                        Acepto los <a href="#" target="_blank">términos y condiciones</a> y la <a href="#" target="_blank">política de privacidad</a>
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary auth-btn" id="registerButton">
+                    <span id="registerButtonText">Crear cuenta</span>
+                    <span id="registerSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+                </button>
+            </form>
+            
+            <div class="auth-separator">o</div>
+            
+            <div class="mb-3">
+                <a href="/auth/login" class="btn btn-outline-secondary w-100">
+                    <i class="fas fa-sign-in-alt me-2"></i>Ya tengo una cuenta
+                </a>
+            </div>
+            
+            <div class="auth-links">
+                <small>¿Tienes problemas para registrarte? <a href="#">Contacta al soporte</a></small>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function togglePasswordVisibility(inputId, iconId) {
+            const passwordInput = document.getElementById(inputId);
+            const toggleIcon = document.getElementById(iconId);
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        // Verificar fuerza de contraseña
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const strength = document.getElementById('passwordStrength');
+            const lengthReq = document.getElementById('lengthReq').querySelector('i');
+            const upperReq = document.getElementById('upperReq').querySelector('i');
+            const lowerReq = document.getElementById('lowerReq').querySelector('i');
+            const numberReq = document.getElementById('numberReq').querySelector('i');
+            
+            // Verificar requisitos
+            const hasLength = password.length >= 6;
+            const hasUpper = /[A-Z]/.test(password);
+            const hasLower = /[a-z]/.test(password);
+            const hasNumber = /[0-9]/.test(password);
+            
+            // Actualizar indicadores visuales
+            updateRequirement(lengthReq, hasLength);
+            updateRequirement(upperReq, hasUpper);
+            updateRequirement(lowerReq, hasLower);
+            updateRequirement(numberReq, hasNumber);
+            
+            // Calcular fuerza
+            let strengthValue = 0;
+            if (hasLength) strengthValue += 25;
+            if (hasUpper) strengthValue += 25;
+            if (hasLower) strengthValue += 25;
+            if (hasNumber) strengthValue += 25;
+            
+            // Actualizar barra de fuerza
+            strength.style.width = strengthValue + '%';
+            
+            // Actualizar color según fuerza
+            if (strengthValue <= 25) {
+                strength.style.backgroundColor = '#dc3545'; // Rojo - Débil
+            } else if (strengthValue <= 50) {
+                strength.style.backgroundColor = '#ffc107'; // Amarillo - Media
+            } else if (strengthValue <= 75) {
+                strength.style.backgroundColor = '#fd7e14'; // Naranja - Buena
+            } else {
+                strength.style.backgroundColor = '#28a745'; // Verde - Fuerte
+            }
+        });
+
+        function updateRequirement(element, isMet) {
+            if (isMet) {
+                element.classList.remove('fa-circle', 'requirement-unmet');
+                element.classList.add('fa-check-circle', 'requirement-met');
+            } else {
+                element.classList.remove('fa-check-circle', 'requirement-met');
+                element.classList.add('fa-circle', 'requirement-unmet');
+            }
+        }
+
+        // Validar que las contraseñas coincidan
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+            
+            if (password === confirmPassword) {
+                this.setCustomValidity('');
+            } else {
+                this.setCustomValidity('Las contraseñas no coinciden');
+            }
+        });
+
+        // Manejar envío del formulario
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                document.getElementById('errorAlert').innerText = 'Las contraseñas no coinciden';
+                document.getElementById('errorAlert').style.display = 'block';
+                return;
+            }
+            
+            const registerButton = document.getElementById('registerButton');
+            const registerButtonText = document.getElementById('registerButtonText');
+            const registerSpinner = document.getElementById('registerSpinner');
+            const errorAlert = document.getElementById('errorAlert');
+            
+            // Deshabilitar botón y mostrar spinner
+            registerButton.disabled = true;
+            registerButtonText.innerText = 'Creando cuenta';
+            registerSpinner.classList.remove('d-none');
+            errorAlert.style.display = 'none';
+            
+            try {
+                console.log('Enviando datos de registro:', {
+                    firstName, lastName, username, email, password: '********'
+                });
+
+                const response = await fetch('http://localhost:4001/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        firstName,
+                        lastName,
+                        username,
+                        email,
+                        password
+                    })
+                });
+                
+                let data;
+                const responseText = await response.text();
+                console.log('Respuesta del servidor (texto):', responseText);
+                
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    console.error('Error parseando respuesta:', e);
+                    throw new Error('Respuesta no válida del servidor');
+                }
+                
+                if (!response.ok) {
+                    console.error('Error en la respuesta:', data);
+                    throw new Error(data.error || 'Error al registrar la cuenta');
+                }
+                
+                // Guardar token en sessionStorage
+                sessionStorage.setItem('authToken', data.token);
+                sessionStorage.setItem('refreshToken', data.refreshToken);
+                sessionStorage.setItem('user', JSON.stringify(data.user));
+                
+                // Redireccionar a la página de confirmación
+                window.location.href = '/annotator';
+                
+            } catch (error) {
+                console.error('Error completo:', error);
+                errorAlert.innerText = error.message || 'Error desconocido';
+                errorAlert.style.display = 'block';
+                
+                // Resetear botón
+                registerButton.disabled = false;
+                registerButtonText.innerText = 'Crear cuenta';
+                registerSpinner.classList.add('d-none');
+            }
+        });
+    </script>
+</body>
+</html> 

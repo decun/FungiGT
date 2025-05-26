@@ -1,0 +1,1693 @@
+<%- include('partials/header') %>
+
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <main class="flex-grow p-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row gap-6">
+                <!-- Panel lateral: Explorador de archivos -->
+                <div class="w-full md:w-1/3 lg:w-1/4">
+                    <%- include('partials/file-explorer') %>
+                </div>
+                
+                <!-- Panel principal -->
+                <div class="w-full md:w-2/3 lg:w-3/4">
+                    <h2 class="text-3xl font-bold mb-8 flex items-center text-gray-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5h6m-6 4h6m-7 4h8m-8 4h8M7 5h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2z" />
+                        </svg>
+                        Anotador de Genomas y Control de Calidad
+                    </h2>
+
+                    <!-- Selector para elegir entre BRAKER3, CheckM, o ambas -->
+                    <div class="bg-white p-6 rounded-xl shadow-lg mb-8 border border-gray-200">
+                        <h3 class="text-xl font-semibold mb-4 flex items-center text-gray-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+                            </svg>
+                            Seleccionar Herramienta
+                        </h3>
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                                Elige la herramienta que deseas utilizar:
+                            </label>
+                            <select id="toolSelector" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                <option value="checkm">CheckM - Control de Calidad</option>
+                                <option value="braker3">BRAKER3 - Anotación de Genes</option>
+                                <option value="both">Ambas Herramientas</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Configuración de CheckM -->
+                    <div id="checkMConfig" class="bg-white p-8 rounded-xl shadow-lg mb-8 border border-gray-200" style="display:none;">
+                        <div class="border-l-4 border-green-500 pl-6 mb-6">
+                            <h3 class="text-2xl font-semibold mb-2 flex items-center text-gray-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                                Configuración de CheckM
+                        </h3>
+                            <p class="text-gray-600 text-sm">Herramienta para evaluar la calidad y completitud de genomas</p>
+                        </div>
+                        
+                        <form id="checkMForm" class="space-y-6">
+                            <!-- Configuración Principal -->
+                            <div class="bg-gray-50 p-6 rounded-lg">
+                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Configuración Principal</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Tipo de Workflow
+                                    </label>
+                                        <select id="workflowType" name="workflowType" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
+                                        <option value="lineage_wf">Lineage Workflow</option>
+                                        <option value="taxonomy_wf">Taxonomy Workflow</option>
+                                        <option value="qa">Quality Assessment</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Número de Hilos (-t)
+                                    </label>
+                                        <input type="number" id="threadsCheckM" name="threads" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" 
+                                               min="1" max="32" value="8" required />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Extensión de Archivo (-x)
+                                    </label>
+                                        <input type="text" id="fileExtensionCheckM" name="fileExtension" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-600" 
+                                               value="fna" readonly />
+                                </div>
+                                </div>
+                            </div>
+
+                            <!-- Configuración de Rutas -->
+                            <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
+                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Configuración de Rutas</h4>
+                                <div class="grid grid-cols-1 gap-6">
+                                <div>
+                                        <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                        Ruta de entrada (carpeta con genomas)
+                                            <div class="relative ml-2 group">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                                                    <div class="text-center">
+                                                        <div class="font-semibold mb-1">Formato para CheckM:</div>
+                                                        <div>Windows: C:\ruta\completa\carpeta</div>
+                                                        <div>Linux/Mac: /ruta/completa/carpeta</div>
+                                                        <div class="mt-1 text-yellow-300">Ejemplo: C:\Memoriacosas\FungiGT\data\raw\genomes</div>
+                                                    </div>
+                                                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                                </div>
+                                            </div>
+                                    </label>
+                                    <input type="text" id="checkMInputFolderPath" name="inputFolderPath" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                               value="C:\Memoriacosas\FungiGT\data\raw\genomes" 
+                                               placeholder="Ej: C:\Memoriacosas\FungiGT\data\raw\genomes" />
+                                        <p class="text-xs text-gray-500 mt-1">Los genomas serán tomados de esta carpeta</p>
+                                </div>
+                                <div>
+                                        <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                        Ruta de salida (resultados)
+                                            <div class="relative ml-2 group">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                                                    <div class="text-center">
+                                                        <div class="font-semibold mb-1">Formato para CheckM:</div>
+                                                        <div>Windows: C:\ruta\completa\carpeta</div>
+                                                        <div>Linux/Mac: /ruta/completa/carpeta</div>
+                                                        <div class="mt-1 text-yellow-300">Los resultados se guardarán aquí</div>
+                                                    </div>
+                                                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                                </div>
+                                            </div>
+                                    </label>
+                                    <input type="text" id="checkMOutputFolderPath" name="outputFolderPath" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                               value="C:\Memoriacosas\FungiGT\data\results\quality_control" 
+                                               placeholder="Ej: C:\Memoriacosas\FungiGT\data\results\quality_control" />
+                                </div>
+                            </div>
+                                    </div>
+
+                            <!-- Flags Adicionales -->
+                            <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
+                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Opciones Avanzadas</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                        <input type="checkbox" id="flagReduce" name="flagsCheckM" value="--reduced_tree" 
+                                               class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                        <label for="flagReduce" class="ml-3 text-sm text-gray-700 font-medium">--reduced_tree</label>
+                                    </div>
+                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                        <input type="checkbox" id="flagQuiet" name="flagsCheckM" value="--quiet" 
+                                               class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                        <label for="flagQuiet" class="ml-3 text-sm text-gray-700 font-medium">--quiet</label>
+                                    </div>
+                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                        <input type="checkbox" id="flagTab" name="flagsCheckM" value="--tab_table" 
+                                               class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                        <label for="flagTab" class="ml-3 text-sm text-gray-700 font-medium">--tab_table</label>
+                                </div>
+                            </div>
+                            </div>
+
+                            <!-- Subida de Archivos -->
+                            <div class="bg-green-50 p-6 rounded-lg border border-green-200">
+                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Subir Archivos</h4>
+                                <div class="space-y-4">
+                                    <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Subir archivos .fna a la carpeta de entrada
+                                </label>
+                                        <input type="file" id="fnaFilesCheckM" name="fnaFiles" multiple accept=".fna" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100" />
+                                    </div>
+                                    <button type="button" id="uploadCheckMButton" 
+                                            class="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                    Subir Archivos
+                                </button>
+                            </div>
+                                </div>
+
+                            <!-- Botones de Acción -->
+                            <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                                <button type="button" id="showCommandBtn" 
+                                        class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors font-medium">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5-6h3" />
+                                    </svg>
+                                    Mostrar Comando
+                                </button>
+                                <button type="submit" 
+                                        class="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors font-medium">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m-9-4V8a2 2 0 012-2h8a2 2 0 012 2v2M7 16h10" />
+                                    </svg>
+                                    Ejecutar CheckM
+                                </button>
+                            </div>
+                            
+                            <div id="commandDisplay" class="mt-4 p-4 bg-gray-100 rounded-lg hidden">
+                                <h5 class="font-semibold text-gray-800 mb-2">Comando Docker:</h5>
+                                <pre id="dockerCommand" class="text-sm text-gray-800 whitespace-pre-wrap bg-white p-3 rounded border"></pre>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Configuración de BRAKER3 -->
+                    <div id="braker3Config" class="bg-white p-8 rounded-xl shadow-lg mb-8 border border-gray-200" style="display:none;">
+                        <div class="border-l-4 border-purple-500 pl-6 mb-6">
+                            <h3 class="text-2xl font-semibold mb-2 flex items-center text-gray-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 7.172V5L8 4z" />
+                            </svg>
+                                Configuración de BRAKER3
+                        </h3>
+                            <p class="text-gray-600 text-sm">Herramienta para anotación automática de genes en genomas eucariotas</p>
+                        </div>
+                        
+                        <form id="braker3Form" class="space-y-6">
+                            <!-- Configuración Principal -->
+                            <div class="bg-gray-50 p-6 rounded-lg">
+                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Configuración Principal</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Especie (--species) *
+                                    </label>
+                                        <input type="text" id="brakerSpecies" name="species" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                               placeholder="Ej: Aspergillus_fumigatus" required />
+                                        <p class="text-xs text-gray-500 mt-1">Nombre de la especie (sin espacios)</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Archivo del Genoma (--genome) *
+                                    </label>
+                                        <input type="text" id="brakerGenomeFile" name="genome" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                               placeholder="Ej: genome.fna" required />
+                                        <p class="text-xs text-gray-500 mt-1">Nombre del archivo del genoma</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Archivo BAM (--bam) <span class="text-gray-400 italic">(Opcional)</span>
+                                    </label>
+                                        <input type="text" id="brakerBamFile" name="bam" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                               placeholder="Ej: sample.bam" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Archivo de Proteínas (--prot_seq) <span class="text-gray-400 italic">(Opcional)</span>
+                                    </label>
+                                        <input type="text" id="brakerProtSeqFile" name="prot_seq" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                               placeholder="Ej: proteins.faa" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Número de Hilos (--threads) *
+                                    </label>
+                                        <input type="number" id="brakerThreads" name="threads" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                               min="1" max="32" value="4" required />
+                                </div>
+                                </div>
+                            </div>
+
+                            <!-- Configuración de Rutas -->
+                            <div class="bg-purple-50 p-6 rounded-lg border border-purple-200">
+                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Configuración de Rutas</h4>
+                                <div class="grid grid-cols-1 gap-6">
+                                <div>
+                                        <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                            Ruta Completa de la Carpeta de Entrada *
+                                            <div class="relative ml-2 group">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                                                    <div class="text-center">
+                                                        <div class="font-semibold mb-1">Formato para BRAKER3:</div>
+                                                        <div>Windows: C:/ruta/completa/carpeta</div>
+                                                        <div>Linux/Mac: /ruta/completa/carpeta</div>
+                                                        <div class="mt-1 text-yellow-300">¡Usar "/" en lugar de "\" para Windows!</div>
+                                                        <div class="text-yellow-300">Ejemplo: C:/Memoriacosas/FungiGT/data/raw/genomes</div>
+                                                    </div>
+                                                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                                </div>
+                                            </div>
+                                    </label>
+                                        <input type="text" id="braker3InputFolderPath" name="inputFolderPath" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                               placeholder="Ej: C:/Memoriacosas/FungiGT/data/raw/genomes" required />
+                                        <p class="text-xs text-gray-500 mt-1">Carpeta que contiene los archivos de entrada</p>
+                                </div>
+                                <div>
+                                        <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                            Ruta Completa de la Carpeta de Salida *
+                                            <div class="relative ml-2 group">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                                                    <div class="text-center">
+                                                        <div class="font-semibold mb-1">Formato para BRAKER3:</div>
+                                                        <div>Windows: C:/ruta/completa/carpeta</div>
+                                                        <div>Linux/Mac: /ruta/completa/carpeta</div>
+                                                        <div class="mt-1 text-yellow-300">Los resultados se guardarán aquí</div>
+                                </div>
+                                                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                            </div>
+                                            </div>
+                                </label>
+                                        <input type="text" id="braker3OutputFolderPath" name="outputFolderPath" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                               placeholder="Ej: C:/Memoriacosas/FungiGT/data/results/annotation" required />
+                                    </div>
+                                    </div>
+                                    </div>
+
+                            <!-- Flags Adicionales -->
+                            <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
+                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Opciones Avanzadas</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                        <input type="checkbox" id="brakerSoftmasking" name="flagsBRAKER3" value="--softmasking" 
+                                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                        <label for="brakerSoftmasking" class="ml-3 text-sm text-gray-700 font-medium">--softmasking</label>
+                                    </div>
+                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                        <input type="checkbox" id="brakerGff3" name="flagsBRAKER3" value="--gff3" 
+                                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                        <label for="brakerGff3" class="ml-3 text-sm text-gray-700 font-medium">--gff3</label>
+                                    </div>
+                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                        <input type="checkbox" id="brakerFungus" name="flagsBRAKER3" value="--fungus" 
+                                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                        <label for="brakerFungus" class="ml-3 text-sm text-gray-700 font-medium">--fungus</label>
+                                    </div>
+                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                        <input type="checkbox" id="brakerKeepCrf" name="flagsBRAKER3" value="--keepCrf" 
+                                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                        <label for="brakerKeepCrf" class="ml-3 text-sm text-gray-700 font-medium">--keepCrf</label>
+                                </div>
+                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                        <input type="checkbox" id="brakerMakehub" name="flagsBRAKER3" value="--makehub" 
+                                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                        <label for="brakerMakehub" class="ml-3 text-sm text-gray-700 font-medium">--makehub</label>
+                            </div>
+                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                        <input type="checkbox" id="brakerUseExisting" name="flagsBRAKER3" value="--useexisting" 
+                                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                        <label for="brakerUseExisting" class="ml-3 text-sm text-gray-700 font-medium">--useexisting</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Subida de Archivos -->
+                            <div class="bg-purple-50 p-6 rounded-lg border border-purple-200">
+                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Subir Archivos</h4>
+                                <div class="space-y-4">
+                                    <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Subir archivos a la carpeta de entrada
+                                </label>
+                                        <input type="file" id="fnaFilesBRAKER3" name="fnaFiles" multiple accept=".fna,.faa,.bam" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100" />
+                                    </div>
+                                    <button type="button" id="uploadBRAKER3Button" 
+                                            class="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                    Subir Archivos
+                                </button>
+                            </div>
+                                </div>
+
+                            <!-- Botones de Acción -->
+                            <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                                <button type="button" id="showBraker3CommandBtn" 
+                                        class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors font-medium">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5-6h3" />
+                                    </svg>
+                                    Mostrar Comando
+                                </button>
+                                <button type="submit" 
+                                        class="flex-1 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors font-medium">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m-9-4V8a2 2 0 012-2h8a2 2 0 012 2v2M7 16h10" />
+                                </svg>
+                                Ejecutar BRAKER3
+                            </button>
+                    </div>
+
+                            <div id="braker3CommandDisplay" class="mt-4 p-4 bg-gray-100 rounded-lg hidden">
+                                <h5 class="font-semibold text-gray-800 mb-2">Comando Docker:</h5>
+                                <pre id="braker3DockerCommand" class="text-sm text-gray-800 whitespace-pre-wrap bg-white p-3 rounded border"></pre>
+                            </div>
+                        </form>
+                    </div>
+
+
+                    <!-- Estado de Análisis -->
+                    <div class="bg-white p-6 rounded-xl shadow-lg mb-8 border border-gray-200">
+                        <h3 class="text-xl font-semibold mb-6 flex items-center text-gray-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                            Estado de Anotaciones y Análisis de Calidad
+                        </h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo de Análisis</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progreso</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="annotationsTable" class="bg-white divide-y divide-gray-200">
+                                    <!-- Anotaciones se añadirán dinámicamente aquí -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-auto">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-sm">© 2024 FungiTG. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Modal para nueva carpeta -->
+    <div id="newFolderModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
+            <h3 class="text-lg font-semibold mb-4">Crear Nueva Carpeta</h3>
+            <input type="text" id="newFolderName" class="w-full p-2 border rounded-md mb-4" placeholder="Nombre de la carpeta">
+            <div class="flex justify-end space-x-2">
+                <button id="cancelNewFolder" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400">
+                    Cancelar
+                </button>
+                <button id="createNewFolder" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                    Crear
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Funciones generales
+
+        // Función para actualizar el comando Docker
+        function updateDockerCommand(command) {
+            document.getElementById('dockerCommand').textContent = command;
+        }
+
+        // Función para agregar análisis a la tabla
+        function addAnalysisToTable(analysis) {
+            const table = document.getElementById('annotationsTable');
+            const row = table.insertRow();
+            const uniqueId = Date.now(); // Generar un ID único basado en el timestamp
+
+            row.setAttribute('data-id', uniqueId); // Asignar el ID único al atributo data-id
+
+            row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap">${analysis.type}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                        ${analysis.status}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="w-full bg-gray-200 rounded-full h-4">
+                        <div id="progressBar-${uniqueId}" class="bg-green-600 h-4 rounded-full" style="width: 0%;"></div>
+                    </div>
+                    <span id="progressText-${uniqueId}" class="text-xs text-gray-700">${analysis.progress}</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap" id="actions-${uniqueId}"></td>
+            `;
+            return uniqueId; // Devolver el ID único para uso posterior
+        }
+
+        // Función para iniciar la conexión SSE y monitorear el progreso
+        function monitorCheckMProgress(uniqueId) {
+            // Cerrar cualquier EventSource existente
+            if (window.progressSource) {
+                window.progressSource.close();
+            }
+            
+            // Crear un nuevo EventSource
+            window.progressSource = new EventSource('http://localhost:3003/checkm-progress-stream');
+            
+            // Elemento para logs
+            const logsContainer = document.createElement('div');
+            logsContainer.classList.add('logs-container', 'mt-4', 'p-2', 'bg-gray-100', 'rounded', 'text-xs', 'font-mono', 'max-h-40', 'overflow-y-auto');
+            document.getElementById(`progressText-${uniqueId}`).parentNode.appendChild(logsContainer);
+            
+            // Contador para limitar la cantidad de logs mostrados
+            let logCount = 0;
+            const MAX_LOGS = 10;
+            
+            // Manejar eventos recibidos
+            window.progressSource.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                
+                // Actualizar la barra de progreso
+                const progressBar = document.getElementById(`progressBar-${uniqueId}`);
+                progressBar.style.width = `${data.progress}%`;
+                
+                // Actualizar el texto de progreso
+                const progressText = document.getElementById(`progressText-${uniqueId}`);
+                progressText.textContent = `${data.progress}%`;
+                
+                // Actualizar el estado
+                const statusCell = progressText.closest('tr').querySelector('td:nth-child(2) span');
+                if (data.progress < 10) {
+                    statusCell.textContent = 'Procesando';
+                    statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800';
+                } else {
+                    statusCell.textContent = 'Ejecutando CheckM';
+                    statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800';
+                }
+                
+                // Mostrar los últimos logs
+                if (data.logs && data.logs.length > 0) {
+                    // Limpiar el contenedor de logs si hay demasiados
+                    if (logsContainer.children.length > 15) {
+                        while (logsContainer.children.length > 10) {
+                            logsContainer.removeChild(logsContainer.firstChild);
+                        }
+                    }
+                    
+                    for (const log of data.logs) {
+                        // Evitar duplicados comparando con el último log mostrado
+                        const lastLog = logsContainer.lastChild ? logsContainer.lastChild.textContent : '';
+                        if (lastLog === log.text) continue;
+                        
+                        const logElement = document.createElement('div');
+                        
+                        // Asignar clase según el tipo de log
+                        switch(log.type) {
+                            case 'info':
+                                logElement.className = 'text-blue-600 py-1';
+                                break;
+                            case 'progress':
+                                logElement.className = 'text-green-600 py-1';
+                                break;
+                            case 'error':
+                                logElement.className = 'text-red-600 font-bold py-1';
+                                break;
+                            case 'success':
+                                logElement.className = 'text-green-600 font-bold py-1';
+                                break;
+                            case 'time':
+                                logElement.className = 'text-gray-500 italic text-xs py-1';
+                                break;
+                            default:
+                                logElement.className = 'text-gray-600 py-1';
+                        }
+                        
+                        logElement.textContent = log.text;
+                        logsContainer.appendChild(logElement);
+                        
+                        // Auto-scroll hacia abajo
+                        logsContainer.scrollTop = logsContainer.scrollHeight;
+                    }
+                }
+                
+                // Y asegurémonos de que la conexión se cierre correctamente cuando llegue a 100%
+                if (data.progress >= 100) {
+                    console.log('Proceso CheckM completado al 100%, cerrando conexión SSE');
+                    window.progressSource.close();
+                    window.progressSource = null;
+                    
+                    // Actualizar estado y mostrar botones...
+                    statusCell.textContent = 'Completado';
+                    statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800';
+                    
+                    // Agregar botones de acción
+                    const actionsCell = document.getElementById(`actions-${uniqueId}`);
+                    const outputFolder = document.getElementById('checkMOutputFolderPath').value;
+                    actionsCell.innerHTML = `
+                        <div class="flex space-x-2">
+                            <button class="view-results-btn bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs" data-output="${outputFolder}">
+                                Ver resultados
+                            </button>
+                            <button class="download-results-btn bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs" data-output="${outputFolder}">
+                                Descargar
+                            </button>
+                        </div>
+                    `;
+                    
+                    // Agregar event listeners a los nuevos botones
+                    actionsCell.querySelector('.view-results-btn').addEventListener('click', function() {
+                        window.open(`http://localhost:3003/results?path=${encodeURIComponent(outputFolder)}`, '_blank');
+                    });
+                    
+                    actionsCell.querySelector('.download-results-btn').addEventListener('click', function() {
+                        window.location.href = `http://localhost:3003/download?path=${encodeURIComponent(outputFolder)}`;
+                    });
+                }
+            };
+            
+            // Manejar errores
+            window.progressSource.onerror = function(error) {
+                console.error('Error en la conexión SSE:', error);
+                window.progressSource.close();
+            };
+        }
+
+        // Función para iniciar la conexión SSE y monitorear el progreso de BRAKER3
+        function monitorBraker3Progress(uniqueId) {
+            // Cerrar cualquier EventSource existente
+            if (window.braker3ProgressSource) {
+                window.braker3ProgressSource.close();
+            }
+            
+            // Crear un nuevo EventSource para BRAKER3
+            window.braker3ProgressSource = new EventSource('http://localhost:3004/braker3-progress-stream');
+            
+            // Elemento para logs
+            const logsContainer = document.createElement('div');
+            logsContainer.classList.add('logs-container', 'mt-4', 'p-2', 'bg-gray-100', 'rounded', 'text-xs', 'font-mono', 'max-h-40', 'overflow-y-auto');
+            document.getElementById(`progressText-${uniqueId}`).parentNode.appendChild(logsContainer);
+            
+            // Manejar eventos recibidos
+            window.braker3ProgressSource.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                
+                // Actualizar la barra de progreso
+                const progressBar = document.getElementById(`progressBar-${uniqueId}`);
+                progressBar.style.width = `${data.progress}%`;
+                
+                // Actualizar el texto de progreso
+                const progressText = document.getElementById(`progressText-${uniqueId}`);
+                progressText.textContent = `${data.progress}%`;
+                
+                // Actualizar el estado
+                const statusCell = progressText.closest('tr').querySelector('td:nth-child(2) span');
+                if (data.progress < 10) {
+                    statusCell.textContent = 'Iniciando';
+                    statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800';
+                } else if (data.progress < 50) {
+                    statusCell.textContent = 'Preparando genoma';
+                    statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800';
+                } else if (data.progress < 80) {
+                    statusCell.textContent = 'Ejecutando BRAKER3';
+                    statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800';
+                } else {
+                    statusCell.textContent = 'Finalizando';
+                    statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800';
+                }
+                
+                // Mostrar los últimos logs
+                if (data.logs && data.logs.length > 0) {
+                    // Limpiar el contenedor de logs si hay demasiados
+                    if (logsContainer.children.length > 15) {
+                        while (logsContainer.children.length > 10) {
+                            logsContainer.removeChild(logsContainer.firstChild);
+                        }
+                    }
+                    
+                    for (const log of data.logs) {
+                        // Evitar duplicados comparando con el último log mostrado
+                        const lastLog = logsContainer.lastChild ? logsContainer.lastChild.textContent : '';
+                        if (lastLog === log.text) continue;
+                        
+                        const logElement = document.createElement('div');
+                        
+                        // Asignar clase según el tipo de log
+                        switch(log.type) {
+                            case 'info':
+                                logElement.className = 'text-blue-600 py-1';
+                                break;
+                            case 'progress':
+                                logElement.className = 'text-green-600 py-1';
+                                break;
+                            case 'error':
+                                logElement.className = 'text-red-600 font-bold py-1';
+                                break;
+                            case 'success':
+                                logElement.className = 'text-green-600 font-bold py-1';
+                                break;
+                            case 'warning':
+                                logElement.className = 'text-yellow-600 py-1';
+                                break;
+                            default:
+                                logElement.className = 'text-gray-600 py-1';
+                        }
+                        
+                        logElement.textContent = log.text;
+                        logsContainer.appendChild(logElement);
+                        
+                        // Auto-scroll hacia abajo
+                        logsContainer.scrollTop = logsContainer.scrollHeight;
+                    }
+                }
+                
+                // Cerrar conexión cuando llegue a 100%
+                if (data.progress >= 100) {
+                    console.log('Proceso BRAKER3 completado al 100%, cerrando conexión SSE');
+                    window.braker3ProgressSource.close();
+                    window.braker3ProgressSource = null;
+                    
+                    // Actualizar estado y mostrar botones
+                    statusCell.textContent = 'Completado';
+                    statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800';
+                    
+                    // Agregar botones de acción
+                    const actionsCell = document.getElementById(`actions-${uniqueId}`);
+                    const outputFolder = document.getElementById('braker3OutputFolderPath').value;
+                    actionsCell.innerHTML = `
+                        <div class="flex space-x-2">
+                            <button class="view-results-btn bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs" data-output="${outputFolder}">
+                                Ver resultados
+                            </button>
+                            <button class="download-results-btn bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs" data-output="${outputFolder}">
+                                Descargar
+                            </button>
+                        </div>
+                    `;
+                    
+                    // Agregar event listeners a los nuevos botones
+                    actionsCell.querySelector('.view-results-btn').addEventListener('click', function() {
+                        window.open(`http://localhost:3004/results?path=${encodeURIComponent(outputFolder)}`, '_blank');
+                    });
+                    
+                    actionsCell.querySelector('.download-results-btn').addEventListener('click', function() {
+                        window.location.href = `http://localhost:3004/download?path=${encodeURIComponent(outputFolder)}`;
+                    });
+                }
+            };
+            
+            // Manejar errores
+            window.braker3ProgressSource.onerror = function(error) {
+                console.error('Error en la conexión SSE de BRAKER3:', error);
+                window.braker3ProgressSource.close();
+            };
+        }
+
+        // Manejo de la ejecución de CheckM
+        document.getElementById('checkMForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const workflowType = document.getElementById('workflowType').value;
+            const threads = document.getElementById('threadsCheckM').value;
+            const fileExtension = document.getElementById('fileExtensionCheckM').value;
+            
+            // Usar las rutas establecidas por el explorador de archivos
+            let inputFolder = document.getElementById('checkMInputFolderPath').value;
+            let outputFolder = document.getElementById('checkMOutputFolderPath').value;
+            
+            // Si no hay valores en los campos, usar las rutas predeterminadas
+            if (!inputFolder) {
+                inputFolder = "C:\\Memoriacosas\\FungiGT\\data\\raw\\genomes";
+                document.getElementById('checkMInputFolderPath').value = inputFolder;
+            }
+            
+            if (!outputFolder) {
+                outputFolder = "C:\\Memoriacosas\\FungiGT\\data\\results\\quality_control";
+                document.getElementById('checkMOutputFolderPath').value = outputFolder;
+            }
+            
+            const flags = Array.from(document.querySelectorAll('input[name="flagsCheckM"]:checked')).map(el => el.value).join(' ');
+            
+            // Construir el comando Docker
+            const command = `docker run --rm -v "${inputFolder}":/input -v "${outputFolder}":/output nanozoo/checkm:latest checkm ${workflowType} -t ${threads} -x ${fileExtension} ${flags} /input /output`;
+            
+            // Mostrar el comando en la interfaz
+            updateDockerCommand(command);
+            
+            // Añadir el análisis a la tabla
+            const uniqueId = addAnalysisToTable({
+                type: 'Control de Calidad (CheckM)',
+                status: 'Procesando',
+                progress: 0
+            });
+            
+            // Iniciar monitoreo en tiempo real
+            monitorCheckMProgress(uniqueId);
+            
+            // Enviar solicitud a la API
+            fetch('http://localhost:3003/execute-checkm', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    workflowType: workflowType,
+                    threads: threads,
+                    fileExtension: fileExtension,
+                    inputFolderPath: inputFolder,
+                    outputFolderPath: outputFolder,
+                    flags: flags
+                }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        console.error('Error response:', text);
+                        throw new Error(`Error HTTP: ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success CheckM:', data);
+                // No necesitamos hacer polling ya que estamos usando SSE
+            })
+            .catch((error) => {
+                console.error('Error CheckM:', error);
+                // Mostrar error en la interfaz
+                const statusCell = document.querySelector(`#progressText-${uniqueId}`).closest('tr').querySelector('td:nth-child(2) span');
+                statusCell.textContent = 'Error';
+                statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800';
+                
+                // Cerrar la conexión SSE
+                if (window.progressSource) {
+                    window.progressSource.close();
+                }
+            });
+        });
+
+        // Manejo de la ejecución de BRAKER3
+        document.getElementById('braker3Form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const species = document.getElementById('brakerSpecies').value;
+            const genome = document.getElementById('brakerGenomeFile').value;
+            const bam = document.getElementById('brakerBamFile').value;
+            const prot_seq = document.getElementById('brakerProtSeqFile').value;
+            const threads = document.getElementById('brakerThreads').value;
+            const inputFolder = document.getElementById('braker3InputFolderPath').value;
+            const outputFolder = document.getElementById('braker3OutputFolderPath').value;
+            const flags = Array.from(document.querySelectorAll('input[name="flagsBRAKER3"]:checked')).map(el => el.value).join(' ');
+
+            // Validación básica (BAM y prot_seq son opcionales)
+            if (!species || !genome || !threads || !inputFolder || !outputFolder) {
+                alert('Por favor, completa todos los campos obligatorios de BRAKER3.');
+                return;
+            }
+
+            // Datos para enviar
+            const data = {
+                species,
+                genome,
+                bam,
+                prot_seq,
+                threads,
+                flags,
+                inputFolderPath: inputFolder,
+                outputFolderPath: outputFolder
+            };
+
+            console.log('Request Data BRAKER3:', data);
+
+            // Construir el comando Docker de manera condicional
+            let command = `docker run --rm -v "${inputFolder}":/input -v "${outputFolder}":/output teambraker/braker3:latest braker.pl `;
+            command += `--species=${species} `;
+            command += `--genome=/input/${genome} `;
+            command += `--threads=${threads} `;
+
+            if (prot_seq && prot_seq.trim() !== '') {
+                command += `--prot_seq=/input/${prot_seq} `;
+            }
+
+            if (bam && bam.trim() !== '') {
+                command += `--bam=/input/${bam} `;
+            }
+
+            if (flags && flags.trim() !== '') {
+                command += `${flags} `;
+            }
+
+            command += `--workingdir=/output`;
+
+            updateDockerCommand(command);
+
+            const uniqueId = addAnalysisToTable({
+                type: 'Anotación (BRAKER3)',
+                status: 'Procesando',
+                progress: 0
+            });
+
+            // Iniciar monitoreo en tiempo real para BRAKER3
+            monitorBraker3Progress(uniqueId);
+
+            // Enviar solicitud a la API
+            fetch('http://localhost:3004/execute-braker3', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        console.error('Error response:', text);
+                        throw new Error(`Error HTTP: ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success BRAKER3:', data);
+                // No necesitamos hacer polling ya que estamos usando SSE
+            })
+            .catch((error) => {
+                console.error('Error BRAKER3:', error);
+                // Mostrar error en la interfaz
+                const statusCell = document.querySelector(`#progressText-${uniqueId}`).closest('tr').querySelector('td:nth-child(2) span');
+                statusCell.textContent = 'Error';
+                statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800';
+                
+                // Cerrar la conexión SSE
+                if (window.braker3ProgressSource) {
+                    window.braker3ProgressSource.close();
+                }
+                
+                alert('Error al ejecutar BRAKER3: ' + error.message);
+            });
+        });
+
+        // Función para subir archivos de CheckM
+        document.getElementById('uploadCheckMButton').addEventListener('click', function() {
+            const fnaFiles = document.getElementById('fnaFilesCheckM').files;
+            const inputFolder = document.getElementById('checkMInputFolderPath').value;
+            const outputFolder = document.getElementById('checkMOutputFolderPath').value;
+
+            if (fnaFiles.length === 0) {
+                alert('Selecciona al menos un archivo .fna para subir a CheckM');
+                return;
+            }
+
+            if (!inputFolder || !outputFolder) {
+                alert('Por favor, ingresa las rutas completas de las carpetas de entrada y salida para CheckM');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('inputFolderPath', inputFolder); // Usar el nombre correcto según server.js
+            formData.append('outputFolderPath', outputFolder); // Usar el nombre correcto según server.js
+            for (let i = 0; i < fnaFiles.length; i++) {
+                formData.append('fnaFiles', fnaFiles[i]);
+            }
+
+            fetch('http://localhost:3003/upload-checkm', { // Usar la ruta correcta según server.js
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        console.error('Error response:', text);
+                        throw new Error(`Error HTTP: ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Archivos CheckM subidos con éxito:', data);
+                alert('Archivos subidos con éxito para CheckM');
+            })
+            .catch(error => {
+                console.error('Error al subir archivos CheckM:', error);
+                alert('Error al subir archivos para CheckM: ' + error.message);
+            });
+        });
+
+        // Función para subir archivos de BRAKER3
+        document.getElementById('uploadBRAKER3Button').addEventListener('click', function() {
+            const fnaFiles = document.getElementById('fnaFilesBRAKER3').files;
+            const inputFolder = document.getElementById('braker3InputFolderPath').value;
+            const outputFolder = document.getElementById('braker3OutputFolderPath').value;
+
+            if (fnaFiles.length === 0) {
+                alert('Selecciona al menos un archivo .fna para subir a BRAKER3');
+                return;
+            }
+
+            if (!inputFolder || !outputFolder) {
+                alert('Por favor, ingresa las rutas completas de las carpetas de entrada y salida para BRAKER3');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('inputFolderPath', inputFolder); // Asegurarse de que el nombre coincide con el backend
+            formData.append('outputFolderPath', outputFolder); // Añadir carpeta de salida
+            for (let i = 0; i < fnaFiles.length; i++) {
+                formData.append('fnaFiles', fnaFiles[i]);
+            }
+
+            fetch('http://localhost:4/upload', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Archivos BRAKER3 subidos con éxito:', data);
+                alert('Archivos subidos con éxito para BRAKER3');
+            })
+            .catch(error => {
+                console.error('Error al subir archivos BRAKER3:', error);
+                alert('Error al subir archivos para BRAKER3');
+            });
+        });
+
+        // Selector de herramientas para mostrar/ocultar configuraciones
+        document.getElementById('toolSelector').addEventListener('change', function() {
+            const selectedTool = this.value;
+            const checkMConfig = document.getElementById('checkMConfig');
+            const braker3Config = document.getElementById('braker3Config');
+
+            if (selectedTool === 'checkm') {
+                checkMConfig.style.display = 'block';
+                braker3Config.style.display = 'none';
+            } else if (selectedTool === 'braker3') {
+                checkMConfig.style.display = 'none';
+                braker3Config.style.display = 'block';
+            } else if (selectedTool === 'both') {
+                checkMConfig.style.display = 'block';
+                braker3Config.style.display = 'block';
+            }
+        });
+
+        // Inicializar el comando Docker vacío
+        updateDockerCommand('Aún no se ha ejecutado ningún comando.');
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar el explorador para usar la categoría 'results' y subcategoría 'analysis/eggnog' por defecto
+            if (window.FileExplorer) {
+                window.FileExplorer.navigateTo('results', 'analysis/eggnog');
+            }
+            
+            // Aquí puedes agregar código para que al seleccionar un archivo en el explorador
+            // se pueda automáticamente establecer la ruta en los formularios correspondientes
+        });
+
+        // Añadir este código para mostrar el comando antes de ejecutarlo
+        document.getElementById('showCommandBtn').addEventListener('click', function() {
+            const workflowType = document.getElementById('workflowType').value;
+            const threads = document.getElementById('threadsCheckM').value;
+            const fileExtension = document.getElementById('fileExtensionCheckM').value;
+            const inputFolder = document.getElementById('checkMInputFolderPath').value;
+            const outputFolder = document.getElementById('checkMOutputFolderPath').value;
+            const flags = Array.from(document.querySelectorAll('input[name="flagsCheckM"]:checked')).map(el => el.value).join(' ');
+            
+            // Mostrar el comando Docker que se ejecutará
+            const command = `docker run --rm -v "${inputFolder}":/input -v "${outputFolder}":/output nanozoo/checkm:latest checkm ${workflowType} -t ${threads} -x ${fileExtension} ${flags} /input /output`;
+            
+            document.getElementById('dockerCommand').textContent = command;
+            document.getElementById('commandDisplay').classList.remove('hidden');
+        });
+
+        // Explorador de archivos mejorado
+        document.addEventListener('DOMContentLoaded', function() {
+            // Objeto para manejar el explorador de archivos
+            const FileExplorer = {
+                apiBaseUrl: 'http://localhost:3003',
+                currentInputCategory: 'raw',
+                currentInputSubcategory: 'genomes',
+                currentOutputCategory: 'results',
+                currentOutputSubcategory: 'quality_control',
+                selectedInputFiles: [],
+                selectedOutputFiles: [],
+                
+                // Mapeo de categorías a subcategorías
+                categoryMap: {
+                    raw: ['genomes'],
+                    intermediate: ['quality_filtered', 'annotated'],
+                    references: ['blast_db', 'checkm_db', 'eggnog_db'],
+                    results: ['quality_control', 'annotation', 'analysis/blastn', 'analysis/eggnog', 'genomes'],
+                    visualizations: []
+                },
+                
+                // Inicializar el explorador
+                init: function() {
+                    this.setupEventListeners();
+                    this.populateSubcategorySelectors();
+                    this.loadInputFiles();
+                    this.loadOutputFiles();
+                },
+                
+                // Configurar los listeners de eventos
+                setupEventListeners: function() {
+                    // Selectores de categoría y subcategoría para input
+                    document.getElementById('inputCategorySelector').addEventListener('change', (e) => {
+                        this.currentInputCategory = e.target.value;
+                        this.populateSubcategorySelector('input');
+                        this.loadInputFiles();
+                    });
+                    
+                    document.getElementById('inputSubcategorySelector').addEventListener('change', (e) => {
+                        this.currentInputSubcategory = e.target.value;
+                        this.loadInputFiles();
+                    });
+                    
+                    // Selectores de categoría y subcategoría para output
+                    document.getElementById('outputCategorySelector').addEventListener('change', (e) => {
+                        this.currentOutputCategory = e.target.value;
+                        this.populateSubcategorySelector('output');
+                        this.loadOutputFiles();
+                    });
+                    
+                    document.getElementById('outputSubcategorySelector').addEventListener('change', (e) => {
+                        this.currentOutputSubcategory = e.target.value;
+                        this.loadOutputFiles();
+                    });
+                    
+                    // Botones de actualización
+                    document.getElementById('refreshInputBtn').addEventListener('click', () => this.loadInputFiles());
+                    document.getElementById('refreshOutputBtn').addEventListener('click', () => this.loadOutputFiles());
+                    
+                    // Upload de archivos
+                    document.getElementById('inputFileUpload').addEventListener('change', (e) => this.handleFileUpload(e.target.files));
+                    
+                    // Botones de nueva carpeta
+                    document.getElementById('inputNewFolderBtn').addEventListener('click', () => this.showNewFolderModal('input'));
+                    document.getElementById('createNewFolder').addEventListener('click', () => this.createNewFolder());
+                    document.getElementById('cancelNewFolder').addEventListener('click', () => this.hideNewFolderModal());
+                    
+                    // Botones de acciones para archivos seleccionados
+                    document.getElementById('downloadSelectedBtn').addEventListener('click', () => this.downloadSelectedFiles());
+                    document.getElementById('viewSelectedBtn').addEventListener('click', () => this.viewSelectedFiles());
+                },
+                
+                // Poblar los selectores de subcategorías
+                populateSubcategorySelectors: function() {
+                    this.populateSubcategorySelector('input');
+                    this.populateSubcategorySelector('output');
+                },
+                
+                populateSubcategorySelector: function(type) {
+                    const category = type === 'input' ? this.currentInputCategory : this.currentOutputCategory;
+                    const selector = document.getElementById(`${type}SubcategorySelector`);
+                    
+                    // Limpiar opciones actuales
+                    selector.innerHTML = '';
+                    
+                    // Añadir nuevas opciones
+                    const subcategories = this.categoryMap[category] || [];
+                    subcategories.forEach(subcat => {
+                        const option = document.createElement('option');
+                        option.value = subcat;
+                        option.textContent = subcat.replace('/', ' / ');
+                        selector.appendChild(option);
+                    });
+                    
+                    // Actualizar la subcategoría actual
+                    if (type === 'input') {
+                        this.currentInputSubcategory = subcategories.length > 0 ? subcategories[0] : '';
+                    } else {
+                        this.currentOutputSubcategory = subcategories.length > 0 ? subcategories[0] : '';
+                    }
+                },
+                
+                // Cargar archivos
+                loadInputFiles: function() {
+                    this.loadFiles('input', this.currentInputCategory, this.currentInputSubcategory);
+                },
+                
+                loadOutputFiles: function() {
+                    this.loadFiles('output', this.currentOutputCategory, this.currentOutputSubcategory);
+                },
+                
+                loadFiles: function(type, category, subcategory) {
+                    const filesContainer = document.getElementById(`${type}FilesList`);
+                    filesContainer.innerHTML = '<p class="text-gray-500 text-sm italic">Cargando archivos...</p>';
+                    
+                    fetch(`${this.apiBaseUrl}/files/${category}/${subcategory}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`Error HTTP: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            // Verificar si la respuesta tiene el formato esperado
+                            if (!data.success) {
+                                throw new Error(data.error || 'Error desconocido al cargar archivos');
+                            }
+                            
+                            this.renderFilesList(type, data.data);
+                            
+                            // Si está en input, actualizar los campos del formulario
+                            if (type === 'input' && this.currentInputCategory === 'raw' && this.currentInputSubcategory === 'genomes') {
+                                const inputPath = `C:\\Memoriacosas\\FungiGT\\data\\${category}\\${subcategory}`;
+                                if (document.getElementById('checkMInputFolderPath')) {
+                                    document.getElementById('checkMInputFolderPath').value = inputPath;
+                                }
+                            }
+                            
+                            // Si está en output y es quality_control, actualizar el campo de salida
+                            if (type === 'output' && this.currentOutputCategory === 'results' && this.currentOutputSubcategory === 'quality_control') {
+                                const outputPath = `C:\\Memoriacosas\\FungiGT\\data\\${category}\\${subcategory}`;
+                                if (document.getElementById('checkMOutputFolderPath')) {
+                                    document.getElementById('checkMOutputFolderPath').value = outputPath;
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            filesContainer.innerHTML = `<p class="text-red-500 text-sm">Error: ${error.message}</p>`;
+                            console.error('Error cargando archivos:', error);
+                        });
+                },
+                
+                // Renderizar la lista de archivos
+                renderFilesList: function(type, files) {
+                    const filesContainer = document.getElementById(`${type}FilesList`);
+                    
+                    if (!files || files.length === 0) {
+                        filesContainer.innerHTML = '<p class="text-gray-500 text-sm italic">No hay archivos en esta carpeta</p>';
+                        return;
+                    }
+                    
+                    filesContainer.innerHTML = '';
+                    
+                    // Ordenar: primero directorios, luego archivos
+                    const sortedFiles = [...files].sort((a, b) => {
+                        if (a.isDirectory && !b.isDirectory) return -1;
+                        if (!a.isDirectory && b.isDirectory) return 1;
+                        return a.name.localeCompare(b.name);
+                    });
+                    
+                    sortedFiles.forEach(file => {
+                        const fileItem = document.createElement('div');
+                        fileItem.className = 'file-item py-1 px-2 hover:bg-gray-200 rounded cursor-pointer flex items-center justify-between';
+                        fileItem.dataset.path = file.path;
+                        fileItem.dataset.isDirectory = file.isDirectory;
+                        
+                        // Icono + nombre del archivo
+                        const fileInfo = document.createElement('div');
+                        fileInfo.className = 'flex items-center';
+                        
+                        const icon = document.createElement('span');
+                        icon.className = `mr-2 ${file.isDirectory ? 'fas fa-folder text-yellow-500' : this.getFileIcon(file.name)}`;
+                        fileInfo.appendChild(icon);
+                        
+                        const name = document.createElement('span');
+                        name.textContent = file.name;
+                        name.className = 'text-sm truncate max-w-[150px]';
+                        fileInfo.appendChild(name);
+                        
+                        fileItem.appendChild(fileInfo);
+                        
+                        // Añadir checkbox para selección
+                        if (!file.isDirectory) {
+                            const checkbox = document.createElement('input');
+                            checkbox.type = 'checkbox';
+                            checkbox.className = 'ml-2 h-4 w-4';
+                            
+                            checkbox.addEventListener('change', (e) => {
+                                if (type === 'input') {
+                                    this.toggleInputFileSelection(file.path, e.target.checked);
+                                } else {
+                                    this.toggleOutputFileSelection(file.path, e.target.checked);
+                                }
+                            });
+                            
+                            fileItem.appendChild(checkbox);
+                        }
+                        
+                        // Añadir evento para gestionar directorios
+                        if (file.isDirectory) {
+                            fileItem.addEventListener('click', () => this.navigateToSubdirectory(type, file.name));
+                        } else {
+                            // Para archivos, permitir seleccionarlos para formulario de CheckM
+                            fileItem.addEventListener('click', (e) => {
+                                if (e.target.type !== 'checkbox') {
+                                    if (type === 'input' && file.name.endsWith('.fna')) {
+                                        this.setFileForCheckM(file.name);
+                                    } else if (type === 'output') {
+                                        this.previewOutputFile(file.path);
+                                    }
+                                }
+                            });
+                        }
+                        
+                        filesContainer.appendChild(fileItem);
+                    });
+                },
+                
+                // Obtener ícono según tipo de archivo
+                getFileIcon: function(filename) {
+                    const extension = filename.split('.').pop().toLowerCase();
+                    
+                    const iconMap = {
+                        'fna': 'fas fa-dna text-green-600',
+                        'faa': 'fas fa-dna text-green-600',
+                        'fastq': 'fas fa-dna text-purple-600',
+                        'gbff': 'fas fa-file-medical text-green-600',
+                        'gbk': 'fas fa-file-medical text-green-600',
+                        'gff': 'fas fa-file-code text-orange-600',
+                        'gff3': 'fas fa-file-code text-orange-600',
+                        'bam': 'fas fa-align-left text-blue-600',
+                        'sam': 'fas fa-align-left text-blue-600',
+                        'vcf': 'fas fa-project-diagram text-red-600',
+                        'txt': 'fas fa-file-alt text-gray-600',
+                        'tsv': 'fas fa-table text-blue-600',
+                        'csv': 'fas fa-table text-blue-600',
+                        'png': 'fas fa-file-image text-purple-600',
+                        'jpg': 'fas fa-file-image text-purple-600'
+                    };
+                    
+                    return iconMap[extension] || 'fas fa-file text-gray-600';
+                },
+                
+                // Gestionar la subida de archivos
+                handleFileUpload: function(files) {
+                    if (!files || files.length === 0) return;
+                    
+                    const formData = new FormData();
+                    formData.append('category', this.currentInputCategory);
+                    formData.append('subcategory', this.currentInputSubcategory);
+                    
+                    for (let i = 0; i < files.length; i++) {
+                        formData.append('files', files[i]);
+                    }
+                    
+                    fetch(`${this.apiBaseUrl}/upload`, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Archivo(s) subido(s) correctamente');
+                            this.loadInputFiles();
+                        } else {
+                            alert(`Error al subir archivo(s): ${data.error}`);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al subir archivos:', error);
+                        alert('Error al subir los archivos');
+                    });
+                },
+                
+                // Gestionar la selección de archivos
+                toggleInputFileSelection: function(filePath, isSelected) {
+                    if (isSelected) {
+                        if (!this.selectedInputFiles.includes(filePath)) {
+                            this.selectedInputFiles.push(filePath);
+                        }
+                    } else {
+                        this.selectedInputFiles = this.selectedInputFiles.filter(p => p !== filePath);
+                    }
+                },
+                
+                toggleOutputFileSelection: function(filePath, isSelected) {
+                    if (isSelected) {
+                        if (!this.selectedOutputFiles.includes(filePath)) {
+                            this.selectedOutputFiles.push(filePath);
+                        }
+                    } else {
+                        this.selectedOutputFiles = this.selectedOutputFiles.filter(p => p !== filePath);
+                    }
+                    
+                    // Habilitar/deshabilitar botones según selección
+                    document.getElementById('downloadSelectedBtn').disabled = this.selectedOutputFiles.length === 0;
+                    document.getElementById('viewSelectedBtn').disabled = this.selectedOutputFiles.length === 0;
+                },
+                
+                // Modal para nueva carpeta
+                showNewFolderModal: function(type) {
+                    this.folderCreationType = type;
+                    document.getElementById('newFolderModal').classList.remove('hidden');
+                    document.getElementById('newFolderName').focus();
+                },
+                
+                hideNewFolderModal: function() {
+                    document.getElementById('newFolderModal').classList.add('hidden');
+                    document.getElementById('newFolderName').value = '';
+                },
+                
+                createNewFolder: function() {
+                    const folderName = document.getElementById('newFolderName').value.trim();
+                    if (!folderName) {
+                        alert('Por favor, ingresa un nombre para la carpeta');
+                        return;
+                    }
+                    
+                    const category = this.folderCreationType === 'input' ? this.currentInputCategory : this.currentOutputCategory;
+                    const subcategory = this.folderCreationType === 'input' ? this.currentInputSubcategory : this.currentOutputSubcategory;
+                    
+                    fetch(`${this.apiBaseUrl}/create-folder`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            category,
+                            subcategory,
+                            folderName
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            this.hideNewFolderModal();
+                            
+                            if (this.folderCreationType === 'input') {
+                                this.loadInputFiles();
+                            } else {
+                                this.loadOutputFiles();
+                            }
+                            
+                            alert('Carpeta creada correctamente');
+                        } else {
+                            alert(`Error al crear la carpeta: ${data.error}`);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al crear carpeta:', error);
+                        alert('Error al crear la carpeta');
+                    });
+                },
+                
+                // Establecer archivo para CheckM
+                setFileForCheckM: function(filename) {
+                    if (document.getElementById('brakerGenomeFile')) {
+                        document.getElementById('brakerGenomeFile').value = filename;
+                    }
+                },
+                
+                // Previsualizar archivo de salida
+                previewOutputFile: function(filePath) {
+                    // Detectar tipo de archivo para decidir cómo visualizarlo
+                    const extension = filePath.split('.').pop().toLowerCase();
+                    
+                    if (['png', 'jpg', 'jpeg', 'svg'].includes(extension)) {
+                        window.open(`${this.apiBaseUrl}/view?path=${encodeURIComponent(filePath)}`, '_blank');
+                    } else if (['txt', 'tsv', 'csv', 'gff', 'fna', 'faa'].includes(extension)) {
+                        fetch(`${this.apiBaseUrl}/file-content?path=${encodeURIComponent(filePath)}`)
+                            .then(response => response.text())
+                            .then(content => {
+                                // Crear modal para mostrar contenido
+                                const modal = document.createElement('div');
+                                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                                
+                                const modalContent = document.createElement('div');
+                                modalContent.className = 'bg-white p-6 rounded-lg shadow-xl max-w-4xl w-full max-h-[80vh] flex flex-col';
+                                
+                                const header = document.createElement('div');
+                                header.className = 'flex justify-between items-center mb-4';
+                                
+                                const title = document.createElement('h3');
+                                title.className = 'text-lg font-semibold';
+                                title.textContent = `Archivo: ${filePath.split('/').pop()}`;
+                                
+                                const closeBtn = document.createElement('button');
+                                closeBtn.className = 'text-gray-500 hover:text-gray-700';
+                                closeBtn.innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+                                closeBtn.onclick = () => document.body.removeChild(modal);
+                                
+                                header.appendChild(title);
+                                header.appendChild(closeBtn);
+                                
+                                const contentArea = document.createElement('pre');
+                                contentArea.className = 'bg-gray-100 p-4 rounded-md overflow-auto flex-grow text-sm';
+                                contentArea.textContent = content;
+                                
+                                modalContent.appendChild(header);
+                                modalContent.appendChild(contentArea);
+                                modal.appendChild(modalContent);
+                                
+                                document.body.appendChild(modal);
+                            })
+                            .catch(error => {
+                                console.error('Error al obtener contenido del archivo:', error);
+                                alert('Error al obtener el contenido del archivo');
+                            });
+                    } else {
+                        alert('Este tipo de archivo no se puede previsualizar directamente. Por favor, descárgalo para verlo.');
+                    }
+                },
+                
+                // Descargar archivos seleccionados
+                downloadSelectedFiles: function() {
+                    if (this.selectedOutputFiles.length === 0) return;
+                    
+                    if (this.selectedOutputFiles.length === 1) {
+                        window.location.href = `${this.apiBaseUrl}/download?path=${encodeURIComponent(this.selectedOutputFiles[0])}`;
+                    } else {
+                        // Crear un zip con los archivos seleccionados
+                        fetch(`${this.apiBaseUrl}/download-multiple`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                files: this.selectedOutputFiles
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                window.location.href = `${this.apiBaseUrl}/download-zip?id=${data.downloadId}`;
+                            } else {
+                                alert(`Error al generar la descarga: ${data.error}`);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error al descargar archivos:', error);
+                            alert('Error al procesar la descarga');
+                        });
+                    }
+                },
+                
+                // Ver archivos seleccionados
+                viewSelectedFiles: function() {
+                    if (this.selectedOutputFiles.length === 1) {
+                        this.previewOutputFile(this.selectedOutputFiles[0]);
+                    } else {
+                        alert('Por favor, selecciona un solo archivo para visualizar');
+                    }
+                },
+                
+                // Navegar a subdirectorio
+                navigateToSubdirectory: function(type, subdir) {
+                    if (type === 'input') {
+                        // Construir la nueva subcategoría completa
+                        const newSubcategory = this.currentInputSubcategory.includes('/') 
+                            ? `${this.currentInputSubcategory}/${subdir}`
+                            : `${this.currentInputSubcategory}/${subdir}`;
+                        
+                        // Comprobar si existe esta subcategoría en el mapeo
+                        // Si no, podemos añadirla temporalmente
+                        if (!this.categoryMap[this.currentInputCategory].includes(newSubcategory)) {
+                            this.categoryMap[this.currentInputCategory].push(newSubcategory);
+                        }
+                        
+                        // Actualizar la subcategoría actual y recargar
+                        this.currentInputSubcategory = newSubcategory;
+                        this.populateSubcategorySelector('input');
+                        // Establecer el selector al valor correcto
+                        document.getElementById('inputSubcategorySelector').value = this.currentInputSubcategory;
+                        this.loadInputFiles();
+                    } else {
+                        // Similar para output
+                        const newSubcategory = this.currentOutputSubcategory.includes('/') 
+                            ? `${this.currentOutputSubcategory}/${subdir}`
+                            : `${this.currentOutputSubcategory}/${subdir}`;
+                        
+                        if (!this.categoryMap[this.currentOutputCategory].includes(newSubcategory)) {
+                            this.categoryMap[this.currentOutputCategory].push(newSubcategory);
+                        }
+                        
+                        this.currentOutputSubcategory = newSubcategory;
+                        this.populateSubcategorySelector('output');
+                        document.getElementById('outputSubcategorySelector').value = this.currentOutputSubcategory;
+                        this.loadOutputFiles();
+                    }
+                },
+                
+                // Ir al directorio superior
+                goUp: function(type) {
+                    if (type === 'input' && this.currentInputSubcategory.includes('/')) {
+                        // Subir un nivel en la jerarquía
+                        const parts = this.currentInputSubcategory.split('/');
+                        parts.pop(); // Eliminar el último elemento
+                        this.currentInputSubcategory = parts.join('/');
+                        this.populateSubcategorySelector('input');
+                        document.getElementById('inputSubcategorySelector').value = this.currentInputSubcategory;
+                        this.loadInputFiles();
+                    } else if (type === 'output' && this.currentOutputSubcategory.includes('/')) {
+                        const parts = this.currentOutputSubcategory.split('/');
+                        parts.pop();
+                        this.currentOutputSubcategory = parts.join('/');
+                        this.populateSubcategorySelector('output');
+                        document.getElementById('outputSubcategorySelector').value = this.currentOutputSubcategory;
+                        this.loadOutputFiles();
+                    }
+                }
+            };
+            
+            // Inicializar el explorador de archivos
+            FileExplorer.init();
+            
+            // Hacer accesible FileExplorer globalmente para que otras partes del código puedan usarlo
+            window.FileExplorer = FileExplorer;
+            
+            // Mostrar archivos por defecto al cargar la página
+            document.getElementById('toolSelector').dispatchEvent(new Event('change'));
+        });
+    </script>
+    
+    <!-- Script para el selector de herramientas -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Función para manejar la selección de herramientas
+            function handleToolSelection() {
+                const selectedTool = document.getElementById('toolSelector').value;
+                
+                // Ocultar todos los paneles de configuración
+                document.getElementById('checkMConfig').style.display = 'none';
+                document.getElementById('braker3Config').style.display = 'none';
+                
+                // Mostrar los paneles según la selección
+                if (selectedTool === 'checkm' || selectedTool === 'both') {
+                    document.getElementById('checkMConfig').style.display = 'block';
+                }
+                
+                if (selectedTool === 'braker3' || selectedTool === 'both') {
+                    document.getElementById('braker3Config').style.display = 'block';
+                }
+            }
+            
+            // Asignar el evento change al selector
+            document.getElementById('toolSelector').addEventListener('change', handleToolSelection);
+            
+            // Ejecutar una vez al cargar para establecer el estado inicial
+            handleToolSelection();
+        });
+    </script>
+    
+    <!-- Script para funcionalidad de BRAKER3 -->
+    <!-- <script src="/js/braker3-client.js"></script> -->
+
+    <!-- Script para mostrar el comando de BRAKER3 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const showCommandBtn = document.getElementById('showBraker3CommandBtn');
+            const commandDisplay = document.getElementById('braker3CommandDisplay');
+            const commandPre = document.getElementById('braker3DockerCommand');
+            
+            if (showCommandBtn) {
+                showCommandBtn.addEventListener('click', function() {
+                    // Recopilar datos del formulario
+                    const species = document.getElementById('brakerSpecies').value || 'nombre_especie';
+                    const genome = document.getElementById('brakerGenomeFile').value || 'genoma.fna';
+                    const bam = document.getElementById('brakerBamFile')?.value || '';
+                    const protSeq = document.getElementById('brakerProtSeqFile')?.value || '';
+                    const threads = document.getElementById('brakerThreads').value || '4';
+                    const inputFolder = document.getElementById('braker3InputFolderPath').value || 'C:/ruta/a/carpeta/entrada';
+                    const outputFolder = document.getElementById('braker3OutputFolderPath').value || 'C:/ruta/a/carpeta/salida';
+                    
+                    // Recopilar flags seleccionados
+                    const flagCheckboxes = document.querySelectorAll('input[name="flagsBRAKER3"]:checked');
+                    const flags = Array.from(flagCheckboxes).map(cb => cb.value).join(' ');
+                    
+                    // Convertir rutas de Windows a formato Docker
+                    const dockerInputPath = inputFolder.replace(/\\/g, '/');
+                    const dockerOutputPath = outputFolder.replace(/\\/g, '/');
+                    
+                    // Construir el comando de Docker
+                    let command = `docker run --rm \\
+  -v "${dockerInputPath}:/input" \\
+  -v "${dockerOutputPath}:/output" \\
+  teambraker/braker3:latest \\
+  braker.pl \\
+  --species=${species} \\
+  --genome=/input/${genome} \\
+  --threads=${threads}`;
+                    
+                    // Agregar parámetros opcionales
+                    if (bam && bam.trim() !== '') {
+                        command += ` \\\n  --bam=/input/${bam}`;
+                    }
+                    
+                    if (protSeq && protSeq.trim() !== '') {
+                        command += ` \\\n  --prot_seq=/input/${protSeq}`;
+                    }
+                    
+                    // Agregar flags adicionales
+                    if (flags && flags.trim() !== '') {
+                        command += ` \\\n  ${flags}`;
+                    }
+                    
+                    // Agregar directorio de trabajo
+                    command += ` \\\n  --workingdir=/output`;
+                    
+                    // Mostrar el comando
+                    commandPre.textContent = command;
+                    commandDisplay.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
+</body>
+
+<%- include('partials/footer') %>

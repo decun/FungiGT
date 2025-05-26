@@ -1,0 +1,784 @@
+<%- include('partials/header') %>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador de Datos Genómicos y Filogenia</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Load IGV library and styles properly -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/igv@2.15.11/dist/igv.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/igv@2.15.11/dist/igv.min.js"></script>
+    <style>
+        .glass-effect {
+            background: rgba(167, 243, 208, 0.2);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        
+        .nav-item-hover:hover {
+            background: rgba(167, 243, 208, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* Estilo para los contenedores de visualizadores */
+        .visualizer .bg-white {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(167, 243, 208, 0.3);
+        }
+        
+        /* Estilo para los botones secundarios */
+        .secondary-btn {
+            @apply flex items-center space-x-2 px-4 py-2 rounded-lg glass-effect nav-item-hover transition-all duration-300 text-gray-800 font-medium;
+        }
+        
+        /* Estilo para los inputs y selects */
+        input[type="text"], select {
+            @apply border-green-200 focus:ring-green-300 focus:border-green-300;
+        }
+
+        /* Estilos para el visualizador de gráficos */
+        .graph-viewer {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            overflow: hidden;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f9fafb;
+        }
+
+        .graph-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: transform 0.2s ease;
+            cursor: grab;
+        }
+
+        .graph-image:active {
+            cursor: grabbing;
+        }
+
+        .graph-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            z-index: 10;
+        }
+
+        .control-btn {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .control-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <main class="flex-grow p-6">
+        <div class="max-w-7xl mx-auto">
+            <!-- Botones de Selección Principal -->
+            <div id="mainSelection" class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-6">
+                <button class="visualizer-btn flex items-center justify-center space-x-2 px-4 py-3 rounded-lg glass-effect nav-item-hover transition-all duration-300 text-gray-800 font-medium" data-target="csvTsvVisualizer">
+                    <i class="fas fa-table text-green-700"></i>
+                    <span>Asistente CSV/TSV</span>
+                </button>
+                
+                <button class="visualizer-btn flex items-center justify-center space-x-2 px-4 py-3 rounded-lg glass-effect nav-item-hover transition-all duration-300 text-gray-800 font-medium" data-target="igvVisualizer">
+                    <i class="fas fa-dna text-green-700"></i>
+                    <span>Visualizador IGV</span>
+                </button>
+                
+                <button class="visualizer-btn flex items-center justify-center space-x-2 px-4 py-3 rounded-lg glass-effect nav-item-hover transition-all duration-300 text-gray-800 font-medium" data-target="annotationsVisualizer">
+                    <i class="fas fa-code-branch text-green-700"></i>
+                    <span>Visualizador de Anotaciones</span>
+                </button>
+                
+                <button class="visualizer-btn flex items-center justify-center space-x-2 px-4 py-3 rounded-lg glass-effect nav-item-hover transition-all duration-300 text-gray-800 font-medium" data-target="hmmerVisualizer">
+                    <i class="fas fa-microscope text-green-700"></i>
+                    <span>Visualizador HMMER</span>
+                </button>
+                
+                <button class="visualizer-btn flex items-center justify-center space-x-2 px-4 py-3 rounded-lg glass-effect nav-item-hover transition-all duration-300 text-gray-800 font-medium" data-target="seedOrthologsVisualizer">
+                    <i class="fas fa-dna text-green-700"></i>
+                    <span>Visualizador Seed Orthologs</span>
+                </button>
+            </div>
+
+            <!-- Botón de Volver (inicialmente oculto) -->
+            <button id="backButton" class="hidden mb-6 flex items-center space-x-2 px-4 py-2 rounded-lg glass-effect nav-item-hover transition-all duration-300 text-gray-800">
+                <i class="fas fa-arrow-left text-green-700"></i>
+                <span class="font-medium">Volver</span>
+            </button>
+
+            <!-- Visualizador IGV -->
+            <div id="igvVisualizer" class="visualizer hidden">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold mb-4">Visualizador Genómico IGV</h3>
+                    <!-- Área para el visualizador IGV -->
+                    <div id="igvContainer" class="border rounded-lg mb-4" style="height: 500px;"></div>
+                    <!-- Formulario de carga de archivos -->
+                    <div class="flex items-center">
+                        <input type="file" id="genomicFileUpload" class="hidden" accept=".bam,.fna,.cram,.vcf,.bed,.gff,.gff3,.gtf" />
+                        <label for="genomicFileUpload" class="secondary-btn inline-flex cursor-pointer">
+                            <i class="fas fa-upload text-green-700"></i>
+                            <span>Subir Archivo Genómico</span>
+                        </label>
+                    </div>
+                    <!-- Mensaje de estado -->
+                    <p id="uploadStatus" class="mt-4 text-sm text-gray-500"></p>
+                </div>
+            </div>
+
+            <!-- Visualizador CSV/TSV -->
+            <div id="csvTsvVisualizer" class="visualizer hidden">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold mb-4">Asistente de Visualización CSV/TSV</h3>
+                    <div id="chatContainer" class="h-[32rem] overflow-y-auto mb-4 p-4 border rounded-lg">
+                        <!-- Mensajes del asistente y del usuario se añadirán aquí dinámicamente -->
+                    </div>
+                    <div class="flex items-center">
+                        <div class="relative flex-grow">
+                            <input type="text" id="userInput" class="w-full px-3 py-2 pr-24 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Escribe tu pregunta o comando..." />
+                            <label for="fileUpload" class="absolute right-0 top-0 bottom-0 flex items-center px-3 bg-gray-200 rounded-r-md cursor-pointer">
+                                <span class="material-icons text-gray-600">attach_file</span>
+                                <input type="file" id="fileUpload" class="hidden" accept=".csv,.tsv" />
+                            </label>
+                        </div>
+                        <button id="sendMessage" class="bg-green-600 text-white px-4 py-2 rounded-r-md hover:bg-green-700 transition duration-300 ml-2">
+                            Enviar
+                        </button>
+                    </div>
+                    <!-- Agregar el contenedor para los gráficos CSV/TSV -->
+                    <div id="csvTsvGraphsContainer" class="mt-4">
+                        <!-- Los gráficos generados se mostrarán aquí -->
+        </div>
+    </div>
+</div>
+
+            <!-- Visualizador de Anotaciones -->
+<div id="annotationsVisualizer" class="visualizer hidden">
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h3 class="text-xl font-semibold mb-4">Visualizador de Anotaciones</h3>
+        <div class="mb-4">
+                        <input type="file" id="annotationsFileUpload" class="hidden" accept=".annotations,.emapper.annotations"/>
+                        <label for="annotationsFileUpload" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-300 cursor-pointer inline-flex items-center">
+                            <i class="fas fa-upload mr-2"></i>
+                            <span>Subir archivo de anotaciones (.emapper.annotations)</span>
+            </label>
+            <span id="annotationsUploadStatus" class="ml-4 text-sm text-gray-600"></span>
+        </div>
+        <div id="annotationsGraphsContainer" class="flex flex-col gap-4">
+            <!-- Selector y Visualizador se apilarán verticalmente aquí -->
+        </div>
+    </div>
+</div>
+
+<!-- Visualizador HMMER -->
+<div id="hmmerVisualizer" class="visualizer hidden">
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h3 class="text-xl font-semibold mb-4">Visualizador HMMER</h3>
+        <div class="mb-4">
+                        <input type="file" id="hmmerFileUpload" class="hidden" accept=".txt,.out,.analyze.txt"/>
+                        <label for="hmmerFileUpload" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-300 cursor-pointer inline-flex items-center">
+                            <i class="fas fa-upload mr-2"></i>
+                            <span>Subir archivo HMMER (.analyze.txt)</span>
+            </label>
+            <span id="hmmerUploadStatus" class="ml-4 text-sm text-gray-600"></span>
+        </div>
+        <div id="hmmerGraphsContainer" class="flex flex-col gap-4">
+            <!-- Selector y Visualizador se apilarán verticalmente aquí -->
+        </div>
+    </div>
+</div>
+
+<!-- Visualizador Seed Orthologs -->
+<div id="seedOrthologsVisualizer" class="visualizer hidden">
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h3 class="text-xl font-semibold mb-4">Visualizador de Seed Orthologs</h3>
+        <div class="mb-4">
+            <input type="file" id="seedOrthologsFileUpload" class="hidden" accept=".seed_orthologs"/>
+            <label for="seedOrthologsFileUpload" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-300 cursor-pointer inline-flex items-center">
+                <i class="fas fa-upload mr-2"></i>
+                            <span>Subir archivo Seed Orthologs (.seed_orthologs)</span>
+            </label>
+            <span id="seedOrthologsUploadStatus" class="ml-4 text-sm text-gray-600"></span>
+        </div>
+        <div id="seedOrthologsGraphsContainer" class="flex flex-col gap-4">
+            <!-- Los gráficos se mostrarán aquí -->
+        </div>
+    </div>
+</div>
+        </div>
+    </main>
+
+    <!-- Footer con copyright -->
+    <footer class="bg-gray-800 text-white mt-auto">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-sm">© 2024 FungiTG. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Footer con el asistente -->
+    <%- include('partials/footer') %>
+
+    <!-- Scripts necesarios -->
+    <script src="https://kit.fontawesome.com/your-font-awesome-kit.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            // URLs de los servidores
+            const backendUrl = 'http://localhost:5000';  // Servidor de visualización
+            const lidaUrl = 'http://localhost:4200';     // Servidor LIDA para CSV/TSV
+            
+            const mainSelection = document.getElementById('mainSelection');
+            const backButton = document.getElementById('backButton');
+            const visualizers = document.querySelectorAll('.visualizer');
+            const visualizerButtons = document.querySelectorAll('.visualizer-btn');
+
+            // Limpiar uploads al cargar la página
+            clearUploads();
+
+            function clearUploads() {
+                fetch(`${backendUrl}/clear_uploads`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer tu_token_secreto'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        console.log('Carpeta uploads/ limpiada.');
+                    } else {
+                        console.error('Error al limpiar uploads:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al limpiar uploads:', error);
+                });
+            }
+
+            // Función para mostrar el visualizador seleccionado
+            async function showVisualizer(visualizerId) {
+                mainSelection.classList.add('hidden');
+                backButton.classList.remove('hidden');
+                visualizers.forEach(v => v.classList.add('hidden'));
+                document.getElementById(visualizerId).classList.remove('hidden');
+
+                if (visualizerId === 'igvVisualizer') {
+                    try {
+                        await initializeIGV();
+                    } catch (error) {
+                        console.error('Error initializing IGV:', error);
+                    }
+                }
+            }
+
+            // Función para volver a la selección principal
+            function showMainSelection() {
+                mainSelection.classList.remove('hidden');
+                backButton.classList.add('hidden');
+                visualizers.forEach(v => v.classList.add('hidden'));
+            }
+
+            // Asignar eventos a los botones de visualizadores
+            visualizerButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    showVisualizer(this.dataset.target);
+                });
+            });
+
+            // Asignar evento al botón de volver
+            backButton.addEventListener('click', showMainSelection);
+
+            // ========== FUNCIONES PARA EL MANEJO DE ARCHIVOS DE ANOTACIONES ==========
+            document.getElementById('annotationsFileUpload').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const uploadStatus = document.getElementById('annotationsUploadStatus');
+                uploadStatus.innerHTML = '<span class="loading-spinner"></span> Procesando archivo...';
+
+                fetch(`${backendUrl}/process-annotations`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    uploadStatus.textContent = 'Archivo procesado exitosamente';
+                    displayGraphs('annotationsGraphsContainer', data.graphs);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    uploadStatus.textContent = `Error: ${error.message}`;
+                });
+            });
+
+            // ========== FUNCIONES PARA EL MANEJO DE ARCHIVOS HMMER ==========
+            document.getElementById('hmmerFileUpload').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const uploadStatus = document.getElementById('hmmerUploadStatus');
+                uploadStatus.innerHTML = '<span class="loading-spinner"></span> Procesando archivo...';
+
+                fetch(`${backendUrl}/process-hmmer`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(async response => {
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        const text = await response.text();
+                        throw new Error('Respuesta no válida del servidor');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    uploadStatus.textContent = 'Archivo procesado exitosamente';
+                    displayGraphs('hmmerGraphsContainer', data.graphs);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    uploadStatus.textContent = `Error: ${error.message}`;
+                });
+            });
+
+            // ========== FUNCIONES PARA EL MANEJO DE ARCHIVOS SEED ORTHOLOGS ==========
+            document.getElementById('seedOrthologsFileUpload').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const uploadStatus = document.getElementById('seedOrthologsUploadStatus');
+                uploadStatus.innerHTML = '<span class="loading-spinner"></span> Procesando archivo...';
+
+                fetch(`${backendUrl}/process-seed-orthologs`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(async response => {
+                    if (!response.ok) {
+                        const text = await response.text();
+                        throw new Error(`Error del servidor: ${response.status} ${text}`);
+                    }
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        throw new Error('Respuesta no válida del servidor');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    uploadStatus.textContent = 'Archivo procesado exitosamente';
+                    displayGraphs('seedOrthologsGraphsContainer', data.graphs);
+                        })
+                        .catch(error => {
+                    console.error('Error detallado:', error);
+                    uploadStatus.textContent = `Error: ${error.message}`;
+                });
+            });
+
+            // ========== FUNCIÓN MEJORADA PARA MOSTRAR GRÁFICOS ==========
+            function displayGraphs(containerId, graphs) {
+                const container = document.getElementById(containerId);
+                if (!container) {
+                    console.error(`Contenedor ${containerId} no encontrado`);
+                    return;
+                }
+                
+                console.log('Gráficos recibidos:', graphs);
+                container.innerHTML = '';
+                
+                if (!graphs || graphs.length === 0) {
+                    container.innerHTML = '<p class="text-gray-500 text-center py-8">No se generaron gráficos</p>';
+                    return;
+                }
+
+                // Crear el selector de gráficos
+                const selectorDiv = document.createElement('div');
+                selectorDiv.className = 'mb-4';
+                
+                const label = document.createElement('label');
+                label.className = 'block text-sm font-medium text-gray-700 mb-2';
+                label.textContent = 'Seleccionar Gráfico:';
+                
+                const selector = document.createElement('select');
+                selector.className = 'w-full p-3 border border-gray-300 rounded-lg bg-white shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200';
+                
+                // Poblar el selector
+                graphs.forEach((graph, index) => {
+                    const option = document.createElement('option');
+                    const graphUrl = graph.url || graph;
+                    
+                    // Construir URL correcta
+                    let correctUrl = graphUrl;
+                    if (!graphUrl.startsWith('http')) {
+                        if (containerId === 'csvTsvGraphsContainer') {
+                            correctUrl = `${lidaUrl}${graphUrl}`;
+                } else {
+                            correctUrl = `${backendUrl}${graphUrl}`;
+                        }
+                    }
+                    
+                    option.value = correctUrl;
+                    option.text = getGraphName(graphUrl, index);
+                    selector.appendChild(option);
+                });
+
+                // Crear el visualizador de gráficos
+                const viewerContainer = document.createElement('div');
+                viewerContainer.className = 'graph-viewer';
+                
+                const img = document.createElement('img');
+                img.className = 'graph-image';
+                img.style.transformOrigin = 'center center';
+                
+                // Controles de navegación
+                const controlsDiv = document.createElement('div');
+                controlsDiv.className = 'graph-controls';
+                controlsDiv.innerHTML = `
+                    <button class="control-btn zoom-in" title="Acercar">
+                        <i class="fas fa-search-plus"></i>
+                    </button>
+                    <button class="control-btn zoom-out" title="Alejar">
+                        <i class="fas fa-search-minus"></i>
+                    </button>
+                    <button class="control-btn reset-zoom" title="Restablecer">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                    </button>
+                    <button class="control-btn download" title="Descargar">
+                        <i class="fas fa-download"></i>
+                    </button>
+                `;
+
+                // Variables de control
+                let currentZoom = 1;
+                let currentX = 0;
+                let currentY = 0;
+                let isDragging = false;
+                let lastX = 0;
+                let lastY = 0;
+
+                // Función para actualizar transformación
+                function updateTransform() {
+                    img.style.transform = `scale(${currentZoom}) translate(${currentX}px, ${currentY}px)`;
+                }
+
+                // Función para cargar imagen
+                function loadImage(url) {
+                    img.src = url;
+                    currentZoom = 1;
+                    currentX = 0;
+                    currentY = 0;
+                    updateTransform();
+                }
+
+                // Event listeners para controles
+                controlsDiv.querySelector('.zoom-in').addEventListener('click', () => {
+                    currentZoom = Math.min(currentZoom * 1.2, 5);
+                    updateTransform();
+                });
+
+                controlsDiv.querySelector('.zoom-out').addEventListener('click', () => {
+                    currentZoom = Math.max(currentZoom / 1.2, 0.5);
+                    updateTransform();
+                });
+
+                controlsDiv.querySelector('.reset-zoom').addEventListener('click', () => {
+                    currentZoom = 1;
+                    currentX = 0;
+                    currentY = 0;
+                    updateTransform();
+                });
+
+                controlsDiv.querySelector('.download').addEventListener('click', () => {
+                    const link = document.createElement('a');
+                    link.href = img.src;
+                    link.download = getGraphName(img.src, 0) + '.png';
+                    link.click();
+                });
+
+                // Zoom con rueda del mouse
+                viewerContainer.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+                    currentZoom = Math.min(Math.max(currentZoom * zoomFactor, 0.5), 5);
+                    updateTransform();
+                });
+
+                // Arrastrar para hacer pan
+                img.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    lastX = e.clientX;
+                    lastY = e.clientY;
+                    img.style.cursor = 'grabbing';
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    const deltaX = e.clientX - lastX;
+                    const deltaY = e.clientY - lastY;
+                    currentX += deltaX / currentZoom;
+                    currentY += deltaY / currentZoom;
+                    lastX = e.clientX;
+                    lastY = e.clientY;
+                    updateTransform();
+                });
+
+                document.addEventListener('mouseup', () => {
+                    isDragging = false;
+                    img.style.cursor = 'grab';
+                });
+
+                // Event listener para el selector
+                selector.addEventListener('change', function() {
+                    loadImage(this.value);
+                });
+
+                // Construir DOM
+                viewerContainer.appendChild(img);
+                viewerContainer.appendChild(controlsDiv);
+                
+                selectorDiv.appendChild(label);
+                selectorDiv.appendChild(selector);
+                container.appendChild(selectorDiv);
+                container.appendChild(viewerContainer);
+
+                // Cargar primera imagen
+                if (graphs.length > 0) {
+                    loadImage(selector.value);
+                }
+            }
+
+            // Función auxiliar para obtener nombres de gráficos más descriptivos
+            function getGraphName(url, index) {
+                const filename = url.split('/').pop().replace('.png', '');
+                
+                const nameMap = {
+                    'cog_categories': 'Categorías COG',
+                    'top_go_terms': 'Términos GO más comunes',
+                    'top_kegg_pathways': 'Vías KEGG más comunes',
+                    'top_pfam_families': 'Familias PFAM más comunes',
+                    'top_ec_numbers': 'Números EC más comunes',
+                    'domain_frequency': 'Frecuencia de dominios',
+                    'evalue_distribution': 'Distribución de E-values',
+                    'domain_summary_heatmap': 'Resumen de dominios',
+                    'bitscore_vs_pident': 'Bitscore vs Identidad',
+                    'bitscore_per_sequence': 'Bitscore por secuencia',
+                    'coverage_heatmap': 'Mapa de cobertura',
+                    'correlation_matrix': 'Matriz de correlación'
+                };
+
+                return nameMap[filename] || `Gráfico ${index + 1}`;
+            }
+
+            // ========== FUNCIONES PARA CSV/TSV (LIDA) ==========
+            const sendMessageButton = document.getElementById('sendMessage');
+            const fileUploadInput = document.getElementById('fileUpload');
+            const chatContainer = document.getElementById('chatContainer');
+            const userInput = document.getElementById('userInput');
+
+            sendMessageButton.addEventListener('click', function() {
+                const file = fileUploadInput.files[0];
+                const prompt = userInput.value.trim();
+
+                if (file) {
+                    displayUserMessage(`Archivo seleccionado: ${file.name}`);
+                    uploadFile(file);
+                } else if (prompt) {
+                    displayUserMessage(prompt);
+                    sendPrompt(prompt);
+                } else {
+                    alert('Por favor, selecciona un archivo o escribe un prompt.');
+                }
+
+                userInput.value = '';
+                fileUploadInput.value = '';
+            });
+
+            function uploadFile(file) {
+                if (!file) {
+                    console.error('No se proporcionó ningún archivo');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                displayAssistantMessage('Procesando archivo...');
+
+                fetch(`${lidaUrl}/process-file`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include',
+                    mode: 'cors'
+                })
+                .then(async response => {
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    displayAssistantMessage('Archivo procesado exitosamente.');
+                    if (data.charts && data.charts.length > 0) {
+                        displayGraphs('csvTsvGraphsContainer', data.charts);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error detallado:', error);
+                    displayAssistantMessage(`Error al procesar el archivo: ${error.message}`);
+                });
+            }
+
+            function sendPrompt(prompt) {
+                fetch(`${lidaUrl}/prompt`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt: prompt })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        displayAssistantMessage(`Error: ${data.error}`);
+                    } else {
+                        displayAssistantMessage(data.response);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    displayAssistantMessage('Error al procesar el prompt.');
+                });
+            }
+
+            function displayUserMessage(message) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('mb-4');
+                messageElement.innerHTML = `
+                    <p class="text-sm text-blue-500">Tú:</p>
+                    <div class="bg-blue-100 p-2 rounded-lg inline-block">
+                        <p>${message}</p>
+                    </div>
+                `;
+                chatContainer.appendChild(messageElement);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+
+            function displayAssistantMessage(message) {
+                const chatContainer = document.getElementById('chatContainer');
+                if (!chatContainer) {
+                    console.error('Contenedor de chat no encontrado');
+                    return;
+                }
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'mb-4 p-3 bg-gray-100 rounded-lg';
+                messageDiv.innerHTML = `<p class="text-gray-800">${message}</p>`;
+                chatContainer.appendChild(messageDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+
+            // ========== FUNCIONES PARA IGV ==========
+            let igvBrowser;
+            async function initializeIGV() {
+                const igvContainer = document.getElementById('igvContainer');
+                if (!igvContainer) {
+                    console.error('IGV container not found');
+                    return;
+                }
+                igvContainer.innerHTML = '';
+
+                const options = {
+                    genome: "hg38",
+                    locus: "chr8:127,736,588-127,739,371",
+                    tracks: []
+                };
+
+                try {
+                    igvBrowser = await igv.createBrowser(igvContainer, options);
+                    console.log('IGV Browser created successfully');
+                } catch (error) {
+                    console.error('Error creating IGV browser:', error);
+                    throw error;
+                }
+            }
+
+            // Limpiar al recargar o cerrar la página
+            window.addEventListener('beforeunload', function() {
+                navigator.sendBeacon(`${backendUrl}/cleanup`);
+                if (lidaUrl) {
+                    navigator.sendBeacon(`${lidaUrl}/cleanup`);
+                }
+            });
+
+            // Limpiar archivos al cargar la página
+            window.addEventListener('load', function() {
+                fetch(`${backendUrl}/cleanup`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => console.log('Limpieza inicial completada'))
+                .catch(error => console.error('Error en limpieza inicial:', error));
+            });
+        });
+    </script>
+</body>
+</html>

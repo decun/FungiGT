@@ -1,0 +1,125 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/frontend/Dockerfile
+    ports:
+      - "${FRONTEND_PORT:-4005}:${FRONTEND_PORT:-4005}"
+    volumes:
+      - ./src/frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - FRONTEND_PORT=${FRONTEND_PORT:-4005}
+      - JWT_SECRET=${JWT_SECRET}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - AUTH_SERVICE_URL=http://auth:${AUTH_PORT:-4001}
+    env_file:
+      - .env
+    depends_on:
+      - backend
+      - auth
+    networks:
+      - fungigt-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/backend/Dockerfile
+    ports:
+      - "${BACKEND_PORT:-5000}:${BACKEND_PORT:-5000}"
+    volumes:
+      - ./src/backend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - BACKEND_PORT=${BACKEND_PORT:-5000}
+      - MONGODB_URI=${MONGODB_URI}
+    env_file:
+      - .env
+    networks:
+      - fungigt-network
+
+  auth:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/auth/Dockerfile
+    ports:
+      - "${AUTH_PORT:-4001}:${AUTH_PORT:-4001}"
+    volumes:
+      - ./src/core/auth:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - AUTH_PORT=${AUTH_PORT:-4001}
+      - JWT_SECRET=${JWT_SECRET}
+      - MONGODB_URI=${MONGODB_URI}
+    env_file:
+      - .env
+    networks:
+      - fungigt-network
+
+  acquisition-ncbi:
+    build:
+      context: .
+      dockerfile: src/modules/acquisition/ncbi_cli/Dockerfile
+    volumes:
+      - ./data:/data
+    networks:
+      - fungigt-network
+    profiles:
+      - modules
+      - acquisition
+
+  checkm:
+    image: nanozoo/checkm:latest
+    volumes:
+      - ./data:/data
+    networks:
+      - fungigt-network
+    profiles:
+      - modules
+      - quality
+
+  eggnog-mapper:
+    image: nanozoo/eggnog-mapper:2.1.9--4f2b6c0
+    volumes:
+      - ./data:/data
+    networks:
+      - fungigt-network
+    profiles:
+      - modules
+      - analysis
+
+  braker3:
+    image: teambraker/braker3:latest
+    volumes:
+      - ./data:/data
+    networks:
+      - fungigt-network
+    profiles:
+      - modules
+      - annotation
+
+  visualization:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/visualization/Dockerfile
+    volumes:
+      - ./src/modules/visualization:/app
+      - ./data:/app/data
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - fungigt-network
+    profiles:
+      - modules
+
+networks:
+  fungigt-network:
+    driver: bridge
+
+volumes:
+  data: 

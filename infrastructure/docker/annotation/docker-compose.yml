@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  braker3:
+    image: teambraker/braker3:latest
+    container_name: braker3-container
+    volumes:
+      - "${INPUT_FOLDER}:/input"
+      - "${OUTPUT_FOLDER}:/output"
+    command: ["tail", "-f", "/dev/null"]  # Contenedor en espera hasta que se ejecute el comando
+    environment:
+      - TZ=America/Guatemala
+    deploy:
+      resources:
+        limits:
+          memory: 12G
+        reservations:
+          memory: 4G 

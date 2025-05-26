@@ -1,0 +1,395 @@
+<%- include('partials/header') %>
+
+<div class="min-h-screen bg-gradient-to-b from-green-50 to-green-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col md:flex-row gap-6">
+        <!-- Panel lateral: Explorador de archivos -->
+        <div class="w-full md:w-1/3 lg:w-1/4">
+            <%- include('partials/file-explorer') %>
+        </div>
+        
+        <!-- Panel principal: Contenido original -->
+        <div class="w-full md:w-2/3 lg:w-3/4">
+            <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+                <!-- Header Section -->
+                <div class="bg-gradient-to-r from-green-400 via-green-300 to-green-400 px-6 py-8">
+                    <h1 class="text-3xl font-bold text-white text-center flex items-center justify-center space-x-3">
+                        <i class="fas fa-database"></i>
+                        <span>NCBI Datasets Genome Downloader</span>
+                    </h1>
+                </div>
+
+                <!-- Main Content -->
+                <div class="p-8">
+                    <!-- Download Mode Selection -->
+                    <div class="mb-6">
+                        <label for="downloadMode" class="block text-sm font-medium text-gray-700">Modo de descarga</label>
+                        <select id="downloadMode" class="mt-2 block w-full rounded-lg border-green-200 shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50 bg-green-50 transition-colors duration-200">
+                            <option value="accession">Número de accesión</option>
+                            <option value="taxon">Nombre de taxón</option>
+                            <option value="automated">Automatizada (Archivo .txt)</option>
+                        </select>
+                    </div>
+
+                    <!-- Accession Input -->
+                    <div id="accessionInputDiv" class="mb-6">
+                        <label for="accessionInput" class="block text-sm font-medium text-gray-700">Número de accesión</label>
+                        <input id="accessionInput" type="text" placeholder="Ejemplo: NC_045512.2" class="mt-2 block w-full rounded-lg border-green-200 shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50 bg-green-50 transition-colors duration-200" />
+                    </div>
+
+                    <!-- Taxon Input -->
+                    <div id="taxonInputDiv" class="mb-6" style="display: none;">
+                        <label for="taxonInput" class="block text-sm font-medium text-gray-700">Nombre de taxón</label>
+                        <input id="taxonInput" type="text" placeholder="Ejemplo: Saccharomyces cerevisiae" class="mt-2 block w-full rounded-lg border-green-200 shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50 bg-green-50 transition-colors duration-200" />
+                    </div>
+
+                    <!-- File Upload -->
+                    <div id="fileUploadDiv" class="mb-6" style="display: none;">
+                        <label for="fileUpload" class="block text-sm font-medium text-gray-700">Suba un archivo .txt con múltiples accesiones</label>
+                        <div class="flex items-center mt-2">
+                            <input id="fileUpload" type="file" accept=".txt" class="hidden" />
+                            <button type="button" onClick="document.getElementById('fileUpload').click()" class="inline-flex items-center px-4 py-2 rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
+                                <i class="fas fa-upload mr-2"></i>
+                                Subir archivo
+                            </button>
+                            <span id="fileName" class="ml-3 text-sm text-green-600"></span>
+                        </div>
+                    </div>
+
+                    <!-- Include Options -->
+                    <div class="mb-6">
+                        <span class="block text-sm font-medium text-gray-700 mb-2">Opciones a incluir</span>
+                        <div class="flex flex-wrap gap-2">
+                            <button class="includeOption px-4 py-2 rounded-lg text-sm font-medium bg-green-500 text-white transition-all duration-200 hover:shadow-md" data-option="genome">
+                                <i class="fas fa-dna mr-1"></i>genome
+                            </button>
+                            <button class="includeOption px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 transition-all duration-200 hover:shadow-md" data-option="protein">
+                                <i class="fas fa-microscope mr-1"></i>protein
+                            </button>
+                            <button class="includeOption px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 transition-all duration-200 hover:shadow-md" data-option="rna">
+                                <i class="fas fa-wave-square mr-1"></i>rna
+                            </button>
+                            <button class="includeOption px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 transition-all duration-200 hover:shadow-md" data-option="cds">
+                                <i class="fas fa-code mr-1"></i>cds
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Assembly Level -->
+                    <div class="mb-8">
+                        <label for="assemblyLevel" class="block text-sm font-medium text-gray-700">Nivel de ensamblaje</label>
+                        <select id="assemblyLevel" class="mt-2 block w-full rounded-lg border-green-200 shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50 bg-green-50 transition-colors duration-200">
+                            <option value="">Cualquiera</option>
+                            <option value="complete">Completo</option>
+                            <option value="chromosome">Cromosoma</option>
+                            <option value="scaffold">Scaffold</option>
+                            <option value="contig">Contig</option>
+                        </select>
+                    </div>
+
+                    <!-- Download Button -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <button onClick="handleDownload()" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200">
+                            <i class="fas fa-download mr-2"></i>
+                            Descargar genoma(s)
+                        </button>
+                        
+                        <button onClick="handleExampleDownload()" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                            <i class="fas fa-vial mr-2"></i>
+                            Probar con ejemplo (Genoma humano)
+                        </button>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="mt-6">
+                        <progress id="progressBar" value="0" max="100" class="w-full h-2 bg-green-100 rounded-full overflow-hidden">
+                            <div class="w-1/2 h-full bg-green-500"></div>
+                        </progress>
+                    </div>
+
+                    <!-- Download Link -->
+                    <div id="downloadLink" class="mt-4 text-center"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="bg-gray-800 text-white mt-auto">
+    <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+        <p class="text-center text-sm">© 2024 FungiTG. Todos los derechos reservados.</p>
+    </div>
+</footer>
+
+<script>
+    let includeOptions = ['genome'];
+    const apiEndpoint = '<%= apiEndpoint %>' || 'http://localhost:3009/api';
+
+    document.querySelectorAll('.includeOption').forEach(button => {
+        button.addEventListener('click', function() {
+            const option = this.getAttribute('data-option');
+            if (includeOptions.includes(option)) {
+                includeOptions = includeOptions.filter(o => o !== option);
+                this.classList.remove('bg-green-500', 'text-white');
+                this.classList.add('bg-gray-200', 'text-gray-700');
+            } else {
+                includeOptions.push(option);
+                this.classList.remove('bg-gray-200', 'text-gray-700');
+                this.classList.add('bg-green-500', 'text-white');
+            }
+        });
+    });
+
+    document.getElementById('downloadMode').addEventListener('change', function(event) {
+        const mode = event.target.value;
+        document.getElementById('accessionInputDiv').style.display = 'none';
+        document.getElementById('taxonInputDiv').style.display = 'none';
+        document.getElementById('fileUploadDiv').style.display = 'none';
+
+        if (mode === 'accession') {
+            document.getElementById('accessionInputDiv').style.display = 'block';
+        } else if (mode === 'taxon') {
+            document.getElementById('taxonInputDiv').style.display = 'block';
+        } else if (mode === 'automated') {
+            document.getElementById('fileUploadDiv').style.display = 'block';
+        }
+    });
+
+    document.getElementById('fileUpload').addEventListener('change', function(event) {
+        const fileName = event.target.files[0]?.name || '';
+        document.getElementById('fileName').textContent = fileName;
+    });
+
+    function simulateProgress() {
+        let progressBar = document.getElementById('progressBar');
+        let progress = 0;
+        let interval = setInterval(() => {
+            progress += 5;
+            progressBar.value = progress;
+            if (progress >= 90) {
+                clearInterval(interval);
+            }
+        }, 1000);
+        return interval;
+    }
+
+    function handleDownload() {
+        const progressInterval = simulateProgress();
+
+        const downloadMode = document.getElementById('downloadMode').value;
+        const accessionNumber = document.getElementById('accessionInput').value;
+        const taxonName = document.getElementById('taxonInput').value;
+        const fileInput = document.getElementById('fileUpload');
+        const file = fileInput.files[0];
+        const assemblyLevel = document.getElementById('assemblyLevel').value;
+
+        if (downloadMode === 'accession' && !accessionNumber) {
+            alert('Por favor ingrese un número de accesión');
+            clearInterval(progressInterval);
+            return;
+        }
+
+        if (downloadMode === 'taxon' && !taxonName) {
+            alert('Por favor ingrese un nombre o ID de taxón');
+            clearInterval(progressInterval);
+            return;
+        }
+
+        if (downloadMode === 'automated' && !file) {
+            alert('Por favor suba un archivo .txt');
+            clearInterval(progressInterval);
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('downloadMode', downloadMode);
+        if (accessionNumber) formData.append('accessionNumber', accessionNumber);
+        if (taxonName) formData.append('taxonName', taxonName);
+        if (file) formData.append('accessionFile', file);
+        formData.append('assemblyLevel', assemblyLevel);
+        includeOptions.forEach(option => formData.append('includeOptions[]', option));
+
+        fetch(`${apiEndpoint}/download-genomes`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Respuesta del servidor:', data);
+            clearInterval(progressInterval);
+            
+            let progressBar = document.getElementById('progressBar');
+            progressBar.value = 100;
+            
+            if (data.success && data.downloadId) {
+                const downloadLinkDiv = document.getElementById('downloadLink');
+                const downloadId = data.downloadId;
+                
+                // Verificar si hay resultados exitosos
+                const successfulDownloads = data.results?.filter(r => r.status === 'success') || [];
+                
+                if (successfulDownloads.length > 0) {
+                    // Crear enlaces directos a los archivos ZIP
+                    let downloadsHTML = '<ul class="mt-3 list-disc list-inside space-y-2">';
+                    
+                    successfulDownloads.forEach(download => {
+                        const accessionOrTaxon = download.accession || download.taxon;
+                        const zipFile = download.zipFile;
+                        
+                        if (zipFile) {
+                            downloadsHTML += `
+                                <li class="flex items-center">
+                                    <span class="text-green-700">${accessionOrTaxon || 'Genoma'}: </span>
+                                    <a href="${apiEndpoint}/download-file/${downloadId}/${accessionOrTaxon}/${zipFile}" 
+                                       class="ml-2 text-blue-600 hover:text-blue-800 hover:underline" 
+                                       download="${zipFile}">
+                                       <i class="fas fa-file-archive mr-1"></i>${zipFile}
+                                    </a>
+                                </li>`;
+                        }
+                    });
+                    
+                    downloadsHTML += '</ul>';
+                    
+                    downloadLinkDiv.innerHTML = `
+                        <div class="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                            <h3 class="text-lg font-medium text-green-800 mb-2">Descarga completada</h3>
+                            <p class="text-sm text-green-700 mb-3">Se han descargado ${successfulDownloads.length} genoma(s) correctamente.</p>
+                            <p class="text-sm font-medium text-green-800">Haz clic en los enlaces para descargar los archivos ZIP:</p>
+                            ${downloadsHTML}
+                        </div>`;
+                } else {
+                    downloadLinkDiv.innerHTML = `
+                        <div class="mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                            <h3 class="text-lg font-medium text-yellow-800">Advertencia</h3>
+                            <p class="text-sm text-yellow-700">No se pudieron descargar los genomas solicitados.</p>
+                        </div>`;
+                }
+            } else {
+                const downloadLinkDiv = document.getElementById('downloadLink');
+                downloadLinkDiv.innerHTML = `
+                    <div class="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
+                        <h3 class="text-lg font-medium text-red-800">Error</h3>
+                        <p class="text-sm text-red-700">${data.error || 'Error desconocido durante la descarga'}</p>
+                    </div>`;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            clearInterval(progressInterval);
+            
+            let progressBar = document.getElementById('progressBar');
+            progressBar.value = 0;
+            
+            const downloadLinkDiv = document.getElementById('downloadLink');
+            downloadLinkDiv.innerHTML = `
+                <div class="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
+                    <h3 class="text-lg font-medium text-red-800">Error</h3>
+                    <p class="text-sm text-red-700">${error.message || 'Error desconocido durante la descarga'}</p>
+                </div>`;
+        });
+    }
+
+    function handleExampleDownload() {
+        const progressInterval = simulateProgress();
+
+        const formData = new FormData();
+        formData.append('downloadMode', 'example');
+        formData.append('includeOptions[]', 'genome');
+
+        fetch(`${apiEndpoint}/download-genomes`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Respuesta del servidor (ejemplo):', data);
+            clearInterval(progressInterval);
+            
+            let progressBar = document.getElementById('progressBar');
+            progressBar.value = 100;
+            
+            if (data.success && data.downloadId) {
+                const downloadLinkDiv = document.getElementById('downloadLink');
+                const downloadId = data.downloadId;
+                
+                // Verificar si hay resultados exitosos
+                const successfulDownloads = data.results?.filter(r => r.status === 'success') || [];
+                
+                if (successfulDownloads.length > 0) {
+                    // Crear enlaces directos a los archivos ZIP
+                    let downloadsHTML = '<ul class="mt-3 list-disc list-inside space-y-2">';
+                    
+                    successfulDownloads.forEach(download => {
+                        const accessionOrTaxon = download.accession || download.taxon;
+                        const zipFile = download.zipFile;
+                        
+                        if (zipFile) {
+                            downloadsHTML += `
+                                <li class="flex items-center">
+                                    <span class="text-green-700">${accessionOrTaxon || 'Genoma'}: </span>
+                                    <a href="${apiEndpoint}/download-file/${downloadId}/${accessionOrTaxon}/${zipFile}" 
+                                       class="ml-2 text-blue-600 hover:text-blue-800 hover:underline" 
+                                       download="${zipFile}">
+                                       <i class="fas fa-file-archive mr-1"></i>${zipFile}
+                                    </a>
+                                </li>`;
+                        }
+                    });
+                    
+                    downloadsHTML += '</ul>';
+                    
+                    downloadLinkDiv.innerHTML = `
+                        <div class="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                            <h3 class="text-lg font-medium text-green-800 mb-2">Descarga de ejemplo completada</h3>
+                            <p class="text-sm text-green-700 mb-3">Se ha descargado el genoma humano (hg38) correctamente como ejemplo.</p>
+                            <p class="text-sm font-medium text-green-800">Haz clic en los enlaces para descargar los archivos ZIP:</p>
+                            ${downloadsHTML}
+                        </div>`;
+                } else {
+                    downloadLinkDiv.innerHTML = `
+                        <div class="mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                            <h3 class="text-lg font-medium text-yellow-800">Advertencia</h3>
+                            <p class="text-sm text-yellow-700">No se pudo descargar el genoma de ejemplo (SARS-CoV-2).</p>
+                        </div>`;
+                }
+            } else {
+                const downloadLinkDiv = document.getElementById('downloadLink');
+                downloadLinkDiv.innerHTML = `
+                    <div class="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
+                        <h3 class="text-lg font-medium text-red-800">Error</h3>
+                        <p class="text-sm text-red-700">${data.error || 'Error desconocido durante la descarga del ejemplo'}</p>
+                    </div>`;
+            }
+        })
+        .catch(error => {
+            console.error('Error en ejemplo:', error);
+            clearInterval(progressInterval);
+            
+            let progressBar = document.getElementById('progressBar');
+            progressBar.value = 0;
+            
+            const downloadLinkDiv = document.getElementById('downloadLink');
+            downloadLinkDiv.innerHTML = `
+                <div class="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
+                    <h3 class="text-lg font-medium text-red-800">Error</h3>
+                    <p class="text-sm text-red-700">${error.message}</p>
+                </div>`;
+        });
+    }
+
+    // Inicialización del explorador de archivos cuando se carga la página
+    document.addEventListener('DOMContentLoaded', function() {
+        // Usar la API global expuesta por el partial del explorador de archivos
+        if (window.FileExplorer) {
+            window.FileExplorer.navigateTo('raw', 'genomes');
+        }
+    });
+</script>
+
+<%- include('partials/footer') %>

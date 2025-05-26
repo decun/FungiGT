@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FungiTG</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .glass-effect {
+            background: rgba(167, 243, 208, 0.2);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .nav-item-hover:hover {
+            background: rgba(167, 243, 208, 0.3);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <header class="bg-gradient-to-r from-green-300 via-green-200 to-green-300 text-gray-800 shadow-lg">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center">
+                <!-- Logo section -->
+                <h1 class="text-2xl font-bold flex items-center">
+                    <a href="/" class="flex items-center space-x-2">
+                        <img src="/logo1.png" alt="FungiTG Logo" class="h-12 w-12 transform hover:rotate-12 transition-transform duration-300" />
+                        <span class="text-green-800 hover:text-green-700 transition-colors duration-300">FungiTG</span>
+                    </a>
+                </h1>
+
+                <!-- Navigation -->
+                <nav class="flex items-center">
+                    <ul class="flex space-x-2 mr-4">
+                        <li>
+                            <a href="/database" class="flex items-center space-x-2 px-4 py-2 rounded-lg glass-effect nav-item-hover transition-all duration-300">
+                                <i class="fas fa-database text-green-700"></i>
+                                <span class="font-medium">Genomas NCBI</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/annotator" class="flex items-center space-x-2 px-4 py-2 rounded-lg glass-effect nav-item-hover transition-all duration-300">
+                                <i class="fas fa-dna text-green-700"></i>
+                                <span class="font-medium">Anotación Genómica</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/analyzer" class="flex items-center space-x-2 px-4 py-2 rounded-lg glass-effect nav-item-hover transition-all duration-300">
+                                <i class="fas fa-microscope text-green-700"></i>
+                                <span class="font-medium">Análisis</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/visualizer" class="flex items-center space-x-2 px-4 py-2 rounded-lg glass-effect nav-item-hover transition-all duration-300">
+                                <i class="fas fa-chart-network text-green-700"></i>
+                                <span class="font-medium">Visualización</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Profile Menu -->
+                    <div class="relative">
+                        <button 
+                            class="w-10 h-10 rounded-full glass-effect flex items-center justify-center focus:outline-none hover:bg-green-200 transition-colors duration-300"
+                            onClick="document.getElementById('profileMenu').classList.toggle('hidden')"
+                        >
+                            <i class="fas fa-user text-green-700"></i>
+                        </button>
+                        <div id="profileMenu" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 hidden transform origin-top-right transition-all duration-300">
+                            <a href="#" class="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-green-50">
+                                <i class="fas fa-user-circle"></i>
+                                <span>Perfil</span>
+                            </a>
+                            <a href="#" class="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-green-50">
+                                <i class="fas fa-cog"></i>
+                                <span>Configuración</span>
+                            </a>
+                            <a href="#" class="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-green-50">
+                                <i class="fas fa-history"></i>
+                                <span>Historial de uso</span>
+                            </a>
+                            <a href="#" class="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-green-50">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Cerrar sesión</span>
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
