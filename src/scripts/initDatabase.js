@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 // URI de MongoDB
-const MONGODB_URI = 'mongodb+srv://admin:admin44@genomictools.b2hfvdg.mongodb.net/?retryWrites=true&w=majority&appName=GenomicTools';
+const MONGODB_URI = process.env.MONGODB_URI ;
 
 // Definición del esquema de usuario
 const userSchema = new mongoose.Schema({
