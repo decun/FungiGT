@@ -29,3 +29,16 @@ yarn-error.log*
 # Sistema operativo
 .DS_Store
 Thumbs.db
+
+# Imágenes generadas
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
+**/*.bmp
+**/*.svg
+**/*.ico
+
+# Excepciones: iconos y logos de la aplicación
+!src/frontend/public/logo*.png
+!src/frontend/public/favicon.ico
