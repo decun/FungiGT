@@ -1,0 +1,3 @@
+# Dependencias para scripts de FungiGT
+requests>=2.25.0
+pathlib 

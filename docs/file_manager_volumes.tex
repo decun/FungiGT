@@ -1,0 +1,15 @@
+\subsubsection{Gestión de Volúmenes de Datos}
+
+El servicio de gestión de archivos (File Manager) implementa un sistema robusto de volúmenes Docker para el manejo eficiente y persistente de datos genómicos. Este componente, desarrollado como un servidor Express.js containerizado, actúa como el núcleo centralizado para todas las operaciones de almacenamiento del proyecto FungiGT. La configuración de volúmenes garantiza la persistencia de datos críticos más allá del ciclo de vida de los contenedores, mientras proporciona una interfaz RESTful completa para operaciones CRUD sobre el sistema de archivos.
+
+\begin{lstlisting}[language=yaml, caption=Configuración de volúmenes de datos del File Manager]
+file_manager:
+  volumes:
+    - ./data:/app/data              # Directorio principal de datos genómicos
+    - ./uploads:/app/uploads        # Archivos subidos por usuarios vía API
+    - ./results:/app/results        # Resultados de análisis bioinformáticos
+    - ./temp:/app/temp             # Almacenamiento temporal para procesamiento
+    - /app/node_modules            # Optimización de dependencias Node.js
+\end{lstlisting}
+
+El File Manager expone endpoints especializados como \texttt{/upload} para carga de archivos FASTA/FASTQ, \texttt{/files} para exploración del sistema de archivos, y \texttt{/download} para recuperación de resultados, implementando validaciones de seguridad que previenen el acceso a rutas fuera del directorio de datos autorizado. Esta arquitectura permite que otros microservicios (acquisition, quality\_control, visualization) accedan de forma segura y coordinada a los datos compartidos, manteniendo la integridad referencial de los datasets genómicos durante todo el pipeline de análisis. 

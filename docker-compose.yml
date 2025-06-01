@@ -1,51 +1,34 @@
 version: '3.8'
 
 services:
-  frontend:
-    build:
-      context: .
-      dockerfile: infrastructure/docker/frontend/Dockerfile
+  # Base de datos MongoDB
+  mongodb:
+    image: mongo:7.0
+    container_name: fungigt-mongodb
     ports:
-      - "${FRONTEND_PORT:-4005}:${FRONTEND_PORT:-4005}"
-    volumes:
-      - ./src/frontend:/app
-      - /app/node_modules
+      - "27017:27017"
     environment:
-      - NODE_ENV=${NODE_ENV:-development}
-      - FRONTEND_PORT=${FRONTEND_PORT:-4005}
-      - JWT_SECRET=${JWT_SECRET}
-      - SESSION_SECRET=${SESSION_SECRET}
-      - AUTH_SERVICE_URL=http://auth:${AUTH_PORT:-4001}
-    env_file:
-      - .env
-    depends_on:
-      - backend
-      - auth
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD:-admin123}
+      - MONGO_INITDB_DATABASE=${MONGO_DATABASE:-fungigt}
+    volumes:
+      - mongodb_data:/data/db
+      - ./scripts/mongo-init:/docker-entrypoint-initdb.d:ro
     networks:
       - fungigt-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  backend:
-    build:
-      context: .
-      dockerfile: infrastructure/docker/backend/Dockerfile
-    ports:
-      - "${BACKEND_PORT:-5000}:${BACKEND_PORT:-5000}"
-    volumes:
-      - ./src/backend:/app
-      - /app/node_modules
-    environment:
-      - NODE_ENV=${NODE_ENV:-development}
-      - BACKEND_PORT=${BACKEND_PORT:-5000}
-      - MONGODB_URI=${MONGODB_URI}
-    env_file:
-      - .env
-    networks:
-      - fungigt-network
-
+  # Servicio de autenticación
   auth:
     build:
       context: .
       dockerfile: infrastructure/docker/auth/Dockerfile
+    container_name: fungigt-auth
     ports:
       - "${AUTH_PORT:-4001}:${AUTH_PORT:-4001}"
     volumes:
@@ -54,72 +37,167 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - AUTH_PORT=${AUTH_PORT:-4001}
-      - JWT_SECRET=${JWT_SECRET}
-      - MONGODB_URI=${MONGODB_URI}
-    env_file:
-      - .env
+      - JWT_SECRET=${JWT_SECRET:-fungi-gt-secret-key-2024}
+      - MONGODB_URI=${MONGODB_URI:-mongodb://mongodb:27017/fungigt}
+    restart: unless-stopped
     networks:
       - fungigt-network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${AUTH_PORT:-4001}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  acquisition-ncbi:
+  # Frontend
+  frontend:
     build:
       context: .
-      dockerfile: src/modules/acquisition/ncbi_cli/Dockerfile
+      dockerfile: infrastructure/docker/frontend/Dockerfile
+    container_name: fungigt-frontend
+    ports:
+      - "${FRONTEND_PORT:-4005}:${FRONTEND_PORT:-4005}"
     volumes:
-      - ./data:/data
+      - ./src/frontend:/app
+      - ./src/backend:/app/backend
+      - /app/node_modules
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - FRONTEND_PORT=${FRONTEND_PORT:-4005}
+      - MONGODB_URI=${MONGODB_URI:-mongodb://mongodb:27017/fungigt}
+      - AUTH_SERVICE_URL=http://auth:${AUTH_PORT:-4001}
+    restart: unless-stopped
     networks:
       - fungigt-network
-    profiles:
-      - modules
-      - acquisition
+    depends_on:
+      auth:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${FRONTEND_PORT:-4005}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  checkm:
-    image: nanozoo/checkm:latest
+  # Gestión de archivos
+  file-manager:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/file_manager/Dockerfile
+    container_name: fungigt-file-manager
     volumes:
-      - ./data:/data
+      - ./src/modules/file_manager:/app
+      - ./data:/app/data
+      - /app/node_modules
+    ports:
+      - "4002:4002"
+    environment:
+      - PORT=4002
+      - NODE_ENV=${NODE_ENV:-development}
+    restart: unless-stopped
     networks:
       - fungigt-network
-    profiles:
-      - modules
-      - quality
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  eggnog-mapper:
-    image: nanozoo/eggnog-mapper:2.1.9--4f2b6c0
-    volumes:
-      - ./data:/data
-    networks:
-      - fungigt-network
-    profiles:
-      - modules
-      - analysis
-
-  braker3:
-    image: teambraker/braker3:latest
-    volumes:
-      - ./data:/data
-    networks:
-      - fungigt-network
-    profiles:
-      - modules
-      - annotation
-
+  # Visualización
   visualization:
     build:
       context: .
       dockerfile: infrastructure/docker/visualization/Dockerfile
+    container_name: fungigt-visualization
     volumes:
       - ./src/modules/visualization:/app
       - ./data:/app/data
+    ports:
+      - "4003:4003"
     environment:
+      - PORT=4003
       - PYTHONUNBUFFERED=1
+    restart: unless-stopped
     networks:
       - fungigt-network
-    profiles:
-      - modules
+    depends_on:
+      - file-manager
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Control de calidad
+  quality-control:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/quality_control/Dockerfile
+    container_name: fungigt-quality-control
+    volumes:
+      - ./src/modules/quality_control:/app
+      - ./data:/app/data
+      - /app/node_modules
+    ports:
+      - "4004:4004"
+    environment:
+      - PORT=4004
+      - NODE_ENV=${NODE_ENV:-development}
+    restart: unless-stopped
+    networks:
+      - fungigt-network
+    depends_on:
+      - file-manager
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Adquisición de datos
+  acquisition:
+    build:
+      context: .
+      dockerfile: src/modules/acquisition/ncbi_cli/Dockerfile
+    container_name: fungigt-acquisition
+    volumes:
+      - ./src/modules/acquisition:/app
+      - ./data:/data
+      - /app/node_modules
+    ports:
+      - "4006:4006"
+    environment:
+      - PORT=4006
+      - NODE_ENV=${NODE_ENV:-development}
+    restart: unless-stopped
+    networks:
+      - fungigt-network
+    depends_on:
+      - file-manager
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4006"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Anotación genómica (BRAKER3)
+  annotation:
+    image: teambraker/braker3:latest
+    container_name: fungigt-annotation
+    volumes:
+      - ./data:/data
+    networks:
+      - fungigt-network
+    restart: unless-stopped
 
 networks:
   fungigt-network:
     driver: bridge
+    name: fungigt-network
 
 volumes:
-  data: 
+  mongodb_data:
+    name: fungigt-mongodb-data
+  data:
+    name: fungigt-data 
