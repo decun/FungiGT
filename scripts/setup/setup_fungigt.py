@@ -42,7 +42,7 @@ def print_banner():
 ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝ ╚═╝ ╚═════╝    ╚═╝   
 {Colors.END}
 {Colors.GREEN}🧬 Plataforma de Análisis Genómico para Hongos{Colors.END}
-{Colors.YELLOW}🚀 Script de Autoinstalación v2.0{Colors.END}
+{Colors.YELLOW}🚀 Script de Autoinstalación v2.1{Colors.END}
 {Colors.WHITE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{Colors.END}
 """
     print(banner)
@@ -154,6 +154,189 @@ def create_directories():
         log('DEBUG', f"Directorio creado: {dir_path}")
     
     log('SUCCESS', "Estructura de directorios creada")
+
+def create_essential_files():
+    """Crear archivos esenciales para los servicios"""
+    log('INFO', "Creando archivos esenciales para servicios...")
+    
+    project_root = get_project_root()
+    
+    # ===== ARCHIVO DE CONEXIÓN A BASE DE DATOS PARA AUTH =====
+    auth_db_dir = project_root / "src/core/auth/database"
+    auth_db_dir.mkdir(parents=True, exist_ok=True)
+    
+    connection_file = auth_db_dir / "connection.js"
+    
+    if not connection_file.exists():
+        log('INFO', "Creando archivo de conexión a MongoDB para auth...")
+        
+        connection_content = '''const mongoose = require('mongoose');
+
+class DatabaseConnection {
+    constructor() {
+        this.isConnected = false;
+        this.maxRetries = 5;
+        this.retryDelay = 5000; // 5 segundos
+    }
+
+    async connect() {
+        if (this.isConnected) {
+            console.log('📦 Base de datos ya conectada');
+            return;
+        }
+
+        const mongoUri = process.env.MONGODB_URI || 'mongodb://admin:admin123@mongodb:27017/fungigt?authSource=admin';
+        
+        console.log('🔄 Conectando a MongoDB...');
+        console.log(`📍 URI: ${mongoUri.replace(/\\/\\/.*@/, '//***:***@')}`); // Ocultar credenciales en logs
+
+        let retries = 0;
+        
+        while (retries < this.maxRetries) {
+            try {
+                await mongoose.connect(mongoUri, {
+                    serverSelectionTimeoutMS: 10000, // 10 segundos
+                    connectTimeoutMS: 10000,
+                    socketTimeoutMS: 45000,
+                    maxPoolSize: 10,
+                    retryWrites: true,
+                    w: 'majority'
+                });
+
+                this.isConnected = true;
+                console.log('✅ Conectado exitosamente a MongoDB');
+                
+                // Configurar eventos de conexión
+                this.setupConnectionEvents();
+                
+                return;
+            } catch (error) {
+                retries++;
+                console.error(`❌ Error conectando a MongoDB (intento ${retries}/${this.maxRetries}):`, error.message);
+                
+                if (retries < this.maxRetries) {
+                    console.log(`⏳ Reintentando en ${this.retryDelay/1000} segundos...`);
+                    await this.delay(this.retryDelay);
+                } else {
+                    console.error('💥 Máximo número de reintentos alcanzado');
+                    throw error;
+                }
+            }
+        }
+    }
+
+    setupConnectionEvents() {
+        mongoose.connection.on('error', (error) => {
+            console.error('❌ Error de conexión MongoDB:', error);
+            this.isConnected = false;
+        });
+
+        mongoose.connection.on('disconnected', () => {
+            console.warn('⚠️ Desconectado de MongoDB');
+            this.isConnected = false;
+        });
+
+        mongoose.connection.on('reconnected', () => {
+            console.log('🔄 Reconectado a MongoDB');
+            this.isConnected = true;
+        });
+
+        // Cerrar conexión cuando la aplicación se cierra
+        process.on('SIGINT', async () => {
+            console.log('🛑 Cerrando conexión a MongoDB...');
+            await mongoose.connection.close();
+            process.exit(0);
+        });
+    }
+
+    delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async disconnect() {
+        if (this.isConnected) {
+            await mongoose.connection.close();
+            this.isConnected = false;
+            console.log('🔌 Desconectado de MongoDB');
+        }
+    }
+
+    getStatus() {
+        return {
+            connected: this.isConnected,
+            readyState: mongoose.connection.readyState,
+            host: mongoose.connection.host,
+            port: mongoose.connection.port,
+            name: mongoose.connection.name
+        };
+    }
+}
+
+// Exportar instancia singleton
+const dbConnection = new DatabaseConnection();
+module.exports = dbConnection;
+'''
+        
+        with open(connection_file, 'w', encoding='utf-8') as f:
+            f.write(connection_content)
+        
+        log('SUCCESS', f"✅ Archivo de conexión MongoDB creado: {connection_file.relative_to(project_root)}")
+    else:
+        log('DEBUG', "Archivo de conexión MongoDB ya existe")
+    
+    # ===== ARCHIVO .DOCKERIGNORE PARA OPTIMIZAR BUILDS =====
+    dockerignore_file = project_root / ".dockerignore"
+    if not dockerignore_file.exists():
+        log('INFO', "Creando archivo .dockerignore...")
+        
+        dockerignore_content = '''# Archivos de desarrollo
+node_modules
+npm-debug.log*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Archivos temporales
+.tmp/
+tmp/
+logs/
+*.log
+
+# Archivos de datos (demasiado grandes)
+data/raw/
+data/processed/
+data/uploads/
+data/downloads/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentación
+docs/
+README.md
+*.md
+'''
+        
+        with open(dockerignore_file, 'w', encoding='utf-8') as f:
+            f.write(dockerignore_content)
+        
+        log('SUCCESS', "✅ Archivo .dockerignore creado")
+    else:
+        log('DEBUG', "Archivo .dockerignore ya existe")
+    
+    log('SUCCESS', "🎉 Archivos esenciales creados correctamente")
 
 def cleanup_previous_installation():
     """Limpiar instalación previa"""
@@ -375,6 +558,8 @@ def main():
     parser.add_argument('--restart', action='store_true', help='Reiniciar servicios existentes')
     parser.add_argument('--clean', action='store_true', help='Limpieza completa antes de instalar')
     parser.add_argument('--skip-build', action='store_true', help='Saltar construcción de imágenes')
+    parser.add_argument('--start-services', action='store_true', help='Iniciar servicios después de construir (por defecto NO)')
+    parser.add_argument('--prepare-only', action='store_true', help='Solo preparar archivos y construir, no iniciar servicios')
     args = parser.parse_args()
     
     # Manejar Ctrl+C
@@ -391,6 +576,9 @@ def main():
         # Crear directorios
         create_directories()
         
+        # Crear archivos esenciales (NUEVO - incluye database/connection.js)
+        create_essential_files()
+        
         # Crear archivo .env
         create_env_file()
         
@@ -404,13 +592,21 @@ def main():
                 log('ERROR', "❌ Error en la construcción de servicios")
                 return 1
         
-        # Iniciar servicios
-        if not start_services():
-            log('ERROR', "❌ Error iniciando servicios")
-            return 1
-        
-        # Mostrar estado
-        show_service_status()
+        # Solo iniciar servicios si se solicita explícitamente
+        if args.start_services and not args.prepare_only:
+            log('INFO', "Iniciando servicios...")
+            if not start_services():
+                log('ERROR', "❌ Error iniciando servicios")
+                return 1
+            # Mostrar estado
+            show_service_status()
+        else:
+            log('SUCCESS', "🎉 Preparación completada exitosamente")
+            print(f"\n{Colors.GREEN}{Colors.BOLD}✅ FungiGT preparado correctamente{Colors.END}")
+            print(f"{Colors.CYAN}📋 Para iniciar servicios, ejecuta:{Colors.END}")
+            print(f"  {Colors.WHITE}python scripts/setup/start_services.py{Colors.END}")
+            print(f"\n{Colors.CYAN}📋 O ejecuta servicios individuales:{Colors.END}")
+            print(f"  {Colors.WHITE}docker compose -p fungigt up -d mongodb auth frontend{Colors.END}")
         
         return 0
         

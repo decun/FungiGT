@@ -1,0 +1,38 @@
+# Archivos de desarrollo
+node_modules
+npm-debug.log*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Archivos temporales
+.tmp/
+tmp/
+logs/
+*.log
+
+# Archivos de datos (demasiado grandes)
+data/raw/
+data/processed/
+data/uploads/
+data/downloads/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentación
+docs/
+README.md
+*.md

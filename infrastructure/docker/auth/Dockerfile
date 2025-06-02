@@ -1,5 +1,8 @@
 FROM node:18-alpine
 
+# Instalar curl para healthchecks
+RUN apk add --no-cache curl
+
 WORKDIR /app
 
 # Crear package.json si no existe o usar el existente
@@ -14,9 +17,9 @@ RUN test -f package.json || echo '{ \
   }, \
   "dependencies": { \
     "express": "^4.18.2", \
-    "mongoose": "^6.9.0", \
+    "mongoose": "^8.15.0", \
     "jsonwebtoken": "^9.0.0", \
-    "bcrypt": "^5.1.0", \
+    "bcryptjs": "^2.4.3", \
     "cors": "^2.8.5", \
     "dotenv": "^16.0.3" \
   } \
@@ -25,8 +28,23 @@ RUN test -f package.json || echo '{ \
 # Instalar dependencias
 RUN npm install
 
-# Copiar el resto de la aplicación
-COPY src/core/auth ./
+# Copiar código del servicio auth
+COPY src/core/auth/index.js ./
+COPY src/core/auth/routes ./routes
+COPY src/core/auth/middleware ./middleware
+COPY src/core/auth/services ./services
+COPY src/core/auth/models ./models
+
+# Copiar módulo de database (creado automáticamente por el script)
+COPY src/core/auth/database ./database
+
+# Crear usuario no-root para seguridad
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001
+
+# Cambiar permisos
+RUN chown -R nextjs:nodejs /app
+USER nextjs
 
 # Exponer el puerto
 EXPOSE ${AUTH_PORT:-4001}

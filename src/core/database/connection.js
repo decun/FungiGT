@@ -7,7 +7,7 @@ dotenv.config();
 class DatabaseConnection {
     constructor() {
         this.connection = null;
-        this.mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/fungigt';
+        this.mongoUri = process.env.MONGODB_URI || 'mongodb://mongodb:27017/fungigt';
     }
 
     async connect() {

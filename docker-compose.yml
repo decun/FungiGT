@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Base de datos MongoDB
   mongodb:
@@ -22,6 +20,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
 
   # Servicio de autenticación
   auth:
@@ -38,7 +37,7 @@ services:
       - NODE_ENV=${NODE_ENV:-development}
       - AUTH_PORT=${AUTH_PORT:-4001}
       - JWT_SECRET=${JWT_SECRET:-fungi-gt-secret-key-2024}
-      - MONGODB_URI=${MONGODB_URI:-mongodb://mongodb:27017/fungigt}
+      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin123@mongodb:27017/fungigt?authSource=admin}
     restart: unless-stopped
     networks:
       - fungigt-network
@@ -46,10 +45,11 @@ services:
       mongodb:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${AUTH_PORT:-4001}/health"]
-      interval: 30s
+      test: ["CMD-SHELL", "curl -f http://localhost:4001/health || exit 1"]
+      interval: 15s
       timeout: 10s
-      retries: 3
+      retries: 5
+      start_period: 40s
 
   # Frontend
   frontend:
@@ -66,8 +66,9 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - FRONTEND_PORT=${FRONTEND_PORT:-4005}
-      - MONGODB_URI=${MONGODB_URI:-mongodb://mongodb:27017/fungigt}
+      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin123@mongodb:27017/fungigt?authSource=admin}
       - AUTH_SERVICE_URL=http://auth:${AUTH_PORT:-4001}
+      - API_BASE_URL=http://localhost:${AUTH_PORT:-4001}
     restart: unless-stopped
     networks:
       - fungigt-network
@@ -75,10 +76,11 @@ services:
       auth:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${FRONTEND_PORT:-4005}"]
-      interval: 30s
+      test: ["CMD", "curl", "-f", "http://localhost:${FRONTEND_PORT:-4005}", "||", "exit", "1"]
+      interval: 15s
       timeout: 10s
-      retries: 3
+      retries: 5
+      start_period: 40s
 
   # Gestión de archivos
   file-manager:
@@ -87,24 +89,27 @@ services:
       dockerfile: infrastructure/docker/file_manager/Dockerfile
     container_name: fungigt-file-manager
     volumes:
-      - ./src/modules/file_manager:/app
       - ./data:/app/data
-      - /app/node_modules
     ports:
       - "4002:4002"
     environment:
       - PORT=4002
       - NODE_ENV=${NODE_ENV:-development}
+      - DATA_DIR=/app/data
     restart: unless-stopped
     networks:
       - fungigt-network
+    depends_on:
+      mongodb:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4002/health"]
-      interval: 30s
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:4002/health || exit 1"]
+      interval: 15s
       timeout: 10s
       retries: 3
+      start_period: 40s
 
-  # Visualización
+  # Visualización (custom - generado por nosotros)
   visualization:
     build:
       context: .
@@ -122,14 +127,15 @@ services:
     networks:
       - fungigt-network
     depends_on:
-      - file-manager
+      - mongodb
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4003/health"]
-      interval: 30s
+      test: ["CMD", "curl", "-f", "http://localhost:4003/health", "||", "exit", "1"]
+      interval: 15s
       timeout: 10s
       retries: 3
+      start_period: 40s
 
-  # Control de calidad
+  # Control de calidad con CheckM integrado
   quality-control:
     build:
       context: .
@@ -144,18 +150,20 @@ services:
     environment:
       - PORT=4004
       - NODE_ENV=${NODE_ENV:-development}
+      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin123@mongodb:27017/fungigt?authSource=admin}
     restart: unless-stopped
     networks:
       - fungigt-network
     depends_on:
-      - file-manager
+      - mongodb
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4004/health"]
-      interval: 30s
+      test: ["CMD", "curl", "-f", "http://localhost:4004/health", "||", "exit", "1"]
+      interval: 15s
       timeout: 10s
       retries: 3
+      start_period: 40s
 
-  # Adquisición de datos
+  # Adquisición de datos (custom - generado por nosotros)
   acquisition:
     build:
       context: .
@@ -170,26 +178,85 @@ services:
     environment:
       - PORT=4006
       - NODE_ENV=${NODE_ENV:-development}
+      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin123@mongodb:27017/fungigt?authSource=admin}
     restart: unless-stopped
     networks:
       - fungigt-network
     depends_on:
-      - file-manager
+      - mongodb
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4006"]
-      interval: 30s
+      test: ["CMD", "curl", "-f", "http://localhost:4006", "||", "exit", "1"]
+      interval: 15s
       timeout: 10s
       retries: 3
+      start_period: 40s
 
-  # Anotación genómica (BRAKER3)
+  # ===== SERVICIOS EXTERNOS DE DOCKER HUB =====
+  
+  # Anotación genómica automática (BRAKER3) - Docker Hub
   annotation:
     image: teambraker/braker3:latest
     container_name: fungigt-annotation
     volumes:
       - ./data:/data
+      - ./data/braker_output:/opt/BRAKER/output
+    working_dir: /data
     networks:
       - fungigt-network
     restart: unless-stopped
+    command: tail -f /dev/null  # Mantiene el contenedor activo
+    environment:
+      - BRAKER_HOME=/opt/BRAKER
+    profiles:
+      - tools  # Solo se inicia con perfil "tools"
+
+  # CheckM para evaluación de completitud genómica - Docker Hub
+  checkm:
+    image: nanozoo/checkm:latest
+    container_name: fungigt-checkm
+    volumes:
+      - ./data:/data
+      - ./data/checkm_output:/output
+    working_dir: /data
+    networks:
+      - fungigt-network
+    restart: unless-stopped
+    command: tail -f /dev/null  # Mantiene el contenedor activo
+    profiles:
+      - tools  # Solo se inicia con perfil "tools"
+
+  # Análisis funcional con EggNOG - Docker Hub (Biocontainers)
+  functional-analysis:
+    image: quay.io/biocontainers/eggnog-mapper:2.1.12--pyhdfd78af_1
+    container_name: fungigt-eggnog
+    volumes:
+      - ./data:/data
+      - ./data/eggnog_output:/output
+    working_dir: /data
+    networks:
+      - fungigt-network
+    restart: unless-stopped
+    command: tail -f /dev/null  # Mantiene el contenedor activo
+    profiles:
+      - tools  # Solo se inicia con perfil "tools"
+
+  # Análisis filogenético con BLAST - Docker Hub
+  phylogeny:
+    image: ncbi/blast:latest
+    container_name: fungigt-blast
+    volumes:
+      - ./data:/data
+      - ./data/blast_output:/output
+      - ./data/blast_db:/blast/blastdb
+    working_dir: /data
+    networks:
+      - fungigt-network
+    restart: unless-stopped
+    command: tail -f /dev/null  # Mantiene el contenedor activo
+    environment:
+      - BLASTDB=/blast/blastdb
+    profiles:
+      - tools  # Solo se inicia con perfil "tools"
 
 networks:
   fungigt-network:

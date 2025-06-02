@@ -9,7 +9,7 @@ const cors = require('cors');
 
 // Inicializar aplicación Express
 const app = express();
-const PORT = process.env.PORT || 3009;
+const PORT = process.env.PORT || 4002;
 
 // Configuración del directorio de datos
 const DATA_DIR = path.join(__dirname, '../../../data');
@@ -442,10 +442,22 @@ app.get('/api/files/:category/:subcategory', (req, res) => {
     }
 });
 
-// Iniciar servidor
-app.listen(PORT, () => {
-  console.log(`Servicio de gestión de archivos ejecutándose en el puerto ${PORT}`);
+// Endpoint de health check (NUEVO)
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'OK',
+        service: 'FungiGT File Manager',
+        version: '2.0.0',
+        timestamp: new Date().toISOString(),
+        dataDir: DATA_DIR
+    });
+});
+
+// Iniciar servidor (ACTUALIZADO)
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Servicio de gestión de archivos ejecutándose en el puerto ${PORT}`);
     console.log(`Directorio de datos: ${DATA_DIR}`);
+    console.log(`Health check disponible en: http://localhost:${PORT}/health`);
 });
 
 // Manejo de errores no capturados

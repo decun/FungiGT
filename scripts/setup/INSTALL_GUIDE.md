@@ -21,6 +21,11 @@ python scripts/setup/quick_start.py
 python scripts/setup/stop_services.py
 ```
 
+### 🔧 Solucionador de Problemas Docker
+```bash
+python scripts/setup/fix_docker_network.py
+```
+
 ## 🔧 Opciones Avanzadas
 
 ### Reinstalación Completa
@@ -44,6 +49,7 @@ python scripts/setup/stop_services.py --remove-volumes --cleanup
 - `setup_fungigt.py` - **Script maestro de autoinstalación**
 - `quick_start.py` - Inicio rápido para uso diario
 - `stop_services.py` - Detención controlada de servicios
+- `fix_docker_network.py` - **🆕 Solucionador de problemas Docker**
 - `requirements.txt` - Dependencias Python
 
 ### Configuración
@@ -72,6 +78,11 @@ python scripts/setup/stop_services.py --remove-volumes --cleanup
 - Banners coloridos y informativos
 - Logs con timestamps y niveles
 - Información clara de acceso
+
+### 🛠️ Solucionador de Problemas Integrado
+- Diagnóstico automático de errores de Docker
+- Limpieza de caché y recursos
+- Soluciones paso a paso para errores comunes
 
 ## 🗄️ Servicios Incluidos
 
@@ -117,6 +128,12 @@ data/
 
 ## 🛠️ Solución de Problemas Comunes
 
+### ⚡ Solucionador Automático
+Si experimentas errores durante la instalación:
+```bash
+python scripts/setup/fix_docker_network.py
+```
+
 ### Error: Docker no encontrado
 ```bash
 # Verificar instalación
@@ -125,6 +142,14 @@ docker compose version
 
 # Si falla, instalar Docker Desktop
 # https://www.docker.com/products/docker-desktop
+```
+
+### Error: RST_STREAM con INTERNAL_ERROR
+```bash
+# 🆕 Usar el solucionador automático
+python scripts/setup/fix_docker_network.py
+
+# Selecciona opción 1: Solución rápida automática
 ```
 
 ### Error: Puerto ocupado
@@ -140,15 +165,48 @@ python scripts/setup/stop_services.py --force
 ```bash
 # Aumentar memoria asignada a Docker Desktop
 # Docker Desktop > Settings > Resources > Memory > 4GB+
+
+# O usar el solucionador:
+python scripts/setup/fix_docker_network.py
+# Selecciona opción 4: Mostrar cómo aumentar recursos
 ```
 
 ### Error: Construcción fallida
 ```bash
 # Limpiar caché de Docker
+python scripts/setup/fix_docker_network.py
+# Selecciona opción 2: Limpiar caché de Docker
+
+# O manualmente:
 docker system prune -f
+docker builder prune -f
 
 # Reinstalar completamente
 python scripts/setup/setup_fungigt.py --clean
+```
+
+### Construcción Individual de Servicios
+Si fallan servicios específicos:
+```bash
+# Construcción manual paso a paso
+python scripts/setup/fix_docker_network.py
+# Selecciona opción 8: Construcción manual paso a paso
+
+# O comandos individuales:
+docker compose -p fungigt build auth
+docker compose -p fungigt build file-manager
+docker compose -p fungigt build frontend
+```
+
+### Problemas de Red/DNS
+```bash
+# Solucionar DNS automáticamente
+python scripts/setup/fix_docker_network.py
+# Selecciona opción 6: Solucionar problemas de DNS
+
+# Verificar conectividad
+python scripts/setup/fix_docker_network.py  
+# Selecciona opción 5: Verificar conectividad de red
 ```
 
 ## 📝 Logs y Debugging
