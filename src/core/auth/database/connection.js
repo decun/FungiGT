@@ -13,7 +13,7 @@ class DatabaseConnection {
             return;
         }
 
-        const mongoUri = process.env.MONGODB_URI || 'mongodb://admin:admin123@mongodb:27017/fungigt?authSource=admin';
+        const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/test';
         
         console.log('🔄 Conectando a MongoDB...');
         console.log(`📍 URI: ${mongoUri.replace(/\/\/.*@/, '//***:***@')}`); // Ocultar credenciales en logs

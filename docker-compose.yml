@@ -8,7 +8,7 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER:-admin}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD:-admin123}
-      - MONGO_INITDB_DATABASE=${MONGO_DATABASE:-fungigt}
+      - MONGO_INITDB_DATABASE=${MONGO_DATABASE:-test}
     volumes:
       - mongodb_data:/data/db
       - ./scripts/mongo-init:/docker-entrypoint-initdb.d:ro
@@ -37,7 +37,7 @@ services:
       - NODE_ENV=${NODE_ENV:-development}
       - AUTH_PORT=${AUTH_PORT:-4001}
       - JWT_SECRET=${JWT_SECRET:-fungi-gt-secret-key-2024}
-      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin123@mongodb:27017/fungigt?authSource=admin}
+      - MONGODB_URI=${MONGODB_URI:-mongodb://app:app123@mongodb:27017/fungigt?authSource=admin}
     restart: unless-stopped
     networks:
       - fungigt-network
@@ -66,7 +66,7 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - FRONTEND_PORT=${FRONTEND_PORT:-4005}
-      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin123@mongodb:27017/fungigt?authSource=admin}
+      - MONGODB_URI=${MONGODB_URI:-mongodb://app:app123@mongodb:27017/fungigt?authSource=admin}
       - AUTH_SERVICE_URL=http://auth:${AUTH_PORT:-4001}
       - API_BASE_URL=http://localhost:${AUTH_PORT:-4001}
     restart: unless-stopped
@@ -150,7 +150,7 @@ services:
     environment:
       - PORT=4004
       - NODE_ENV=${NODE_ENV:-development}
-      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin123@mongodb:27017/fungigt?authSource=admin}
+      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin123@mongodb:27017/test?authSource=admin}
     restart: unless-stopped
     networks:
       - fungigt-network
@@ -178,7 +178,7 @@ services:
     environment:
       - PORT=4006
       - NODE_ENV=${NODE_ENV:-development}
-      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin123@mongodb:27017/fungigt?authSource=admin}
+      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin123@mongodb:27017/test?authSource=admin}
     restart: unless-stopped
     networks:
       - fungigt-network
