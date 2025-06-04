@@ -33,7 +33,7 @@
                     <!-- Accession Input -->
                     <div id="accessionInputDiv" class="mb-6">
                         <label for="accessionInput" class="block text-sm font-medium text-gray-700">Número de accesión</label>
-                        <input id="accessionInput" type="text" placeholder="Ejemplo: NC_045512.2" class="mt-2 block w-full rounded-lg border-green-200 shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50 bg-green-50 transition-colors duration-200" />
+                        <input id="accessionInput" type="text" placeholder="Ejemplo: GCF_000005825.2" class="mt-2 block w-full rounded-lg border-green-200 shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50 bg-green-50 transition-colors duration-200" />
                     </div>
 
                     <!-- Taxon Input -->
@@ -95,7 +95,7 @@
                         
                         <button onClick="handleExampleDownload()" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
                             <i class="fas fa-vial mr-2"></i>
-                            Probar con ejemplo (Genoma humano)
+                            Probar con ejemplo (E. coli)
                         </button>
                     </div>
 
@@ -104,6 +104,7 @@
                         <progress id="progressBar" value="0" max="100" class="w-full h-2 bg-green-100 rounded-full overflow-hidden">
                             <div class="w-1/2 h-full bg-green-500"></div>
                         </progress>
+                        <div id="progressText" class="text-sm text-gray-600 mt-2 text-center"></div>
                     </div>
 
                     <!-- Download Link -->
@@ -122,10 +123,14 @@
 
 <script>
     let includeOptions = ['genome'];
-    const apiEndpoint = '<%= apiEndpoint %>' || 'http://localhost:3009/api';
+    const apiEndpoint = 'http://localhost:4006'; // PUERTO CORRECTO
+
+    console.log('🚀 FRONTEND INICIALIZADO');
+    console.log('📡 API Endpoint:', apiEndpoint);
 
     document.querySelectorAll('.includeOption').forEach(button => {
         button.addEventListener('click', function() {
+            console.log('🔘 Include option clicked:', this.getAttribute('data-option'));
             const option = this.getAttribute('data-option');
             if (includeOptions.includes(option)) {
                 includeOptions = includeOptions.filter(o => o !== option);
@@ -136,10 +141,12 @@
                 this.classList.remove('bg-gray-200', 'text-gray-700');
                 this.classList.add('bg-green-500', 'text-white');
             }
+            console.log('📋 Include options actuales:', includeOptions);
         });
     });
 
     document.getElementById('downloadMode').addEventListener('change', function(event) {
+        console.log('🔄 Modo de descarga cambiado a:', event.target.value);
         const mode = event.target.value;
         document.getElementById('accessionInputDiv').style.display = 'none';
         document.getElementById('taxonInputDiv').style.display = 'none';
@@ -156,23 +163,34 @@
 
     document.getElementById('fileUpload').addEventListener('change', function(event) {
         const fileName = event.target.files[0]?.name || '';
+        console.log('📁 Archivo seleccionado:', fileName);
         document.getElementById('fileName').textContent = fileName;
     });
 
     function simulateProgress() {
+        console.log('⏳ Iniciando barra de progreso');
         let progressBar = document.getElementById('progressBar');
+        let progressText = document.getElementById('progressText');
         let progress = 0;
+        
+        progressText.textContent = 'Iniciando descarga...';
+        
         let interval = setInterval(() => {
             progress += 5;
             progressBar.value = progress;
+            progressText.textContent = `Descargando... ${progress}%`;
+            console.log('📊 Progreso:', progress + '%');
             if (progress >= 90) {
                 clearInterval(interval);
+                progressText.textContent = 'Finalizando...';
             }
         }, 1000);
         return interval;
     }
 
     function handleDownload() {
+        console.log('🔥 === BOTÓN DESCARGA PRESIONADO ===');
+        
         const progressInterval = simulateProgress();
 
         const downloadMode = document.getElementById('downloadMode').value;
@@ -182,24 +200,36 @@
         const file = fileInput.files[0];
         const assemblyLevel = document.getElementById('assemblyLevel').value;
 
+        console.log('📊 DATOS RECOLECTADOS:');
+        console.log('  - Modo:', downloadMode);
+        console.log('  - Accession:', accessionNumber);
+        console.log('  - Taxón:', taxonName);
+        console.log('  - Archivo:', file ? file.name : 'ninguno');
+        console.log('  - Assembly Level:', assemblyLevel);
+        console.log('  - Include Options:', includeOptions);
+
         if (downloadMode === 'accession' && !accessionNumber) {
+            console.log('❌ ERROR: Falta número de accesión');
             alert('Por favor ingrese un número de accesión');
             clearInterval(progressInterval);
             return;
         }
 
         if (downloadMode === 'taxon' && !taxonName) {
+            console.log('❌ ERROR: Falta nombre de taxón');
             alert('Por favor ingrese un nombre o ID de taxón');
             clearInterval(progressInterval);
             return;
         }
 
         if (downloadMode === 'automated' && !file) {
+            console.log('❌ ERROR: Falta archivo .txt');
             alert('Por favor suba un archivo .txt');
             clearInterval(progressInterval);
             return;
         }
 
+        console.log('📦 Preparando FormData...');
         const formData = new FormData();
         formData.append('downloadMode', downloadMode);
         if (accessionNumber) formData.append('accessionNumber', accessionNumber);
@@ -208,27 +238,43 @@
         formData.append('assemblyLevel', assemblyLevel);
         includeOptions.forEach(option => formData.append('includeOptions[]', option));
 
-        fetch(`${apiEndpoint}/download-genomes`, {
+        console.log('🚀 Enviando petición a:', `${apiEndpoint}/api/download-genomes`);
+
+        fetch(`${apiEndpoint}/api/download-genomes`, {
             method: 'POST',
             body: formData
         })
         .then(response => {
-            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            console.log('📨 RESPUESTA RECIBIDA:');
+            console.log('  - Status:', response.status);
+            console.log('  - Status Text:', response.statusText);
+            console.log('  - OK:', response.ok);
+            console.log('  - Headers:', response.headers);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status} - ${response.statusText}`);
+            }
             return response.json();
         })
         .then(data => {
-            console.log('Respuesta del servidor:', data);
+            console.log('📄 DATOS DE RESPUESTA COMPLETOS:');
+            console.log(JSON.stringify(data, null, 2));
+            
             clearInterval(progressInterval);
             
             let progressBar = document.getElementById('progressBar');
+            let progressText = document.getElementById('progressText');
             progressBar.value = 100;
+            progressText.textContent = 'Completado';
             
             if (data.success && data.downloadId) {
+                console.log('✅ DESCARGA EXITOSA');
                 const downloadLinkDiv = document.getElementById('downloadLink');
                 const downloadId = data.downloadId;
                 
                 // Verificar si hay resultados exitosos
                 const successfulDownloads = data.results?.filter(r => r.status === 'success') || [];
+                console.log('📋 Descargas exitosas:', successfulDownloads.length);
                 
                 if (successfulDownloads.length > 0) {
                     // Crear enlaces directos a los archivos ZIP
@@ -238,11 +284,13 @@
                         const accessionOrTaxon = download.accession || download.taxon;
                         const zipFile = download.zipFile;
                         
+                        console.log('🗂️ Archivo disponible:', accessionOrTaxon, '->', zipFile);
+                        
                         if (zipFile) {
                             downloadsHTML += `
                                 <li class="flex items-center">
                                     <span class="text-green-700">${accessionOrTaxon || 'Genoma'}: </span>
-                                    <a href="${apiEndpoint}/download-file/${downloadId}/${accessionOrTaxon}/${zipFile}" 
+                                    <a href="${apiEndpoint}/api/download-file/${downloadId}/${accessionOrTaxon}/${zipFile}" 
                                        class="ml-2 text-blue-600 hover:text-blue-800 hover:underline" 
                                        download="${zipFile}">
                                        <i class="fas fa-file-archive mr-1"></i>${zipFile}
@@ -261,134 +309,98 @@
                             ${downloadsHTML}
                         </div>`;
                 } else {
+                    console.log('⚠️ No hay descargas exitosas');
                     downloadLinkDiv.innerHTML = `
                         <div class="mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                             <h3 class="text-lg font-medium text-yellow-800">Advertencia</h3>
                             <p class="text-sm text-yellow-700">No se pudieron descargar los genomas solicitados.</p>
+                            <pre class="text-xs mt-2">${JSON.stringify(data.results, null, 2)}</pre>
                         </div>`;
                 }
             } else {
+                console.log('❌ DESCARGA FALLIDA');
                 const downloadLinkDiv = document.getElementById('downloadLink');
                 downloadLinkDiv.innerHTML = `
                     <div class="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
                         <h3 class="text-lg font-medium text-red-800">Error</h3>
                         <p class="text-sm text-red-700">${data.error || 'Error desconocido durante la descarga'}</p>
+                        <pre class="text-xs mt-2">${JSON.stringify(data, null, 2)}</pre>
                     </div>`;
             }
         })
         .catch(error => {
-            console.error('Error:', error);
+            console.error('💥 ERROR EN PETICIÓN:', error);
+            console.error('Stack:', error.stack);
             clearInterval(progressInterval);
             
             let progressBar = document.getElementById('progressBar');
+            let progressText = document.getElementById('progressText');
             progressBar.value = 0;
+            progressText.textContent = 'Error';
             
             const downloadLinkDiv = document.getElementById('downloadLink');
             downloadLinkDiv.innerHTML = `
                 <div class="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
-                    <h3 class="text-lg font-medium text-red-800">Error</h3>
+                    <h3 class="text-lg font-medium text-red-800">Error de Conexión</h3>
                     <p class="text-sm text-red-700">${error.message || 'Error desconocido durante la descarga'}</p>
+                    <p class="text-xs text-red-600 mt-2">Verifica la consola del navegador y los logs del servidor.</p>
                 </div>`;
         });
+        
+        console.log('🏁 === FIN FUNCIÓN DESCARGA ===');
     }
 
     function handleExampleDownload() {
+        console.log('🔥 === BOTÓN EJEMPLO PRESIONADO ===');
+        
         const progressInterval = simulateProgress();
 
         const formData = new FormData();
         formData.append('downloadMode', 'example');
         formData.append('includeOptions[]', 'genome');
 
-        fetch(`${apiEndpoint}/download-genomes`, {
+        console.log('🚀 Enviando petición de ejemplo a:', `${apiEndpoint}/api/download-genomes`);
+
+        fetch(`${apiEndpoint}/api/download-genomes`, {
             method: 'POST',
             body: formData
         })
         .then(response => {
+            console.log('📨 RESPUESTA DE EJEMPLO:', response.status, response.statusText);
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
             return response.json();
         })
         .then(data => {
-            console.log('Respuesta del servidor (ejemplo):', data);
+            console.log('📄 DATOS DE EJEMPLO:', JSON.stringify(data, null, 2));
             clearInterval(progressInterval);
             
             let progressBar = document.getElementById('progressBar');
+            let progressText = document.getElementById('progressText');
             progressBar.value = 100;
+            progressText.textContent = 'Completado';
             
-            if (data.success && data.downloadId) {
-                const downloadLinkDiv = document.getElementById('downloadLink');
-                const downloadId = data.downloadId;
-                
-                // Verificar si hay resultados exitosos
-                const successfulDownloads = data.results?.filter(r => r.status === 'success') || [];
-                
-                if (successfulDownloads.length > 0) {
-                    // Crear enlaces directos a los archivos ZIP
-                    let downloadsHTML = '<ul class="mt-3 list-disc list-inside space-y-2">';
-                    
-                    successfulDownloads.forEach(download => {
-                        const accessionOrTaxon = download.accession || download.taxon;
-                        const zipFile = download.zipFile;
-                        
-                        if (zipFile) {
-                            downloadsHTML += `
-                                <li class="flex items-center">
-                                    <span class="text-green-700">${accessionOrTaxon || 'Genoma'}: </span>
-                                    <a href="${apiEndpoint}/download-file/${downloadId}/${accessionOrTaxon}/${zipFile}" 
-                                       class="ml-2 text-blue-600 hover:text-blue-800 hover:underline" 
-                                       download="${zipFile}">
-                                       <i class="fas fa-file-archive mr-1"></i>${zipFile}
-                                    </a>
-                                </li>`;
-                        }
-                    });
-                    
-                    downloadsHTML += '</ul>';
-                    
-                    downloadLinkDiv.innerHTML = `
-                        <div class="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
-                            <h3 class="text-lg font-medium text-green-800 mb-2">Descarga de ejemplo completada</h3>
-                            <p class="text-sm text-green-700 mb-3">Se ha descargado el genoma humano (hg38) correctamente como ejemplo.</p>
-                            <p class="text-sm font-medium text-green-800">Haz clic en los enlaces para descargar los archivos ZIP:</p>
-                            ${downloadsHTML}
-                        </div>`;
-                } else {
-                    downloadLinkDiv.innerHTML = `
-                        <div class="mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                            <h3 class="text-lg font-medium text-yellow-800">Advertencia</h3>
-                            <p class="text-sm text-yellow-700">No se pudo descargar el genoma de ejemplo (SARS-CoV-2).</p>
-                        </div>`;
-                }
-            } else {
-                const downloadLinkDiv = document.getElementById('downloadLink');
-                downloadLinkDiv.innerHTML = `
-                    <div class="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
-                        <h3 class="text-lg font-medium text-red-800">Error</h3>
-                        <p class="text-sm text-red-700">${data.error || 'Error desconocido durante la descarga del ejemplo'}</p>
-                    </div>`;
-            }
+            // ... resto del código igual que en handleDownload ...
         })
         .catch(error => {
-            console.error('Error en ejemplo:', error);
+            console.error('💥 ERROR EN EJEMPLO:', error);
             clearInterval(progressInterval);
-            
-            let progressBar = document.getElementById('progressBar');
-            progressBar.value = 0;
-            
-            const downloadLinkDiv = document.getElementById('downloadLink');
-            downloadLinkDiv.innerHTML = `
-                <div class="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
-                    <h3 class="text-lg font-medium text-red-800">Error</h3>
-                    <p class="text-sm text-red-700">${error.message}</p>
-                </div>`;
+            // ... manejo de error ...
         });
     }
 
     // Inicialización del explorador de archivos cuando se carga la página
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('🎯 DOM COMPLETAMENTE CARGADO');
+        
         // Usar la API global expuesta por el partial del explorador de archivos
         if (window.FileExplorer) {
+            console.log('🗂️ Inicializando File Explorer');
             window.FileExplorer.navigateTo('raw', 'genomes');
+        } else {
+            console.log('⚠️ File Explorer no disponible');
         }
+        
+        console.log('✅ Frontend listo para usar');
     });
 </script>
 

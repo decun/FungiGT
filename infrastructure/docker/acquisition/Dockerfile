@@ -1,18 +1,33 @@
-FROM node:18-alpine
+FROM node:18-slim
 
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    curl \
+    unzip \
+    docker.io \
+    && rm -rf /var/lib/apt/lists/*
+
+# Descargar datasets CLI de NCBI
+RUN curl -o /usr/local/bin/datasets 'https://ftp.ncbi.nlm.nih.gov/pub/datasets/command-line/v2/linux-amd64/datasets' \
+    && chmod +x /usr/local/bin/datasets
+
+# Crear directorios de trabajo
 WORKDIR /app
 
-# Este Dockerfile asume que el módulo de adquisición usa Node.js
-# Ajústalo según la tecnología real que utilice
-
-# Copiar archivos de dependencias (si hay un package.json)
+# Copiar package.json y package-lock.json primero para aprovechar la cache
 COPY src/modules/acquisition/ncbi_cli/package*.json ./
 
-# Instalar dependencias
+# Instalar dependencias de Node.js
 RUN npm install
 
-# Copiar el resto de la aplicación
-COPY src/modules/acquisition/ncbi_cli ./
+# Copiar resto de archivos
+COPY src/modules/acquisition/ncbi_cli/ ./
 
-# Comando para iniciar la aplicación
-CMD ["npm", "start"] 
+# Crear directorios necesarios
+RUN mkdir -p /data/raw/genomes /app/tmp
+
+# Exponer puerto
+EXPOSE 4006
+
+# Comando para iniciar el servidor (en lugar de ENTRYPOINT)
+CMD ["node", "server.js"]

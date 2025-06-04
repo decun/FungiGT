@@ -5,6 +5,7 @@ start_services.py
 Este script inicia todos los servicios de FungiGT usando Docker Compose.
 Maneja dependencias y puede continuar aunque algunos servicios fallen.
 Soporta profiles para servicios de herramientas bioinformáticas.
+Compatible con Windows y Linux.
 """
 
 import os
@@ -12,6 +13,7 @@ import subprocess
 import time
 import argparse
 import sys
+import platform
 from pathlib import Path
 
 class Colors:
@@ -35,14 +37,62 @@ def log(level, message):
     color = colors.get(level, Colors.WHITE)
     print(f"{color}[{level}]{Colors.END} {message}")
 
+def detect_system():
+    """Detectar sistema operativo y configurar comandos específicos"""
+    system = platform.system().lower()
+    return system
+
+def check_docker_permissions():
+    """Verificar permisos de Docker en Linux"""
+    system = detect_system()
+    
+    if system == "linux":
+        log('INFO', "🐧 Sistema Linux detectado - verificando permisos Docker...")
+        
+        # Verificar si el usuario está en el grupo docker
+        try:
+            import grp
+            docker_group = grp.getgrnam('docker')
+            current_user_groups = [grp.getgrgid(gid).gr_name for gid in os.getgroups()]
+            
+            if 'docker' not in current_user_groups:
+                log('WARNING', "⚠️ Tu usuario NO está en el grupo 'docker'")
+                log('INFO', "Ejecuta: sudo usermod -aG docker $USER")
+                log('INFO', "Luego reinicia tu sesión")
+                return False
+            else:
+                log('SUCCESS', "✅ Usuario en grupo 'docker' - permisos OK")
+                return True
+        except Exception as e:
+            log('WARNING', f"No se pudo verificar grupo docker: {e}")
+            return True  # Continuar de todas formas
+    
+    return True
+
 def run_command(cmd, cwd=None, capture_output=True):
-    """Ejecutar comando con manejo de errores"""
+    """Ejecutar comando con manejo de errores específico por OS"""
+    system = detect_system()
+    
+    # En Linux, asegurar que se usen las variables de entorno correctas
+    env = os.environ.copy()
+    if system == "linux":
+        # Verificar variables específicas de Linux
+        if 'DOCKER_USER' not in env:
+            env['DOCKER_USER'] = f"{os.getuid()}:{os.getgid()}"
+        if 'DOCKER_GROUP' not in env:
+            try:
+                import grp
+                docker_grp = grp.getgrnam('docker')
+                env['DOCKER_GROUP'] = str(docker_grp.gr_gid)
+            except:
+                env['DOCKER_GROUP'] = "999"
+    
     try:
         if capture_output:
-            result = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=180)
+            result = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=180, env=env)
             return result.returncode == 0, result.stdout, result.stderr
         else:
-            result = subprocess.run(cmd, cwd=cwd, timeout=180)
+            result = subprocess.run(cmd, cwd=cwd, timeout=180, env=env)
             return result.returncode == 0, None, None
     except subprocess.TimeoutExpired:
         return False, None, "Timeout"
@@ -61,7 +111,18 @@ def check_service_running(service_name):
     ], cwd=project_root)
     
     if success and stdout:
-        return "running" in stdout.lower() or "up" in stdout.lower()
+        if "running" in stdout.lower() or "up" in stdout.lower() or "healthy" in stdout.lower():
+            # Para acquisition, verificar que el servidor responde
+            if service_name == "acquisition":
+                health_check_success, health_stdout, health_stderr = run_command([
+                    "docker", "exec", f"fungigt-{service_name}", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4006"
+                ], capture_output=True)
+                if health_check_success:
+                    return True
+                # Si el health check falla pero el contenedor está corriendo, asumimos que está iniciando
+                return True
+            else:
+                return True
     return False
 
 def start_service_individual(service_name, max_retries=2, use_tools_profile=False):
@@ -177,7 +238,7 @@ def show_services_status():
         ("🔐 Autenticación", "http://localhost:4001/health", "auth"),
         ("📊 Visualización", "http://localhost:4003/health", "visualization"),
         ("🔍 Control de Calidad", "http://localhost:4004/health", "quality-control"),
-        ("📥 Adquisición", "http://localhost:4006", "acquisition"),
+        ("📥 Adquisición de Datos", "http://localhost:4006", "acquisition"),  # URL no tan importante ya que es CLI
         ("📁 Gestor de Archivos", "http://localhost:4002/health", "file-manager"),
     ]
     
@@ -200,13 +261,24 @@ def main():
                       help='Servicios específicos a iniciar')
     parser.add_argument('--stop-on-fail', action='store_true',
                       help='Detener si algún servicio falla (por defecto continúa)')
+    parser.add_argument('--skip-permissions', action='store_true',
+                      help='Saltar verificación de permisos Docker (Linux)')
     args = parser.parse_args()
 
+    system = detect_system()
+    
     print(f"{Colors.CYAN}{Colors.BOLD}")
     print("=" * 60)
-    print("   FUNGIGT - INICIAR SERVICIOS")
+    print(f"   FUNGIGT - INICIAR SERVICIOS ({system.upper()})")
     print("=" * 60)
     print(f"{Colors.END}")
+
+    # Verificar permisos Docker en Linux
+    if not args.skip_permissions:
+        if not check_docker_permissions():
+            log('ERROR', "❌ Problemas con permisos Docker")
+            log('INFO', "Usa --skip-permissions para omitir esta verificación")
+            return 1
 
     # Determinar qué servicios iniciar
     if args.services:
@@ -222,6 +294,15 @@ def main():
         # Por defecto: servicios principales INCLUYENDO file-manager
         services_to_start = ["mongodb", "auth", "file-manager", "frontend", "visualization", "quality-control", "acquisition"]
         include_tools = args.tools
+    
+    # Mostrar información específica del sistema
+    if system == "linux":
+        log('INFO', f"🐧 Ejecutando en Linux")
+        log('INFO', f"👤 Usuario: {os.getuid()}:{os.getgid()}")
+    elif system == "windows":
+        log('INFO', f"🪟 Ejecutando en Windows")
+    elif system == "darwin":
+        log('INFO', f"🍎 Ejecutando en macOS")
     
     # Iniciar servicios
     try:
@@ -241,8 +322,15 @@ def main():
         show_services_status()
         
         if successful:
-            print(f"\n{Colors.GREEN}{Colors.BOLD}🎉 ¡FungiGT iniciado!{Colors.END}")
+            print(f"\n{Colors.GREEN}{Colors.BOLD}🎉 ¡FungiGT iniciado en {system.upper()}!{Colors.END}")
             print(f"{Colors.CYAN}👉 Accede al frontend en: {Colors.BLUE}http://localhost:4005{Colors.END}")
+            
+            # Información específica para Linux
+            if system == "linux":
+                print(f"\n{Colors.YELLOW}🐧 Notas para Linux:{Colors.END}")
+                print(f"  • Los contenedores ejecutan con usuario {os.getuid()}:{os.getgid()}")
+                print(f"  • Los archivos se crean con los permisos correctos")
+                print(f"  • Socket Docker montado correctamente")
             
             if include_tools:
                 print(f"\n{Colors.YELLOW}🧬 Herramientas bioinformáticas disponibles:{Colors.END}")

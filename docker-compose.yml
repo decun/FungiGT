@@ -167,25 +167,31 @@ services:
   acquisition:
     build:
       context: .
-      dockerfile: src/modules/acquisition/ncbi_cli/Dockerfile
+      dockerfile: infrastructure/docker/acquisition/Dockerfile
     container_name: fungigt-acquisition
     volumes:
-      - ./src/modules/acquisition:/app
-      - ./data:/data
+      - ./src/modules/acquisition/ncbi_cli:/app
       - /app/node_modules
+      - ./data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "4006:4006"
     environment:
       - PORT=4006
       - NODE_ENV=${NODE_ENV:-development}
       - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin123@mongodb:27017/test?authSource=admin}
+      - DATA_DIR=/data
     restart: unless-stopped
     networks:
       - fungigt-network
     depends_on:
       - mongodb
+    # Configuración específica para Linux - permisos Docker
+    user: "${DOCKER_USER:-1000:1000}"
+    group_add:
+      - "${DOCKER_GROUP:-999}"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4006", "||", "exit", "1"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:4006 || exit 1"]
       interval: 15s
       timeout: 10s
       retries: 3

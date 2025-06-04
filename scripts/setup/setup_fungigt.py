@@ -34,12 +34,12 @@ def print_banner():
     """Mostrar banner de FungiGT"""
     banner = f"""
 {Colors.CYAN}{Colors.BOLD}
-██████╗ ██╗   ██╗███╗   ██╗ ██████╗ ██╗ ██████╗ ████████╗
-██╔══██╗██║   ██║████╗  ██║██╔════╝ ██║██╔════╝ ╚══██╔══╝
-██████╔╝██║   ██║██╔██╗ ██║██║  ███╗██║██║  ███╗   ██║   
-██╔══██╗██║   ██║██║╚██╗██║██║   ██║██║██║   ██║   ██║   
-██║  ██║╚██████╔╝██║ ╚████║╚██████╔╝██║╚██████╔╝   ██║   
-╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝ ╚═╝ ╚═════╝    ╚═╝   
+███████╗██╗   ██╗███╗   ██╗ ██████╗ ██╗ ██████╗ ████████╗
+██╔════╝██║   ██║████╗  ██║██╔════╝ ██║██╔════╝ ╚══██╔══╝
+█████╗  ██║   ██║██╔██╗ ██║██║  ███╗██║██║  ███╗   ██║   
+██╔══╝  ██║   ██║██║╚██╗██║██║   ██║██║██║   ██║   ██║   
+██║     ╚██████╔╝██║ ╚████║╚██████╔╝██║╚██████╔╝   ██║   
+╚═╝      ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝ ╚═╝ ╚═════╝    ╚═╝   
 {Colors.END}
 {Colors.GREEN}🧬 Plataforma de Análisis Genómico para Hongos{Colors.END}
 {Colors.YELLOW}🚀 Script de Autoinstalación v2.1{Colors.END}
@@ -519,7 +519,39 @@ def create_env_file():
     project_root = get_project_root()
     env_file = project_root / ".env"
     
-    env_content = """# Configuración de FungiGT
+    # Detectar sistema operativo y configurar variables específicas
+    system = platform.system().lower()
+    log('INFO', f"Sistema operativo detectado: {system}")
+    
+    # Configurar variables específicas para Linux
+    docker_user = "1000:1000"  # Por defecto
+    docker_group = "999"       # Por defecto
+    
+    if system == "linux":
+        log('INFO', "Configurando variables específicas para Linux...")
+        try:
+            # Obtener UID y GID del usuario actual
+            import pwd
+            import grp
+            uid = os.getuid()
+            gid = os.getgid()
+            docker_user = f"{uid}:{gid}"
+            log('DEBUG', f"Usuario actual: UID={uid}, GID={gid}")
+            
+            # Intentar obtener el GID del grupo docker
+            try:
+                docker_grp = grp.getgrnam('docker')
+                docker_group = str(docker_grp.gr_gid)
+                log('DEBUG', f"Grupo docker encontrado: GID={docker_group}")
+            except KeyError:
+                log('WARNING', "Grupo 'docker' no encontrado, usando GID por defecto")
+                docker_group = "999"
+        except Exception as e:
+            log('WARNING', f"Error obteniendo información del usuario: {e}")
+    
+    env_content = f"""# Configuración de FungiGT
+# Sistema operativo: {system}
+
 # Puertos de servicios
 FRONTEND_PORT=4005
 AUTH_PORT=4001
@@ -539,12 +571,28 @@ NODE_ENV=development
 
 # Data directory
 DATA_DIR=./data
+
+# Configuración específica para Docker (Linux)
+DOCKER_USER={docker_user}
+DOCKER_GROUP={docker_group}
+
+# Variables de compatibilidad
+COMPOSE_CONVERT_WINDOWS_PATHS=1
 """
     
     with open(env_file, 'w') as f:
         f.write(env_content)
     
-    log('SUCCESS', "Archivo .env creado")
+    log('SUCCESS', f"Archivo .env creado para {system}")
+    
+    # Mostrar información específica de Linux
+    if system == "linux":
+        log('INFO', "📋 Información para Linux:")
+        log('INFO', f"  • Usuario Docker: {docker_user}")
+        log('INFO', f"  • Grupo Docker: {docker_group}")
+        log('INFO', "  • Asegúrate de que tu usuario esté en el grupo 'docker':")
+        log('INFO', "    sudo usermod -aG docker $USER")
+        log('INFO', "    (reinicia la sesión después de este comando)")
 
 def handle_interrupt(signum, frame):
     """Manejar interrupción del usuario"""

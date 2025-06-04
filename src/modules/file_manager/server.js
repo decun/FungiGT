@@ -16,8 +16,8 @@ const DATA_DIR = path.join(__dirname, '../../../data');
 
 // Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Configuración de multer para subida de archivos
 const upload = multer({
@@ -334,7 +334,35 @@ app.get('/download', (req, res) => {
         }
         
         const fileName = path.basename(filePath);
-        res.download(filePath, fileName);
+        const stats = fs.statSync(filePath);
+        
+        // Configurar headers
+        res.setHeader('Content-Type', 'application/octet-stream');
+        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+        res.setHeader('Content-Length', stats.size);
+        
+        // Crear stream de lectura y manejar errores
+        const fileStream = fs.createReadStream(filePath);
+        
+        fileStream.on('error', (error) => {
+            console.error(`Error en stream de archivo ${filePath}:`, error);
+            
+            // Solo enviar el error si la respuesta no ha sido enviada aún
+            if (!res.headersSent) {
+                res.status(500).json({
+                    success: false,
+                    error: 'Error al leer el archivo'
+                });
+            }
+        });
+        
+        // Manejar eventos de cierre y terminación
+        res.on('close', () => {
+            fileStream.destroy();
+        });
+        
+        // Piping optimizado
+        fileStream.pipe(res);
         
     } catch (error) {
         console.error('Error al descargar archivo:', error);
