@@ -89,6 +89,11 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
             </button>
+            <button id="extractZipBtn" class="bg-yellow-500 hover:bg-yellow-600 text-white p-1.5 rounded-full text-xs disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200" disabled title="Extraer ZIP">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 11l3 3m0 0l3-3m-3 3V9" />
+                </svg>
+            </button>
             <button id="deleteFileBtn" class="bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-full text-xs disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200" disabled title="Eliminar">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -117,6 +122,12 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             Descargar
+        </button>
+        <button class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center" id="contextExtractZip" style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 11l3 3m0 0l3-3m-3 3V9" />
+            </svg>
+            Extraer ZIP
         </button>
         <hr class="my-1">
     </div>
@@ -226,6 +237,34 @@
     </div>
 </div>
 
+<!-- Modal para extraer ZIP -->
+<div id="extractZipModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+        <h3 class="text-lg font-semibold mb-4">Extraer Archivo ZIP</h3>
+        <div class="mb-4">
+            <p class="text-sm text-gray-600 mb-3">¿Cómo deseas extraer el archivo?</p>
+            <div class="space-y-2">
+                <label class="flex items-center">
+                    <input type="radio" name="extractOption" value="same" class="mr-2" checked>
+                    <span class="text-sm">Extraer en la misma carpeta</span>
+                </label>
+                <label class="flex items-center">
+                    <input type="radio" name="extractOption" value="folder" class="mr-2">
+                    <span class="text-sm">Extraer en una nueva carpeta</span>
+                </label>
+            </div>
+        </div>
+        <div class="flex justify-end space-x-2">
+            <button id="cancelExtractBtn" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition-colors duration-200">
+                Cancelar
+            </button>
+            <button id="confirmExtractBtn" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition-colors duration-200">
+                Extraer
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Modal para vista previa -->
 <div id="previewModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
     <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] mx-4 flex flex-col">
@@ -298,10 +337,15 @@ document.addEventListener('DOMContentLoaded', function() {
             // Botones de acción
             document.getElementById('viewFileBtn').addEventListener('click', () => this.viewFile());
             document.getElementById('downloadFileBtn').addEventListener('click', () => this.downloadFile());
+            document.getElementById('extractZipBtn').addEventListener('click', () => this.showExtractZipModal());
             document.getElementById('deleteFileBtn').addEventListener('click', () => this.deleteFile());
             
             // Modal de vista previa
             document.getElementById('closePreviewBtn').addEventListener('click', () => this.hidePreviewModal());
+            
+            // Modal de extracción ZIP
+            document.getElementById('confirmExtractBtn').addEventListener('click', () => this.extractZip());
+            document.getElementById('cancelExtractBtn').addEventListener('click', () => this.hideExtractZipModal());
             
             // Cerrar menú contextual al hacer clic fuera
             document.addEventListener('click', (e) => {
@@ -357,6 +401,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.hideContextMenu();
             });
             
+            // Event listener para extraer ZIP
+            document.getElementById('contextExtractZip').addEventListener('click', () => {
+                this.showExtractZipModal();
+                this.hideContextMenu();
+            });
+            
             // Opciones para área vacía
             document.getElementById('contextNewFolder').addEventListener('click', () => {
                 this.showCreateFolderModal();
@@ -382,11 +432,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const fileOptions = document.getElementById('fileContextOptions');
             const folderOptions = document.getElementById('folderContextOptions');
             const emptyAreaOptions = document.getElementById('emptyAreaContextOptions');
+            const extractZipOption = document.getElementById('contextExtractZip');
             
             // Ocultar todas las opciones primero
             fileOptions.classList.add('hidden');
             folderOptions.classList.add('hidden');
             emptyAreaOptions.classList.add('hidden');
+            extractZipOption.style.display = 'none';
             
             this.contextMenuFile = file;
             
@@ -398,6 +450,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     folderOptions.classList.remove('hidden');
                 } else {
                     fileOptions.classList.remove('hidden');
+                    
+                    // Mostrar opción de extraer ZIP solo para archivos ZIP
+                    if (file.name.toLowerCase().endsWith('.zip')) {
+                        extractZipOption.style.display = 'block';
+                    }
                 }
             } else {
                 // Clic derecho en área vacía
@@ -670,7 +727,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <span class="mr-2 flex-shrink-0 ${file.isDirectory ? 'text-blue-500' : this.getFileIconColor(file.name)}">
                             ${file.isDirectory ? 
                                 '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>' : 
-                                '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>'
+                                '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 712-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>'
                             }
                         </span>
                         <span class="font-medium text-gray-900 truncate">${file.name}</span>
@@ -721,8 +778,11 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Habilitar/deshabilitar botones
             const isFile = !file.isDirectory;
+            const isZipFile = isFile && file.name.toLowerCase().endsWith('.zip');
+            
             document.getElementById('viewFileBtn').disabled = !isFile;
             document.getElementById('downloadFileBtn').disabled = !isFile;
+            document.getElementById('extractZipBtn').disabled = !isZipFile;
             document.getElementById('deleteFileBtn').disabled = false;
         },
         
@@ -774,6 +834,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('selectedFileInfo').classList.add('hidden');
             document.getElementById('viewFileBtn').disabled = true;
             document.getElementById('downloadFileBtn').disabled = true;
+            document.getElementById('extractZipBtn').disabled = true;
             document.getElementById('deleteFileBtn').disabled = true;
             
             document.querySelectorAll('#filesList .bg-blue-100').forEach(el => {
@@ -1000,7 +1061,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 'tsv': 'text-blue-600',
                 'png': 'text-purple-600',
                 'jpg': 'text-purple-600',
-                'jpeg': 'text-purple-600'
+                'jpeg': 'text-purple-600',
+                'zip': 'text-yellow-600'  // Destacar archivos ZIP
             };
             return colorMap[extension] || 'text-gray-600';
         },
@@ -1021,6 +1083,125 @@ document.addEventListener('DOMContentLoaded', function() {
             this.currentPath = path ? path.split('/').filter(p => p) : [];
             this.loadFiles();
             this.clearSelection();
+        },
+        
+        showExtractZipModal: function() {
+            const file = this.selectedFile || this.contextMenuFile;
+            if (!file || !file.name.toLowerCase().endsWith('.zip')) {
+                alert('Por favor, selecciona un archivo ZIP');
+                return;
+            }
+            
+            // Mostrar el nombre del archivo en el modal
+            document.querySelector('#extractZipModal h3').textContent = `Extraer: ${file.name}`;
+            document.getElementById('extractZipModal').classList.remove('hidden');
+        },
+        
+        hideExtractZipModal: function() {
+            document.getElementById('extractZipModal').classList.add('hidden');
+        },
+        
+        extractZip: function() {
+            const option = document.querySelector('input[name="extractOption"]:checked').value;
+            if (option === 'same') {
+                this.extractZipSameFolder();
+            } else if (option === 'folder') {
+                this.extractZipNewFolder();
+            }
+        },
+        
+        extractZipSameFolder: function() {
+            const file = this.selectedFile || this.contextMenuFile;
+            if (!file) return;
+            
+            const filePath = [...this.currentPath, file.name].join('/');
+            
+            // Mostrar indicador de carga
+            const confirmBtn = document.getElementById('confirmExtractBtn');
+            const originalText = confirmBtn.innerHTML;
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = `
+                <svg class="animate-spin h-4 w-4 mr-2 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Extrayendo...
+            `;
+            
+            fetch(`${this.apiUrl}/extract-zip`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    path: filePath,
+                    extractToFolder: false
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    this.hideExtractZipModal();
+                    this.loadFiles();
+                    this.showCopyNotification(`✅ ZIP extraído: ${data.extractedCount} archivos`);
+                } else {
+                    alert('Error al extraer ZIP: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error de conexión: ' + error.message);
+            })
+            .finally(() => {
+                // Restaurar botón
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = originalText;
+            });
+        },
+        
+        extractZipNewFolder: function() {
+            const file = this.selectedFile || this.contextMenuFile;
+            if (!file) return;
+            
+            const filePath = [...this.currentPath, file.name].join('/');
+            
+            // Mostrar indicador de carga
+            const confirmBtn = document.getElementById('confirmExtractBtn');
+            const originalText = confirmBtn.innerHTML;
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = `
+                <svg class="animate-spin h-4 w-4 mr-2 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Extrayendo...
+            `;
+            
+            fetch(`${this.apiUrl}/extract-zip`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    path: filePath,
+                    extractToFolder: true
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    this.hideExtractZipModal();
+                    this.loadFiles();
+                    this.showCopyNotification(`✅ ZIP extraído en carpeta: ${data.extractedCount} archivos`);
+                } else {
+                    alert('Error al extraer ZIP: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error de conexión: ' + error.message);
+            })
+            .finally(() => {
+                // Restaurar botón
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = originalText;
+            });
         }
     };
     

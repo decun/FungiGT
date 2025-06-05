@@ -89,6 +89,8 @@ services:
       dockerfile: infrastructure/docker/file_manager/Dockerfile
     container_name: fungigt-file-manager
     volumes:
+      - ./src/modules/file_manager:/app
+      - /app/node_modules
       - ./data:/app/data
     ports:
       - "4002:4002"
@@ -184,8 +186,6 @@ services:
     restart: unless-stopped
     networks:
       - fungigt-network
-    depends_on:
-      - mongodb
     # Configuración específica para Linux - permisos Docker
     user: "${DOCKER_USER:-1000:1000}"
     group_add:

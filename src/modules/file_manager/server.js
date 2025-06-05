@@ -6,13 +6,14 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs-extra');
 const cors = require('cors');
+const yauzl = require('yauzl');
 
 // Inicializar aplicación Express
 const app = express();
 const PORT = process.env.PORT || 4002;
 
 // Configuración del directorio de datos
-const DATA_DIR = path.join(__dirname, '../../../data');
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '../../../data');
 
 // Middleware
 app.use(cors());
@@ -50,6 +51,70 @@ function isValidPath(requestedPath) {
     const fullPath = path.join(DATA_DIR, requestedPath || '');
     const normalizedPath = path.normalize(fullPath);
     return normalizedPath.startsWith(DATA_DIR);
+}
+
+// Función para extraer archivo ZIP
+function extractZip(zipPath, extractPath) {
+    return new Promise((resolve, reject) => {
+        yauzl.open(zipPath, { lazyEntries: true }, (err, zipfile) => {
+            if (err) {
+                return reject(err);
+            }
+
+            let extractedCount = 0;
+            let totalEntries = 0;
+            const extractedFiles = [];
+
+            zipfile.on('entry', (entry) => {
+                totalEntries++;
+                
+                if (/\/$/.test(entry.fileName)) {
+                    // Es un directorio
+                    const dirPath = path.join(extractPath, entry.fileName);
+                    fs.ensureDirSync(dirPath);
+                    extractedFiles.push(entry.fileName);
+                    extractedCount++;
+                    zipfile.readEntry();
+                } else {
+                    // Es un archivo
+                    const filePath = path.join(extractPath, entry.fileName);
+                    const fileDir = path.dirname(filePath);
+                    
+                    // Asegurar que el directorio existe
+                    fs.ensureDirSync(fileDir);
+                    
+                    zipfile.openReadStream(entry, (err, readStream) => {
+                        if (err) {
+                            return reject(err);
+                        }
+                        
+                        const writeStream = fs.createWriteStream(filePath);
+                        readStream.pipe(writeStream);
+                        
+                        writeStream.on('close', () => {
+                            extractedFiles.push(entry.fileName);
+                            extractedCount++;
+                            zipfile.readEntry();
+                        });
+                        
+                        writeStream.on('error', reject);
+                        readStream.on('error', reject);
+                    });
+                }
+            });
+
+            zipfile.on('end', () => {
+                resolve({
+                    totalEntries: totalEntries,
+                    extractedFiles: extractedFiles,
+                    extractedCount: extractedCount
+                });
+            });
+
+            zipfile.on('error', reject);
+            zipfile.readEntry();
+        });
+    });
 }
 
 // ==================== ENDPOINTS DEL EXPLORADOR DE ARCHIVOS ====================
@@ -410,6 +475,90 @@ app.delete('/delete', (req, res) => {
         
     } catch (error) {
         console.error('Error al eliminar:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+// Extraer archivo ZIP
+app.post('/extract-zip', (req, res) => {
+    try {
+        const { path: requestedPath, extractToFolder } = req.body;
+        
+        if (!requestedPath) {
+            return res.status(400).json({
+                success: false,
+                error: 'Ruta de archivo ZIP requerida'
+            });
+        }
+        
+        if (!isValidPath(requestedPath)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Ruta no válida'
+            });
+        }
+        
+        const zipPath = path.join(DATA_DIR, requestedPath);
+        
+        if (!fs.existsSync(zipPath)) {
+            return res.status(404).json({
+                success: false,
+                error: 'Archivo ZIP no encontrado'
+            });
+        }
+        
+        // Verificar que es un archivo ZIP
+        if (!zipPath.toLowerCase().endsWith('.zip')) {
+            return res.status(400).json({
+                success: false,
+                error: 'El archivo debe ser un ZIP'
+            });
+        }
+        
+        // Determinar directorio de extracción
+        let extractPath;
+        if (extractToFolder) {
+            // Extraer en una carpeta nueva con el nombre del ZIP (sin extensión)
+            const zipName = path.basename(requestedPath, '.zip');
+            const parentDir = path.dirname(requestedPath);
+            extractPath = path.join(DATA_DIR, parentDir, zipName);
+        } else {
+            // Extraer en el mismo directorio del ZIP
+            extractPath = path.dirname(zipPath);
+        }
+        
+        // Asegurar que el directorio de extracción existe
+        if (extractToFolder) {
+            fs.ensureDirSync(extractPath);
+        }
+        
+        console.log(`Extrayendo ${zipPath} a ${extractPath}`);
+        
+        // Extraer el archivo ZIP
+        extractZip(zipPath, extractPath)
+            .then(result => {
+                console.log(`Extracción completada: ${result.extractedCount} archivos`);
+                res.json({
+                    success: true,
+                    message: `ZIP extraído correctamente: ${result.extractedCount} archivos`,
+                    extractedCount: result.extractedCount,
+                    extractedFiles: result.extractedFiles,
+                    extractPath: extractToFolder ? path.relative(DATA_DIR, extractPath) : path.dirname(requestedPath)
+                });
+            })
+            .catch(error => {
+                console.error('Error al extraer ZIP:', error);
+                res.status(500).json({
+                    success: false,
+                    error: 'Error al extraer ZIP: ' + error.message
+                });
+            });
+        
+    } catch (error) {
+        console.error('Error al extraer ZIP:', error);
         res.status(500).json({
             success: false,
             error: error.message
