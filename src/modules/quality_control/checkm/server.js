@@ -6,7 +6,7 @@ const fs = require('fs-extra'); // Usamos fs-extra para más funcionalidades
 const cors = require('cors');
 
 const app = express();
-const port = 3003;
+const port = process.env.PORT || 4004; // Usar puerto desde variables de entorno o 4004 por defecto
 
 // Almacenar el último proceso en ejecución y sus logs
 let currentProcess = null;
@@ -382,6 +382,16 @@ app.get('/download-file/:filename', (req, res) => {
     res.download(filePath);
 });
 
+// Agregar un endpoint de salud para Docker healthcheck
+app.get('/health', (req, res) => {
+    res.json({ 
+        success: true, 
+        message: 'Servicio CheckM funcionando correctamente',
+        service: 'quality-control-checkm',
+        port: port
+    });
+});
+
 // Agregar un endpoint para cancelar el proceso actual
 app.post('/cancel-checkm', (req, res) => {
     if (currentProcess) {
@@ -404,7 +414,14 @@ app.post('/cancel-checkm', (req, res) => {
 
 // Iniciar el servidor
 app.listen(port, () => {
-    console.log(`Servidor CheckM ejecutándose en http://localhost:${port}`);
+    console.log(`🔬 Servidor CheckM (Quality Control) ejecutándose en http://localhost:${port}`);
+    console.log(`📊 Endpoints disponibles:`);
+    console.log(`   - GET /health - Estado del servicio`);
+    console.log(`   - POST /upload-checkm - Subir archivos genómicos`);
+    console.log(`   - POST /execute-checkm - Ejecutar análisis CheckM`);
+    console.log(`   - GET /checkm-progress - Obtener progreso actual`);
+    console.log(`   - GET /checkm-progress-stream - Stream de progreso (SSE)`);
+    console.log(`   - POST /cancel-checkm - Cancelar proceso actual`);
 });
 
 // También manejar la terminación del servidor

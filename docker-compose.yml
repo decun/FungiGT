@@ -144,9 +144,10 @@ services:
       dockerfile: infrastructure/docker/quality_control/Dockerfile
     container_name: fungigt-quality-control
     volumes:
-      - ./src/modules/quality_control:/app
+      - ./src/modules/quality_control/checkm:/app
       - ./data:/app/data
       - /app/node_modules
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "4004:4004"
     environment:
@@ -199,6 +200,36 @@ services:
 
   # ===== SERVICIOS EXTERNOS DE DOCKER HUB =====
   
+  # Servidor API para BRAKER3 (custom - generado por nosotros)
+  braker3-server:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/annotation/Dockerfile
+    container_name: fungigt-braker3-server
+    volumes:
+      - ./src/modules/annotation/braker3:/app
+      - /app/node_modules
+      - ./data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "3004:3004"
+    environment:
+      - PORT=3004
+      - NODE_ENV=${NODE_ENV:-development}
+      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin123@mongodb:27017/test?authSource=admin}
+      - DATA_DIR=/data
+    restart: unless-stopped
+    networks:
+      - fungigt-network
+    depends_on:
+      - mongodb
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3004/health", "||", "exit", "1"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
   # Anotación genómica automática (BRAKER3) - Docker Hub
   annotation:
     image: teambraker/braker3:latest

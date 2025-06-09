@@ -436,7 +436,7 @@
 
     <footer class="bg-gray-800 text-white mt-auto">
         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-            <p class="text-center text-sm">© 2024 FungiTG. Todos los derechos reservados.</p>
+            <p class="text-center text-sm">© 2025 FungiGT. Todos los derechos reservados.</p>
         </div>
     </footer>
 
@@ -498,7 +498,7 @@
             }
             
             // Crear un nuevo EventSource
-            window.progressSource = new EventSource('http://localhost:3003/checkm-progress-stream');
+            window.progressSource = new EventSource('http://localhost:4004/checkm-progress-stream');
             
             // Elemento para logs
             const logsContainer = document.createElement('div');
@@ -602,11 +602,11 @@
                     
                     // Agregar event listeners a los nuevos botones
                     actionsCell.querySelector('.view-results-btn').addEventListener('click', function() {
-                        window.open(`http://localhost:3003/results?path=${encodeURIComponent(outputFolder)}`, '_blank');
+                        window.open(`http://localhost:4004/results?path=${encodeURIComponent(outputFolder)}`, '_blank');
                     });
                     
                     actionsCell.querySelector('.download-results-btn').addEventListener('click', function() {
-                        window.location.href = `http://localhost:3003/download?path=${encodeURIComponent(outputFolder)}`;
+                        window.location.href = `http://localhost:4004/download?path=${encodeURIComponent(outputFolder)}`;
                     });
                 }
             };
@@ -732,11 +732,11 @@
                     
                     // Agregar event listeners a los nuevos botones
                     actionsCell.querySelector('.view-results-btn').addEventListener('click', function() {
-                        window.open(`http://localhost:3004/results?path=${encodeURIComponent(outputFolder)}`, '_blank');
+                        window.open(`http://localhost:4004/results?path=${encodeURIComponent(outputFolder)}`, '_blank');
                     });
                     
                     actionsCell.querySelector('.download-results-btn').addEventListener('click', function() {
-                        window.location.href = `http://localhost:3004/download?path=${encodeURIComponent(outputFolder)}`;
+                        window.location.href = `http://localhost:4004/download?path=${encodeURIComponent(outputFolder)}`;
                     });
                 }
             };
@@ -790,7 +790,7 @@
             monitorCheckMProgress(uniqueId);
             
             // Enviar solicitud a la API
-            fetch('http://localhost:3003/execute-checkm', {
+            fetch('http://localhost:4004/execute-checkm', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -955,7 +955,7 @@
                 formData.append('fnaFiles', fnaFiles[i]);
             }
 
-            fetch('http://localhost:3003/upload-checkm', { // Usar la ruta correcta según server.js
+            fetch('http://localhost:4004/upload-checkm', { // Usar la ruta correcta según server.js
                 method: 'POST',
                 body: formData,
             })
@@ -1067,7 +1067,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Objeto para manejar el explorador de archivos
             const FileExplorer = {
-                apiBaseUrl: 'http://localhost:3003',
+                apiBaseUrl: 'http://localhost:4004',
                 currentInputCategory: 'raw',
                 currentInputSubcategory: 'genomes',
                 currentOutputCategory: 'results',

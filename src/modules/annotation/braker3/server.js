@@ -22,6 +22,15 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Health check endpoint para Docker
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: 'Servicio BRAKER3 funcionando correctamente',
+        timestamp: new Date().toISOString()
+    });
+});
+
 // Función para convertir rutas de Windows a formato Docker
 const convertPath = (p) => {
     return p.replace(/\\/g, '/');
@@ -198,9 +207,231 @@ function updateBraker3ProgressFromOutput(output) {
     console.log(`Progreso BRAKER3: ${braker3Progress}%`);
 }
 
-// Función para ejecutar BRAKER3 usando spawn para captura en tiempo real
+// Función para diagnosticar errores de GeneMark
+async function diagnoseGeneMark(outputPath, genome) {
+    const diagnostics = [];
+    
+    try {
+        // 1. Verificar archivo de entrada del genoma
+        const genomePath = path.join(outputPath, '..', 'input', genome);
+        
+        if (!fs.existsSync(genomePath)) {
+            diagnostics.push({
+                type: 'error',
+                text: `Archivo del genoma no encontrado: ${genome}`
+            });
+            return diagnostics;
+        }
+        
+        // 2. Verificar el tamaño del archivo
+        const stats = fs.statSync(genomePath);
+        const fileSizeMB = (stats.size / 1024 / 1024).toFixed(2);
+        diagnostics.push({
+            type: 'info',
+            text: `Tamaño del genoma: ${fileSizeMB} MB`
+        });
+        
+        // 3. Verificar que no esté vacío
+        if (stats.size === 0) {
+            diagnostics.push({
+                type: 'error',
+                text: 'El archivo del genoma está vacío'
+            });
+            return diagnostics;
+        }
+        
+        // 4. Verificar headers del FASTA
+        const genomicContent = fs.readFileSync(genomePath, 'utf8', { encoding: 'utf8' }).substring(0, 1000);
+        
+        if (!genomicContent.startsWith('>')) {
+            diagnostics.push({
+                type: 'error',
+                text: 'El archivo no parece ser un FASTA válido (no comienza con >)'
+            });
+        }
+        
+        // 5. Contar secuencias
+        const sequenceCount = (genomicContent.match(/>/g) || []).length;
+        diagnostics.push({
+            type: 'info',
+            text: `Número de secuencias detectadas (primeros 1000 chars): ${sequenceCount}`
+        });
+        
+        // 6. Verificar archivos de error de GeneMark
+        const genemarkErrorFile = path.join(outputPath, 'errors', 'GeneMark-ES.stderr');
+        if (fs.existsSync(genemarkErrorFile)) {
+            const errorContent = fs.readFileSync(genemarkErrorFile, 'utf8');
+            if (errorContent.trim()) {
+                diagnostics.push({
+                    type: 'error',
+                    text: `Error específico de GeneMark: ${errorContent.substring(0, 500)}`
+                });
+            }
+        }
+        
+        // 7. Verificar archivo de log de BRAKER
+        const brakerLogFile = path.join(outputPath, 'braker.log');
+        if (fs.existsSync(brakerLogFile)) {
+            const logContent = fs.readFileSync(brakerLogFile, 'utf8');
+            
+            // Buscar líneas con ERROR
+            const errorLines = logContent.split('\n').filter(line => 
+                line.includes('ERROR') || line.includes('FATAL')
+            );
+            
+            errorLines.forEach(line => {
+                diagnostics.push({
+                    type: 'error',
+                    text: `BRAKER Log: ${line.trim()}`
+                });
+            });
+        }
+        
+    } catch (error) {
+        diagnostics.push({
+            type: 'error',
+            text: `Error durante el diagnóstico: ${error.message}`
+        });
+    }
+    
+    return diagnostics;
+}
+
+// Función mejorada para validar el archivo del genoma antes de ejecutar
+async function validateGenomeFile(inputPath, genomeFileName) {
+    // Convertir la ruta de Windows a formato de Docker si es necesario
+    let normalizedInputPath = inputPath;
+    
+    // Si la ruta contiene : significa que es una ruta de Windows
+    if (inputPath.includes(':')) {
+        // Ya está en formato correcto para Docker, no necesitamos path.join en este caso
+        console.log(`Validando archivo del genoma: ${genomeFileName} en ruta Docker: ${inputPath}`);
+        
+        // Para Windows con Docker, simplemente verificamos que el archivo debería estar ahí
+        // No podemos usar fs.existsSync con rutas de Docker desde Node.js
+        // Pero podemos asumir que está correcto si la validación básica pasa
+        
+        try {
+            // Verificar que el nombre del archivo es válido
+            if (!genomeFileName || genomeFileName.trim() === '') {
+                return {
+                    valid: false,
+                    error: 'Nombre del archivo del genoma no puede estar vacío'
+                };
+            }
+            
+            // Verificar extensión (debe ser .fna, .fa, .fasta)
+            const validExtensions = ['.fna', '.fa', '.fasta'];
+            const hasValidExtension = validExtensions.some(ext => 
+                genomeFileName.toLowerCase().endsWith(ext)
+            );
+            
+            if (!hasValidExtension) {
+                return {
+                    valid: false,
+                    error: 'El archivo del genoma debe tener extensión .fna, .fa o .fasta'
+                };
+            }
+            
+            // Para rutas de Docker en Windows, asumimos que el archivo existe
+            // si hemos llegado hasta aquí con validaciones básicas correctas
+            console.log(`Archivo del genoma validado correctamente: ${genomeFileName}`);
+            
+            return { 
+                valid: true,
+                message: `Archivo del genoma validado: ${genomeFileName}`
+            };
+            
+        } catch (error) {
+            return {
+                valid: false,
+                error: `Error al validar archivo del genoma: ${error.message}`
+            };
+        }
+    } else {
+        // Ruta de Linux/Unix - usar validación original
+        const genomePath = path.join(inputPath, genomeFileName);
+        
+        try {
+            // Verificar que existe
+            if (!fs.existsSync(genomePath)) {
+                return {
+                    valid: false,
+                    error: `Archivo del genoma no encontrado: ${genomeFileName}`
+                };
+            }
+            
+            // Verificar tamaño mínimo
+            const stats = fs.statSync(genomePath);
+            if (stats.size < 1000) { // Menos de 1KB es sospechoso
+                return {
+                    valid: false,
+                    error: `El archivo del genoma es demasiado pequeño (${stats.size} bytes)`
+                };
+            }
+            
+            // Verificar que es FASTA válido
+            const firstChars = fs.readFileSync(genomePath, 'utf8', { start: 0, end: 100 });
+            if (!firstChars.startsWith('>')) {
+                return {
+                    valid: false,
+                    error: 'El archivo no parece ser un FASTA válido (debe comenzar con >)'
+                };
+            }
+            
+            // Verificar que no tiene caracteres problemáticos en headers
+            const lines = firstChars.split('\n');
+            const headerLine = lines[0];
+            
+            if (headerLine.includes('|') || headerLine.includes(' ')) {
+                return {
+                    valid: true,
+                    warning: 'El header FASTA contiene espacios o caracteres |. BRAKER3 los manejará automáticamente.'
+                };
+            }
+            
+            return { valid: true };
+            
+        } catch (error) {
+            return {
+                valid: false,
+                error: `Error al validar archivo del genoma: ${error.message}`
+            };
+        }
+    }
+}
+
+// Función para crear archivo de diagnóstico
+async function createDiagnosticFile(outputPath, diagnostics) {
+    try {
+        const diagnosticPath = path.join(outputPath, 'braker3_diagnostic.txt');
+        
+        const content = [
+            `=== DIAGNÓSTICO DE BRAKER3 ===`,
+            `Fecha: ${new Date().toISOString()}`,
+            ``,
+            ...diagnostics.map(d => `[${d.type.toUpperCase()}] ${d.text}`),
+            ``,
+            `=== SOLUCIONES SUGERIDAS ===`,
+            `1. Verificar que el archivo FASTA del genoma esté bien formateado`,
+            `2. Verificar que el genoma tenga al menos 50kb de secuencia`,
+            `3. Si es un genoma muy fragmentado, usar --min_contig=10000`,
+            `4. Verificar que no hay caracteres especiales en los nombres de archivos`,
+            `5. Revisar los logs en el directorio errors/`
+        ].join('\n');
+        
+        fs.writeFileSync(diagnosticPath, content);
+        
+        return diagnosticPath;
+    } catch (error) {
+        console.error('Error al crear archivo de diagnóstico:', error);
+        return null;
+    }
+}
+
+// Función ejecutar BRAKER3 con mejor manejo de errores
 function executeBraker3WithRealTimeLogging(dockerArgs, jobId) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         console.log('Ejecutando Docker con args:', dockerArgs);
         
         // Reiniciar logs y progreso para nueva ejecución
@@ -208,11 +439,25 @@ function executeBraker3WithRealTimeLogging(dockerArgs, jobId) {
         braker3Progress = 0;
         currentJobId = jobId;
         
+        // Extraer información para diagnóstico
+        let outputPath = null;
+        let genome = null;
+        
+        dockerArgs.forEach((arg, index) => {
+            if (arg.includes(':/output')) {
+                outputPath = arg.split(':')[0];
+            }
+            if (arg.startsWith('--genome=')) {
+                genome = arg.replace('--genome=/input/', '');
+            }
+        });
+        
         // Ejecutar usando spawn para captura en tiempo real
         currentProcess = spawn('docker', dockerArgs);
         
         let stdout = '';
         let stderr = '';
+        let hasGenmarkError = false;
         
         // Capturar la salida estándar
         currentProcess.stdout.on('data', (data) => {
@@ -221,31 +466,40 @@ function executeBraker3WithRealTimeLogging(dockerArgs, jobId) {
             braker3Logs.push({ type: 'stdout', text: output });
             updateBraker3ProgressFromOutput(output);
             
+            // Detectar errores específicos de GeneMark
+            if (output.includes('Failed to execute') && output.includes('gmes_petap.pl')) {
+                hasGenmarkError = true;
+            }
+            
             // Actualizar el trabajo en runningJobs
             if (runningJobs[jobId]) {
                 runningJobs[jobId].progress = braker3Progress;
-                runningJobs[jobId].logs = braker3Logs.slice(-10); // Últimos 10 logs
+                runningJobs[jobId].logs = braker3Logs.slice(-10);
             }
         });
         
-        // Capturar la salida de error (donde BRAKER3 muestra mucha información)
+        // Capturar la salida de error
         currentProcess.stderr.on('data', (data) => {
             const output = data.toString();
             stderr += output;
             braker3Logs.push({ type: 'stderr', text: output });
             updateBraker3ProgressFromOutput(output);
             
+            // Detectar errores específicos de GeneMark
+            if (output.includes('Failed to execute') && output.includes('gmes_petap.pl')) {
+                hasGenmarkError = true;
+            }
+            
             // Actualizar el trabajo en runningJobs
             if (runningJobs[jobId]) {
                 runningJobs[jobId].progress = braker3Progress;
-                runningJobs[jobId].logs = braker3Logs.slice(-10); // Últimos 10 logs
+                runningJobs[jobId].logs = braker3Logs.slice(-10);
             }
         });
         
-        currentProcess.on('close', (code) => {
+        currentProcess.on('close', async (code) => {
             console.log(`Proceso BRAKER3 terminado con código: ${code}`);
             
-            // Establecer progreso al 100% solo cuando realmente termina exitosamente
             if (code === 0) {
                 braker3Progress = 100;
                 braker3Logs.push({ 
@@ -262,6 +516,26 @@ function executeBraker3WithRealTimeLogging(dockerArgs, jobId) {
                 
                 resolve(stdout);
             } else {
+                // Si falló, hacer diagnóstico adicional
+                let diagnostics = [];
+                
+                if (hasGenmarkError && outputPath && genome) {
+                    console.log('Ejecutando diagnóstico de GeneMark...');
+                    diagnostics = await diagnoseGeneMark(outputPath, genome);
+                    
+                    // Añadir diagnósticos a los logs
+                    diagnostics.forEach(d => braker3Logs.push(d));
+                    
+                    // Crear archivo de diagnóstico
+                    const diagnosticFile = await createDiagnosticFile(outputPath, diagnostics);
+                    if (diagnosticFile) {
+                        braker3Logs.push({
+                            type: 'info',
+                            text: `Archivo de diagnóstico creado: ${diagnosticFile}`
+                        });
+                    }
+                }
+                
                 braker3Logs.push({ 
                     type: 'error', 
                     text: `BRAKER3 terminó con errores (código ${code})`
@@ -271,6 +545,7 @@ function executeBraker3WithRealTimeLogging(dockerArgs, jobId) {
                     runningJobs[jobId].status = 'Error';
                     runningJobs[jobId].error = `Proceso terminó con código ${code}`;
                     runningJobs[jobId].completed = true;
+                    runningJobs[jobId].diagnostics = diagnostics;
                 }
                 
                 reject(new Error(`Proceso terminó con código ${code}: ${stderr}`));
@@ -351,6 +626,21 @@ app.post('/execute-braker3', async (req, res) => {
             });
         }
         
+        // *** NUEVA VALIDACIÓN: Verificar archivo del genoma ***
+        const genomeValidation = await validateGenomeFile(inputFolderPath, genome);
+        if (!genomeValidation.valid) {
+            console.error('Error de validación del genoma:', genomeValidation.error);
+            return res.status(400).json({
+                success: false,
+                error: genomeValidation.error
+            });
+        }
+        
+        // Si hay warning, loggearlo
+        if (genomeValidation.warning) {
+            console.warn('Warning del genoma:', genomeValidation.warning);
+        }
+        
         // Generar un ID único para este trabajo
         const jobId = Date.now().toString();
         
@@ -358,35 +648,35 @@ app.post('/execute-braker3', async (req, res) => {
         const dockerInputPath = convertPath(inputFolderPath);
         const dockerOutputPath = convertPath(outputFolderPath);
         
-        // Construir el array de argumentos para Docker
-        const dockerArgs = [
-            'run',
-            '--rm',
-            '-v', `${dockerInputPath}:/input`,
-            '-v', `${dockerOutputPath}:/output`,
-            'teambraker/braker3:latest',
-            'braker.pl',
-            `--species=${species}`,
-            `--genome=/input/${genome}`,
-            `--threads=${threads}`
-        ];
+        // Construir el comando BRAKER completo con parámetros
+        let brakerCommand = `chmod 777 /output && braker.pl --species=${species} --genome=/input/${genome} --threads=${threads} --min_contig=1000 --AUGUSTUS_CONFIG_PATH=/opt/augustus/config`;
         
-        // Agregar parámetros opcionales
+        // Agregar parámetros opcionales al comando braker.pl
         if (bam && bam.trim() !== '') {
-            dockerArgs.push(`--bam=/input/${bam}`);
+            brakerCommand += ` --bam=/input/${bam}`;
         }
         
         if (prot_seq && prot_seq.trim() !== '') {
-            dockerArgs.push(`--prot_seq=/input/${prot_seq}`);
+            brakerCommand += ` --prot_seq=/input/${prot_seq}`;
         }
         
-        // Si hay flags, agregarlos
+        // Si hay flags adicionales, agregarlos
         if (flags && flags.trim() !== '') {
-            flags.split(' ').filter(Boolean).forEach(flag => dockerArgs.push(flag));
+            brakerCommand += ` ${flags}`;
         }
         
-        // Agregar el directorio de trabajo
-        dockerArgs.push('--workingdir=/output');
+        brakerCommand += ' --workingdir=/output';
+        
+        // Construir el array de argumentos para Docker con permisos de root
+        const dockerArgs = [
+            'run',
+            '--rm',
+            '--user', '0:0', // Ejecutar como root para evitar problemas de permisos
+            '-v', `${dockerInputPath}:/input:ro`, // Solo lectura para input
+            '-v', `${dockerOutputPath}:/output:rw`, // Lectura/escritura para output
+            'teambraker/braker3:latest',
+            'sh', '-c', brakerCommand
+        ];
         
         // Construir el comando para mostrar (solo para logging)
         const dockerCommand = `docker ${dockerArgs.join(' ')}`;
@@ -397,7 +687,8 @@ app.post('/execute-braker3', async (req, res) => {
             success: true,
             message: 'BRAKER3 iniciado correctamente',
             jobId: jobId,
-            command: dockerCommand
+            command: dockerCommand,
+            warning: genomeValidation.warning || null
         });
         
         // Registrar el trabajo como iniciado
@@ -405,19 +696,21 @@ app.post('/execute-braker3', async (req, res) => {
             status: 'Ejecutando',
             progress: 0,
             completed: false,
-            logs: []
+            logs: [],
+            genomeFile: genome,
+            inputPath: inputFolderPath,
+            outputPath: outputFolderPath
         };
         
-        // Ejecutar BRAKER3 usando executeBraker3WithRealTimeLogging
+        // Ejecutar BRAKER3 usando la función mejorada
         executeBraker3WithRealTimeLogging(dockerArgs, jobId)
             .then((output) => {
                 console.log(`BRAKER3 completado exitosamente. JobID: ${jobId}`);
-                // El estado ya se actualiza dentro de la función
             })
             .catch((error) => {
                 console.error(`Error en el trabajo BRAKER3 (${jobId}):`, error);
-                // El estado ya se actualiza dentro de la función
             });
+            
     } catch (error) {
         console.error('Error al ejecutar BRAKER3:', error);
         
@@ -611,6 +904,46 @@ app.post('/cancel-braker3', (req, res) => {
         });
     } else {
         res.json({ success: false, message: 'No hay proceso BRAKER3 activo para cancelar' });
+    }
+});
+
+// Nuevo endpoint para obtener diagnósticos
+app.get('/diagnostics/:jobId', async (req, res) => {
+    const jobId = req.params.jobId;
+    
+    if (!runningJobs[jobId]) {
+        return res.status(404).json({
+            success: false,
+            error: 'Trabajo no encontrado'
+        });
+    }
+    
+    const job = runningJobs[jobId];
+    
+    if (job.status !== 'Error') {
+        return res.json({
+            success: true,
+            status: job.status,
+            message: 'No hay errores para diagnosticar'
+        });
+    }
+    
+    try {
+        // Ejecutar diagnóstico
+        const diagnostics = await diagnoseGeneMark(job.outputPath, job.genomeFile);
+        
+        res.json({
+            success: true,
+            jobId: jobId,
+            status: job.status,
+            diagnostics: diagnostics
+        });
+        
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: `Error al ejecutar diagnóstico: ${error.message}`
+        });
     }
 });
 
