@@ -88,33 +88,66 @@ def run_command(cmd, cwd=None, capture_output=False, timeout=300):
         return False, None, str(e)
 
 def check_prerequisites():
-    """Verificar prerrequisitos del sistema"""
+    """Verificar prerrequisitos del sistema - VERSIÓN CORREGIDA PARA LINUX"""
     log('INFO', "Verificando prerrequisitos...")
     
-    # Verificar Docker
+    # Verificar Docker Engine (no Docker Desktop)
     success, stdout, stderr = run_command("docker --version", capture_output=True)
     if not success:
         log('ERROR', "Docker no está instalado o no está en el PATH")
-        log('INFO', "Instala Docker Desktop desde: https://www.docker.com/products/docker-desktop")
+        log('INFO', "En Ubuntu/Linux, instala Docker Engine con:")
+        log('INFO', "  sudo apt update && sudo apt install docker.io docker-compose")
+        log('INFO', "  sudo systemctl start docker")
+        log('INFO', "  sudo usermod -aG docker $USER")
         return False
     
     log('SUCCESS', f"Docker encontrado: {stdout.strip()}")
     
-    # Verificar Docker Compose
-    success, stdout, stderr = run_command("docker compose version", capture_output=True)
-    if not success:
+    # Verificar Docker Compose (versión nueva o vieja)
+    success_new, stdout_new, stderr_new = run_command("docker compose version", capture_output=True)
+    success_old, stdout_old, stderr_old = run_command("docker-compose --version", capture_output=True)
+    
+    if not success_new and not success_old:
         log('ERROR', "Docker Compose no está disponible")
+        log('INFO', "Instala Docker Compose con:")
+        log('INFO', "  sudo apt install docker-compose")
         return False
     
-    log('SUCCESS', f"Docker Compose encontrado: {stdout.strip()}")
+    if success_new:
+        log('SUCCESS', f"Docker Compose (nuevo) encontrado: {stdout_new.strip()}")
+    else:
+        log('SUCCESS', f"Docker Compose (clásico) encontrado: {stdout_old.strip()}")
     
-    # Verificar que Docker esté ejecutándose
+    # Verificar que Docker daemon esté ejecutándose
     success, stdout, stderr = run_command("docker info", capture_output=True)
     if not success:
-        log('ERROR', "Docker no está ejecutándose. Inicia Docker Desktop.")
+        log('ERROR', "Docker daemon no está ejecutándose")
+        log('INFO', "Inicia Docker con:")
+        log('INFO', "  sudo systemctl start docker")
+        log('INFO', "  sudo systemctl enable docker  # Para inicio automático")
+        
+        # Verificar si es problema de permisos
+        if "permission denied" in stderr.lower():
+            log('WARNING', "Parece ser un problema de permisos")
+            log('INFO', "Ejecuta estos comandos y reinicia tu sesión:")
+            log('INFO', "  sudo usermod -aG docker $USER")
+            log('INFO', "  newgrp docker")
+        
         return False
     
-    log('SUCCESS', "Docker está ejecutándose correctamente")
+    log('SUCCESS', "Docker daemon está ejecutándose correctamente")
+    
+    # Verificar permisos de Docker (sin sudo)
+    success, stdout, stderr = run_command("docker ps", capture_output=True)
+    if not success and "permission denied" in stderr.lower():
+        log('WARNING', "Tu usuario no tiene permisos para usar Docker sin sudo")
+        log('INFO', "Ejecuta estos comandos y reinicia tu sesión:")
+        log('INFO', "  sudo usermod -aG docker $USER")
+        log('INFO', "  newgrp docker")
+        log('INFO', "O ejecuta el script con sudo (no recomendado)")
+        return False
+    
+    log('SUCCESS', "Permisos de Docker correctos")
     
     # Verificar Python
     python_version = sys.version.split()[0]
@@ -124,6 +157,16 @@ def check_prerequisites():
     
     log('SUCCESS', f"Python {python_version} encontrado")
     
+    # Verificar conectividad de red para Docker
+    success, stdout, stderr = run_command("docker run --rm hello-world", capture_output=True, timeout=60)
+    if not success:
+        log('WARNING', "Problema ejecutando contenedor de prueba")
+        log('DEBUG', f"Error: {stderr}")
+        # No es crítico, continuamos
+    else:
+        log('SUCCESS', "Docker puede ejecutar contenedores correctamente")
+    
+    log('SUCCESS', "🎉 Todos los prerrequisitos cumplidos")
     return True
 
 def get_project_root():
