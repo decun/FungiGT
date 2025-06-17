@@ -1,0 +1,370 @@
+<!-- DrFungito - Asistente Genómico Inteligente -->
+<div class="fixed bottom-4 right-4 z-50">
+    <!-- Botón principal con imagen de DrFungito -->
+    <button id="drFungitoButton" class="bg-white text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-green-300 transform hover:scale-105 border-2 border-gray-200 hover:border-green-300">
+        <img src="/images/DrFungito.png" alt="Dr. Fungito" class="w-14 h-14 rounded-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="w-14 h-14 rounded-full bg-green-500 flex items-center justify-center text-white font-bold text-xl hidden">🍄</div>
+    </button>
+    
+    <!-- Panel de chat -->
+    <div id="drFungitoPanel" class="hidden absolute bottom-20 right-0 bg-white text-gray-800 rounded-2xl shadow-2xl w-96 max-h-[500px] border border-gray-200 overflow-hidden">
+        <!-- Header del chat -->
+        <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-t-2xl">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <img src="/images/DrFungito.png" alt="Dr. Fungito" class="w-10 h-10 rounded-full object-cover border-2 border-white" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="w-10 h-10 rounded-full bg-green-700 border-2 border-white flex items-center justify-center text-white font-bold hidden">🍄</div>
+                    <div>
+                        <h3 class="font-bold text-lg">Dr. Fungito AI</h3>
+                        <p class="text-green-100 text-sm">Análisis Genómico + Imágenes IA</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <!-- Indicador de estado de conexión -->
+                    <div id="connectionStatus" class="w-2 h-2 rounded-full bg-yellow-400" title="Conectando..."></div>
+                    <button id="closeDrFungito" class="text-white hover:text-green-200 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Área de mensajes -->
+        <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 max-h-80 bg-gray-50">
+            <div class="flex items-start space-x-2">
+                <img src="/images/DrFungito.png" alt="Dr. Fungito" class="w-8 h-8 rounded-full object-cover flex-shrink-0" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0 hidden">🍄</div>
+                <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-200 max-w-xs">
+                    <p class="text-sm text-gray-800">¡Hola! Soy Dr. Fungito con IA avanzada. Puedo analizar tus gráficos genómicos, generar reportes detallados y responder preguntas especializadas sobre hongos. ¿En qué puedo ayudarte?</p>
+                </div>
+            </div>
+            
+            <!-- Botones de acceso rápido -->
+            <div class="flex flex-wrap gap-2 px-2">
+                <button class="quick-action-btn bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs hover:bg-blue-200 transition-colors" data-action="memory">
+                    📊 Ver mi memoria
+                </button>
+                <button class="quick-action-btn bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs hover:bg-purple-200 transition-colors" data-action="report">
+                    📄 Generar reporte
+                </button>
+                <button class="quick-action-btn bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs hover:bg-green-200 transition-colors" data-action="help">
+                    ❓ Ayuda
+                </button>
+            </div>
+        </div>
+        
+        <!-- Input de mensaje -->
+        <div class="p-4 border-t border-gray-200 bg-white rounded-b-2xl">
+            <div class="flex space-x-2">
+                <input type="text" 
+                       id="userInput" 
+                       class="flex-grow px-3 py-2 pr-24 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm" 
+                       placeholder="Pregúntame sobre genómica o pide un reporte..." 
+                       maxlength="500" />
+                <button id="sendMessage" 
+                        class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="mt-2 text-xs text-gray-500">
+                🧠 IA Avanzada: Análisis de imágenes, reportes inteligentes, memoria contextual
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script para DrFungito con IA -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const drFungitoButton = document.getElementById('drFungitoButton');
+    const drFungitoPanel = document.getElementById('drFungitoPanel');
+    const closeDrFungito = document.getElementById('closeDrFungito');
+    const userInput = document.getElementById('userInput');
+    const sendButton = document.getElementById('sendMessage');
+    const chatMessages = document.getElementById('chatMessages');
+    const connectionStatus = document.getElementById('connectionStatus');
+    
+    // URL del agente Dr. Fungito AI
+    const drFungitoUrl = 'http://localhost:4009';
+    
+    // Verificar estado de conexión al cargar
+    checkConnectionStatus();
+    
+    // Toggle del panel
+    drFungitoButton.addEventListener('click', () => {
+        drFungitoPanel.classList.toggle('hidden');
+        if (!drFungitoPanel.classList.contains('hidden')) {
+            userInput.focus();
+            checkConnectionStatus();
+        }
+    });
+
+    // Cerrar panel
+    closeDrFungito.addEventListener('click', () => {
+        drFungitoPanel.classList.add('hidden');
+    });
+    
+    // Botones de acción rápida
+    document.querySelectorAll('.quick-action-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const action = this.dataset.action;
+            handleQuickAction(action);
+        });
+    });
+    
+    // Función para verificar conexión con el agente
+    async function checkConnectionStatus() {
+        try {
+            const response = await fetch(`${drFungitoUrl}/health`);
+            if (response.ok) {
+                connectionStatus.className = 'w-2 h-2 rounded-full bg-green-400';
+                connectionStatus.title = 'Conectado al agente IA';
+            } else {
+                throw new Error('Service unavailable');
+            }
+        } catch (error) {
+            connectionStatus.className = 'w-2 h-2 rounded-full bg-red-400';
+            connectionStatus.title = 'Desconectado del agente IA';
+        }
+    }
+
+    // Función para mostrar mensaje en el chat
+    function displayMessage(message, isUser = false, isLoading = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `flex items-start space-x-2 ${isUser ? 'justify-end' : ''}`;
+        
+        if (isUser) {
+            messageDiv.innerHTML = `
+                <div class="bg-green-500 text-white p-3 rounded-lg shadow-sm max-w-xs">
+                    <p class="text-sm">${message}</p>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">👤</div>
+            `;
+        } else {
+            const loadingIcon = isLoading ? '<div class="loading-spinner w-4 h-4 border-2 border-gray-300 border-t-green-500 rounded-full animate-spin"></div>' : '';
+            messageDiv.innerHTML = `
+                <img src="/images/DrFungito.png" alt="Dr. Fungito" class="w-8 h-8 rounded-full object-cover flex-shrink-0" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0 hidden">🍄</div>
+                <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-200 max-w-xs">
+                    <div class="flex items-center space-x-2">
+                        ${loadingIcon}
+                        <div class="text-sm text-gray-800 whitespace-pre-wrap">${message}</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        return messageDiv;
+    }
+    
+    // Función para manejar acciones rápidas
+    async function handleQuickAction(action) {
+        switch (action) {
+            case 'memory':
+                await showUserMemory();
+                break;
+            case 'report':
+                await generateQuickReport();
+                break;
+            case 'help':
+                showHelp();
+                break;
+        }
+    }
+    
+    // Función para mostrar memoria del usuario
+    async function showUserMemory() {
+        const loadingMessage = displayMessage('Consultando tu memoria...', false, true);
+        
+        try {
+            const response = await fetch(`${drFungitoUrl}/memory?limit=5`, {
+                headers: {
+                    'X-User-Id': getUserId()
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Error al obtener memoria');
+            }
+            
+            const memoryData = await response.json();
+            loadingMessage.remove();
+            
+            const memoryText = `📊 **Tu Memoria Genómica:**\n\n` +
+                `🖼️ Imágenes analizadas: ${memoryData.totalImages}\n` +
+                `📄 Reportes generados: ${memoryData.totalReports}\n` +
+                `📅 Última actividad: ${new Date(memoryData.lastActivity).toLocaleString()}\n\n` +
+                `**Últimas imágenes:**\n` +
+                memoryData.images.slice(0, 3).map(img => 
+                    `• ${img.filename} (${img.analysisType})`
+                ).join('\n');
+            
+            displayMessage(memoryText);
+            
+        } catch (error) {
+            loadingMessage.remove();
+            displayMessage('❌ Error al consultar tu memoria. Verifica la conexión con el agente IA.');
+        }
+    }
+    
+    // Función para generar reporte rápido
+    async function generateQuickReport() {
+        const loadingMessage = displayMessage('Generando reporte de tus análisis recientes...', false, true);
+        
+        try {
+            const response = await fetch(`${drFungitoUrl}/generate-report`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-User-Id': getUserId()
+                },
+                body: JSON.stringify({
+                    reportType: 'summary',
+                    title: 'Reporte Rápido de Análisis Genómico',
+                    includeAllImages: false
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error('Error al generar reporte');
+            }
+            
+            const reportData = await response.json();
+            loadingMessage.remove();
+            
+            const reportPreview = reportData.content.substring(0, 300) + '...';
+            displayMessage(`📄 **Reporte Generado:**\n\n${reportPreview}\n\n🔗 [Ver reporte completo en el visualizador]`);
+            
+        } catch (error) {
+            loadingMessage.remove();
+            displayMessage('❌ Error al generar reporte. Asegúrate de haber analizado algunas imágenes primero.');
+        }
+    }
+    
+    // Función para mostrar ayuda
+    function showHelp() {
+        const helpText = `🤖 **Dr. Fungito AI - Ayuda:**\n\n` +
+            `**Comandos disponibles:**\n` +
+            `• "¿generar reporte?" - Crear reporte detallado\n` +
+            `• "mostrar memoria" - Ver análisis anteriores\n` +
+            `• "analizar [tipo]" - Información sobre análisis\n\n` +
+            `**Capacidades:**\n` +
+            `🔬 Análisis automático de gráficos genómicos\n` +
+            `📊 Interpretación de resultados BinDash, anotaciones, etc.\n` +
+            `📄 Generación de reportes inteligentes\n` +
+            `🧠 Memoria contextual por usuario\n\n` +
+            `**Tip:** Usa los botones en cada visualizador para análisis directo!`;
+        
+        displayMessage(helpText);
+    }
+
+    // Función para enviar mensaje
+    async function handleSendMessage() {
+        const message = userInput.value.trim();
+        if (!message) return;
+
+        // Deshabilitar input mientras se procesa
+        sendButton.disabled = true;
+        userInput.disabled = true;
+
+        // Mostrar mensaje del usuario
+        displayMessage(message, true);
+        userInput.value = '';
+
+        // Mostrar indicador de carga
+        const loadingMessage = displayMessage('Analizando tu consulta...', false, true);
+
+        try {
+            // Enviar a Dr. Fungito AI Agent
+            const response = await fetch(`${drFungitoUrl}/chat`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-User-Id': getUserId()
+                },
+                body: JSON.stringify({
+                    message: message,
+                    includeMemoryContext: true
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Error del servidor: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            // Eliminar mensaje de carga
+            loadingMessage.remove();
+            
+            // Mostrar respuesta del agente
+            displayMessage(data.response, false);
+            
+        } catch (error) {
+            console.error('Error al comunicarse con Dr. Fungito AI:', error);
+            loadingMessage.remove();
+            
+            // Fallback a respuestas locales si el agente no está disponible
+            const fallbackResponse = generateLocalResponse(message);
+            displayMessage(`⚠️ Agente IA no disponible. Respuesta local:\n\n${fallbackResponse}`, false);
+        } finally {
+            // Rehabilitar input
+            sendButton.disabled = false;
+            userInput.disabled = false;
+            userInput.focus();
+        }
+    }
+    
+    // Función para generar respuestas locales (fallback)
+    function generateLocalResponse(message) {
+        const lowerMessage = message.toLowerCase();
+        
+        if (lowerMessage.includes('reporte') || lowerMessage.includes('report')) {
+            return '📄 Para generar un reporte detallado, usa los botones "Analizar Gráficos" en cualquier módulo del visualizador, luego haz clic en "Generar Reporte". También puedes usar el botón "📄 Generar reporte" arriba.';
+        } else if (lowerMessage.includes('memoria') || lowerMessage.includes('memory')) {
+            return '🧠 Tu memoria contiene todos los análisis de imágenes que hayas realizado. Usa el botón "📊 Ver mi memoria" para consultar tu historial de análisis.';
+        } else if (lowerMessage.includes('eggnog') || lowerMessage.includes('anotación')) {
+            return '🔬 Para análisis de anotaciones con eggNOG-mapper, usa el módulo "Visualizador de Anotaciones" y luego analiza los gráficos con Dr. Fungito AI.';
+        } else if (lowerMessage.includes('bindash') || lowerMessage.includes('distancia')) {
+            return '🧬 BinDash es excelente para comparaciones genómicas. Usa el "Visualizador BinDash" y luego el análisis IA para interpretación automática de matrices de distancia.';
+        } else {
+            return '🤖 Dr. Fungito AI no está disponible. Conecta el agente en puerto 4009 para análisis inteligente de imágenes, generación automática de reportes y chat contextual avanzado.';
+        }
+    }
+    
+    // Función para obtener ID de usuario
+    function getUserId() {
+        let userId = localStorage.getItem('drfungito_user_id');
+        if (!userId) {
+            userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('drfungito_user_id', userId);
+        }
+        return userId;
+    }
+
+    // Event listeners
+    sendButton.addEventListener('click', handleSendMessage);
+    userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSendMessage();
+        }
+    });
+
+    // Cerrar al hacer clic fuera
+    document.addEventListener('click', (e) => {
+        if (!drFungitoPanel.contains(e.target) && !drFungitoButton.contains(e.target)) {
+            drFungitoPanel.classList.add('hidden');
+        }
+    });
+    
+    // Verificar conexión periódicamente
+    setInterval(checkConnectionStatus, 30000); // Cada 30 segundos
+});
+</script> 

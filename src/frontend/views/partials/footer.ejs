@@ -1,78 +1,22 @@
-<div class="fixed bottom-4 right-4">
-    <button id="helpButton" class="bg-green-600 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg hover:bg-green-700 transition duration-300 focus:outline-none">
-        <span class="material-icons">help_outline</span>
-    </button>
-    <div id="helpTooltip" class="hidden absolute bottom-20 right-0 bg-white text-gray-800 p-4 rounded-lg shadow-xl w-96">
-        <p class="text-sm font-semibold mb-2">Asistente Genómico FungiTG</p>
-        <div id="chatMessages" class="max-h-96 overflow-y-auto mb-2 space-y-2">
-            <div class="mb-2">
-                <p class="text-xs text-gray-500">Asistente:</p>
-                <p class="text-sm">Hola, soy tu asistente especializado en genómica. ¿En qué puedo ayudarte hoy?</p>
+<!-- Footer básico -->
+<footer class="bg-gray-800 text-white mt-auto">
+    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+                <p class="text-sm">© 2025 FungiGT. Todos los derechos reservados.</p>
+                <p class="text-xs text-gray-400 mt-1">Plataforma de análisis genómico para hongos</p>
+            </div>
+            <div class="flex space-x-6 text-sm">
+                <a href="#" class="text-gray-300 hover:text-white transition-colors">Documentación</a>
+                <a href="#" class="text-gray-300 hover:text-white transition-colors">Soporte</a>
+                <a href="#" class="text-gray-300 hover:text-white transition-colors">Acerca de</a>
             </div>
         </div>
-        <div class="flex">
-            <input type="text" 
-                   id="userInput" 
-                   class="flex-grow px-2 py-1 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500" 
-                   placeholder="Escribe tu consulta genómica..." />
-            <button id="sendMessage" 
-                    class="bg-green-600 text-white px-3 py-1 rounded-r-md hover:bg-green-700 transition duration-300">
-                <span class="material-icons text-sm">send</span>
-            </button>
-        </div>
-        <button id="closeHelp" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
-            <span class="material-icons text-sm">close</span>
-        </button>
     </div>
-</div>
+</footer>
 
-<script src="/js/chatbot.js"></script>
-<script>
-const helpButton = document.getElementById('helpButton');
-const helpTooltip = document.getElementById('helpTooltip');
-const closeHelp = document.getElementById('closeHelp');
-const userInput = document.getElementById('userInput');
-const sendButton = document.getElementById('sendMessage');
-const chatMessages = document.getElementById('chatMessages');
+<!-- Incluir DrFungito Chat -->
+<%- include('drfungito-chat') %>
 
-helpButton.addEventListener('click', () => {
-    helpTooltip.classList.toggle('hidden');
-});
-
-closeHelp.addEventListener('click', () => {
-    helpTooltip.classList.add('hidden');
-});
-
-async function handleSendMessage() {
-    const message = userInput.value.trim();
-    if (!message) return;
-
-    // Mostrar mensaje del usuario
-    displayMessage(message, true);
-    userInput.value = '';
-
-    // Mostrar indicador de carga
-    const loadingMessage = displayMessage('Procesando tu consulta...', false);
-
-    try {
-        // Obtener respuesta del asistente
-        const response = await sendMessageToAssistant(message);
-        
-        // Eliminar mensaje de carga y mostrar respuesta
-        loadingMessage.remove();
-        displayMessage(response, false);
-    } catch (error) {
-        loadingMessage.remove();
-        displayMessage('Lo siento, ha ocurrido un error al procesar tu consulta.', false);
-    }
-}
-
-sendButton.addEventListener('click', handleSendMessage);
-userInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        handleSendMessage();
-    }
-});
-</script>
 </body>
 </html>

@@ -3,10 +3,15 @@ node_modules/
 **/node_modules/
 */node_modules/
 
-# Datos
+# Datos y archivos subidos
 data/
 **/data/
 uploads/
+**/uploads/
+temp/
+**/temp/
+tmp/
+**/tmp/
 
 # Entorno - MUY IMPORTANTE NO SUBIR ESTOS ARCHIVOS
 .env
@@ -19,6 +24,8 @@ uploads/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+logs/
+**/logs/
 
 # Editores
 .vscode/
@@ -42,3 +49,80 @@ Thumbs.db
 # Excepciones: iconos y logos de la aplicación
 !src/frontend/public/logo*.png
 !src/frontend/public/favicon.ico
+
+# Archivos de salida y resultados
+outputs/
+**/outputs/
+results/
+**/results/
+
+# Archivos temporales de procesamiento
+*.tmp
+*.temp
+**/cache/
+cache/
+
+# Archivos de base de datos
+*.db
+*.sqlite
+*.sqlite3
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Archivos de Docker
+.dockerignore
+**/docker-compose.override.yml
+
+# Archivos de configuración local
+config.local.js
+config.local.json
+local.config.*
+
+# Archivos de backup
+*.bak
+*.backup
+*~
+
+# Archivos comprimidos
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Archivos de análisis bioinformático
+*.fasta.gz
+*.fastq.gz
+*.bam
+*.sam
+*.vcf
+*.gff
+*.gtf
+
+# Directorios específicos del proyecto
+src/modules/*/temp/
+src/modules/*/tmp/
+src/modules/*/cache/
+src/modules/*/logs/

@@ -1,407 +1,647 @@
 <%- include('partials/header') %>
 
-<div class="min-h-screen bg-gradient-to-b from-green-50 to-green-100 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="flex flex-col md:flex-row gap-6">
-        <!-- Panel lateral: Explorador de archivos -->
-        <div class="w-full md:w-1/3 lg:w-1/4">
-            <%- include('partials/file-explorer') %>
-        </div>
-        
-        <!-- Panel principal: Contenido original -->
-        <div class="w-full md:w-2/3 lg:w-3/4">
-            <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-                <!-- Header Section -->
-                <div class="bg-gradient-to-r from-green-400 via-green-300 to-green-400 px-6 py-8">
-                    <h1 class="text-3xl font-bold text-white text-center flex items-center justify-center space-x-3">
-                        <i class="fas fa-database"></i>
-                        <span>NCBI Datasets Genome Downloader</span>
-                    </h1>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <main class="flex-grow p-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row gap-6">
+                <!-- Panel lateral: Explorador de archivos -->
+                <div class="w-full md:w-1/3 lg:w-1/4">
+                    <%- include('partials/file-explorer') %>
                 </div>
+                
+                <!-- Panel principal -->
+                <div class="w-full md:w-2/3 lg:w-3/4">
+                    <h2 class="text-3xl font-bold mb-8 flex items-center text-gray-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 1.79 4 4 4h8c0-1.1.9-2 2-2h2V7c0-2.21-1.79-4-4-4H8c-2.21 0-4 1.79-4 4z" />
+                        </svg>
+                        NCBI Datasets Genome Downloader
+                    </h2>
 
-                <!-- Main Content -->
-                <div class="p-8">
-                    <!-- Download Mode Selection -->
-                    <div class="mb-6">
-                        <label for="downloadMode" class="block text-sm font-medium text-gray-700">Modo de descarga</label>
-                        <select id="downloadMode" class="mt-2 block w-full rounded-lg border-green-200 shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50 bg-green-50 transition-colors duration-200">
-                            <option value="accession">Número de accesión</option>
-                            <option value="taxon">Nombre de taxón</option>
-                            <option value="automated">Automatizada (Archivo .txt)</option>
-                        </select>
-                    </div>
-
-                    <!-- Accession Input -->
-                    <div id="accessionInputDiv" class="mb-6">
-                        <label for="accessionInput" class="block text-sm font-medium text-gray-700">Número de accesión</label>
-                        <input id="accessionInput" type="text" placeholder="Ejemplo: GCF_000005825.2" class="mt-2 block w-full rounded-lg border-green-200 shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50 bg-green-50 transition-colors duration-200" />
-                    </div>
-
-                    <!-- Taxon Input -->
-                    <div id="taxonInputDiv" class="mb-6" style="display: none;">
-                        <label for="taxonInput" class="block text-sm font-medium text-gray-700">Nombre de taxón</label>
-                        <input id="taxonInput" type="text" placeholder="Ejemplo: Saccharomyces cerevisiae" class="mt-2 block w-full rounded-lg border-green-200 shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50 bg-green-50 transition-colors duration-200" />
-                    </div>
-
-                    <!-- File Upload -->
-                    <div id="fileUploadDiv" class="mb-6" style="display: none;">
-                        <label for="fileUpload" class="block text-sm font-medium text-gray-700">Suba un archivo .txt con múltiples accesiones</label>
-                        <div class="flex items-center mt-2">
-                            <input id="fileUpload" type="file" accept=".txt" class="hidden" />
-                            <button type="button" onClick="document.getElementById('fileUpload').click()" class="inline-flex items-center px-4 py-2 rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
-                                <i class="fas fa-upload mr-2"></i>
-                                Subir archivo
-                            </button>
-                            <span id="fileName" class="ml-3 text-sm text-green-600"></span>
+                    <!-- Configuración Principal -->
+                    <div class="bg-white p-8 rounded-xl shadow-lg mb-8 border border-gray-200">
+                        <div class="border-l-4 border-green-500 pl-6 mb-6">
+                            <h3 class="text-2xl font-semibold mb-2 flex items-center text-gray-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                                </svg>
+                                Descarga de Genomas
+                            </h3>
+                            <p class="text-gray-600 text-sm">Herramienta para descargar genomas desde NCBI Datasets con múltiples opciones de configuración</p>
                         </div>
-                    </div>
 
-                    <!-- Include Options -->
-                    <div class="mb-6">
-                        <span class="block text-sm font-medium text-gray-700 mb-2">Opciones a incluir</span>
-                        <div class="flex flex-wrap gap-2">
-                            <button class="includeOption px-4 py-2 rounded-lg text-sm font-medium bg-green-500 text-white transition-all duration-200 hover:shadow-md" data-option="genome">
-                                <i class="fas fa-dna mr-1"></i>genome
+                        <!-- Modo de descarga -->
+                        <div class="bg-gray-50 p-6 rounded-lg mb-6">
+                            <h4 class="text-lg font-semibold mb-4 text-gray-800">Modo de Descarga</h4>
+                            <div class="mb-6">
+                                <label for="downloadMode" class="block text-sm font-medium text-gray-700 mb-2">Seleccionar método de descarga:</label>
+                                <select id="downloadMode" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
+                                    <option value="accession">Número de accesión</option>
+                                    <option value="taxon">Nombre de taxón</option>
+                                    <option value="automated">Automatizada (Archivo .txt)</option>
+                                </select>
+                            </div>
+
+                            <!-- Accession Input -->
+                            <div id="accessionInputDiv" class="mb-6">
+                                <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                    Número de accesión
+                                    <div class="relative ml-2 group">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                                            <div class="text-center">
+                                                <div class="font-semibold mb-1">Número de accesión de NCBI</div>
+                                                <div class="mt-1 text-yellow-300">Ejemplo: GCF_000005825.2</div>
+                                            </div>
+                                            <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                        </div>
+                                    </div>
+                                </label>
+                                <input id="accessionInput" type="text" placeholder="Ejemplo: GCF_000005825.2" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" />
+                            </div>
+
+                            <!-- Taxon Input -->
+                            <div id="taxonInputDiv" class="mb-6" style="display: none;">
+                                <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                    Nombre de taxón
+                                    <div class="relative ml-2 group">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                                            <div class="text-center">
+                                                <div class="font-semibold mb-1">Nombre científico del organismo</div>
+                                                <div class="mt-1 text-yellow-300">Ejemplo: Saccharomyces cerevisiae</div>
+                                            </div>
+                                            <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                        </div>
+                                    </div>
+                                </label>
+                                <input id="taxonInput" type="text" placeholder="Ejemplo: Saccharomyces cerevisiae" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" />
+                            </div>
+
+                            <!-- File Upload -->
+                            <div id="fileUploadDiv" class="mb-6" style="display: none;">
+                                <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                    Archivo de accesiones
+                                    <div class="relative ml-2 group">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                                            <div class="text-center">
+                                                <div class="font-semibold mb-1">Archivo .txt con múltiples accesiones</div>
+                                                <div class="mt-1 text-yellow-300">Un número de accesión por línea</div>
+                                            </div>
+                                            <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                        </div>
+                                    </div>
+                                </label>
+                                <div class="flex items-center mt-2">
+                                    <input id="fileUpload" type="file" accept=".txt" class="hidden" />
+                                    <button type="button" onClick="document.getElementById('fileUpload').click()" class="inline-flex items-center px-4 py-2 rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        Subir archivo
+                                    </button>
+                                    <span id="fileName" class="ml-3 text-sm text-green-600"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Opciones de Inclusión -->
+                        <div class="bg-blue-50 p-6 rounded-lg border border-blue-200 mb-6">
+                            <h4 class="text-lg font-semibold mb-4 text-gray-800 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Opciones a Incluir
+                            </h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                <button class="includeOption px-4 py-3 rounded-lg text-sm font-medium bg-green-500 text-white transition-all duration-200 hover:shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" data-option="genome">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                                    </svg>
+                                    Genome
+                                </button>
+                                <button class="includeOption px-4 py-3 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 transition-all duration-200 hover:shadow-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500" data-option="protein">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                    </svg>
+                                    Protein
+                                </button>
+                                <button class="includeOption px-4 py-3 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 transition-all duration-200 hover:shadow-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500" data-option="rna">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-1v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-1c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-1" />
+                                    </svg>
+                                    RNA
+                                </button>
+                                <button class="includeOption px-4 py-3 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 transition-all duration-200 hover:shadow-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500" data-option="cds">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                    </svg>
+                                    CDS
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Configuración Avanzada -->
+                        <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-200 mb-6">
+                            <div class="flex items-center mb-4">
+                                <input type="checkbox" id="toggleAdvanced" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                <label for="toggleAdvanced" class="ml-3 text-lg font-semibold text-gray-800 flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    Mostrar Configuración Avanzada
+                                </label>
+                            </div>
+                            
+                            <div id="advancedOptions" class="space-y-4" style="display: none;">
+                                <div>
+                                    <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                        Nivel de ensamblaje
+                                        <div class="relative ml-2 group">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                                                <div class="text-center">
+                                                    <div class="font-semibold mb-1">Calidad del ensamblaje genómico</div>
+                                                    <div class="mt-1 text-yellow-300">Completo > Cromosoma > Scaffold > Contig</div>
+                                                </div>
+                                                <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                    <select id="assemblyLevel" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors">
+                                        <option value="">Cualquiera</option>
+                                        <option value="complete">Completo</option>
+                                        <option value="chromosome">Cromosoma</option>
+                                        <option value="scaffold">Scaffold</option>
+                                        <option value="contig">Contig</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                            <button onClick="handleDownload()" class="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors font-medium">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                                </svg>
+                                Descargar genoma(s)
                             </button>
-                            <button class="includeOption px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 transition-all duration-200 hover:shadow-md" data-option="protein">
-                                <i class="fas fa-microscope mr-1"></i>protein
-                            </button>
-                            <button class="includeOption px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 transition-all duration-200 hover:shadow-md" data-option="rna">
-                                <i class="fas fa-wave-square mr-1"></i>rna
-                            </button>
-                            <button class="includeOption px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 transition-all duration-200 hover:shadow-md" data-option="cds">
-                                <i class="fas fa-code mr-1"></i>cds
+                            
+                            <button onClick="handleExampleDownload()" class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors font-medium">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                </svg>
+                                Probar con ejemplo (E. coli)
                             </button>
                         </div>
-                    </div>
 
-                    <!-- Assembly Level -->
-                    <div class="mb-8">
-                        <label for="assemblyLevel" class="block text-sm font-medium text-gray-700">Nivel de ensamblaje</label>
-                        <select id="assemblyLevel" class="mt-2 block w-full rounded-lg border-green-200 shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50 bg-green-50 transition-colors duration-200">
-                            <option value="">Cualquiera</option>
-                            <option value="complete">Completo</option>
-                            <option value="chromosome">Cromosoma</option>
-                            <option value="scaffold">Scaffold</option>
-                            <option value="contig">Contig</option>
-                        </select>
-                    </div>
+                        <!-- Barra de Progreso -->
+                        <div class="mt-6 bg-gray-50 p-4 rounded-lg">
+                            <div class="mb-2">
+                                <div class="flex items-center justify-between text-sm text-gray-600">
+                                    <span>Progreso de descarga</span>
+                                    <span id="progressPercentage">0%</span>
+                                </div>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3">
+                                <div id="progressBar" class="bg-green-500 h-3 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                            <div id="progressText" class="text-sm text-gray-600 mt-2 text-center">Listo para descargar</div>
+                        </div>
 
-                    <!-- Download Button -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <button onClick="handleDownload()" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200">
-                            <i class="fas fa-download mr-2"></i>
-                            Descargar genoma(s)
-                        </button>
-                        
-                        <button onClick="handleExampleDownload()" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
-                            <i class="fas fa-vial mr-2"></i>
-                            Probar con ejemplo (E. coli)
-                        </button>
+                        <!-- Enlace de Descarga -->
+                        <div id="downloadLink" class="mt-4"></div>
                     </div>
-
-                    <!-- Progress Bar -->
-                    <div class="mt-6">
-                        <progress id="progressBar" value="0" max="100" class="w-full h-2 bg-green-100 rounded-full overflow-hidden">
-                            <div class="w-1/2 h-full bg-green-500"></div>
-                        </progress>
-                        <div id="progressText" class="text-sm text-gray-600 mt-2 text-center"></div>
-                    </div>
-
-                    <!-- Download Link -->
-                    <div id="downloadLink" class="mt-4 text-center"></div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
+    </main>
 
-<footer class="bg-gray-800 text-white mt-auto">
-    <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-        <p class="text-center text-sm">© 2025 FungiGT. Todos los derechos reservados.</p>
-    </div>
-</footer>
+    <footer class="bg-gray-800 text-white mt-auto">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-sm">© 2025 FungiGT. Todos los derechos reservados.</p>
+        </div>
+    </footer>
 
-<script>
-    let includeOptions = ['genome'];
-    const apiEndpoint = 'http://localhost:4006'; // PUERTO CORRECTO
+    <script>
+        let includeOptions = ['genome'];
+        const apiEndpoint = 'http://localhost:4006'; // PUERTO CORRECTO
 
-    console.log('🚀 FRONTEND INICIALIZADO');
-    console.log('📡 API Endpoint:', apiEndpoint);
+        console.log('🚀 FRONTEND INICIALIZADO');
+        console.log('📡 API Endpoint:', apiEndpoint);
 
-    document.querySelectorAll('.includeOption').forEach(button => {
-        button.addEventListener('click', function() {
-            console.log('🔘 Include option clicked:', this.getAttribute('data-option'));
-            const option = this.getAttribute('data-option');
-            if (includeOptions.includes(option)) {
-                includeOptions = includeOptions.filter(o => o !== option);
-                this.classList.remove('bg-green-500', 'text-white');
-                this.classList.add('bg-gray-200', 'text-gray-700');
-            } else {
-                includeOptions.push(option);
-                this.classList.remove('bg-gray-200', 'text-gray-700');
-                this.classList.add('bg-green-500', 'text-white');
-            }
-            console.log('📋 Include options actuales:', includeOptions);
+        // Toggle para Opciones Avanzadas
+        document.getElementById('toggleAdvanced').addEventListener('change', function(e) {
+            const isChecked = e.target.checked;
+            const advancedOptions = document.getElementById('advancedOptions');
+            advancedOptions.style.display = isChecked ? 'block' : 'none';
         });
-    });
 
-    document.getElementById('downloadMode').addEventListener('change', function(event) {
-        console.log('🔄 Modo de descarga cambiado a:', event.target.value);
-        const mode = event.target.value;
-        document.getElementById('accessionInputDiv').style.display = 'none';
-        document.getElementById('taxonInputDiv').style.display = 'none';
-        document.getElementById('fileUploadDiv').style.display = 'none';
+        document.querySelectorAll('.includeOption').forEach(button => {
+            button.addEventListener('click', function() {
+                console.log('🔘 Include option clicked:', this.getAttribute('data-option'));
+                const option = this.getAttribute('data-option');
+                if (includeOptions.includes(option)) {
+                    includeOptions = includeOptions.filter(o => o !== option);
+                    this.classList.remove('bg-green-500', 'text-white');
+                    this.classList.add('bg-gray-200', 'text-gray-700');
+                } else {
+                    includeOptions.push(option);
+                    this.classList.remove('bg-gray-200', 'text-gray-700');
+                    this.classList.add('bg-green-500', 'text-white');
+                }
+                console.log('📋 Include options actuales:', includeOptions);
+            });
+        });
 
-        if (mode === 'accession') {
-            document.getElementById('accessionInputDiv').style.display = 'block';
-        } else if (mode === 'taxon') {
-            document.getElementById('taxonInputDiv').style.display = 'block';
-        } else if (mode === 'automated') {
-            document.getElementById('fileUploadDiv').style.display = 'block';
-        }
-    });
+        document.getElementById('downloadMode').addEventListener('change', function(event) {
+            console.log('🔄 Modo de descarga cambiado a:', event.target.value);
+            const mode = event.target.value;
+            document.getElementById('accessionInputDiv').style.display = 'none';
+            document.getElementById('taxonInputDiv').style.display = 'none';
+            document.getElementById('fileUploadDiv').style.display = 'none';
 
-    document.getElementById('fileUpload').addEventListener('change', function(event) {
-        const fileName = event.target.files[0]?.name || '';
-        console.log('📁 Archivo seleccionado:', fileName);
-        document.getElementById('fileName').textContent = fileName;
-    });
-
-    function simulateProgress() {
-        console.log('⏳ Iniciando barra de progreso');
-        let progressBar = document.getElementById('progressBar');
-        let progressText = document.getElementById('progressText');
-        let progress = 0;
-        
-        progressText.textContent = 'Iniciando descarga...';
-        
-        let interval = setInterval(() => {
-            progress += 5;
-            progressBar.value = progress;
-            progressText.textContent = `Descargando... ${progress}%`;
-            console.log('📊 Progreso:', progress + '%');
-            if (progress >= 90) {
-                clearInterval(interval);
-                progressText.textContent = 'Finalizando...';
+            if (mode === 'accession') {
+                document.getElementById('accessionInputDiv').style.display = 'block';
+            } else if (mode === 'taxon') {
+                document.getElementById('taxonInputDiv').style.display = 'block';
+            } else if (mode === 'automated') {
+                document.getElementById('fileUploadDiv').style.display = 'block';
             }
-        }, 1000);
-        return interval;
-    }
+        });
 
-    function handleDownload() {
-        console.log('🔥 === BOTÓN DESCARGA PRESIONADO ===');
-        
-        const progressInterval = simulateProgress();
+        document.getElementById('fileUpload').addEventListener('change', function(event) {
+            const fileName = event.target.files[0]?.name || '';
+            console.log('📁 Archivo seleccionado:', fileName);
+            document.getElementById('fileName').textContent = fileName;
+        });
 
-        const downloadMode = document.getElementById('downloadMode').value;
-        const accessionNumber = document.getElementById('accessionInput').value;
-        const taxonName = document.getElementById('taxonInput').value;
-        const fileInput = document.getElementById('fileUpload');
-        const file = fileInput.files[0];
-        const assemblyLevel = document.getElementById('assemblyLevel').value;
-
-        console.log('📊 DATOS RECOLECTADOS:');
-        console.log('  - Modo:', downloadMode);
-        console.log('  - Accession:', accessionNumber);
-        console.log('  - Taxón:', taxonName);
-        console.log('  - Archivo:', file ? file.name : 'ninguno');
-        console.log('  - Assembly Level:', assemblyLevel);
-        console.log('  - Include Options:', includeOptions);
-
-        if (downloadMode === 'accession' && !accessionNumber) {
-            console.log('❌ ERROR: Falta número de accesión');
-            alert('Por favor ingrese un número de accesión');
-            clearInterval(progressInterval);
-            return;
-        }
-
-        if (downloadMode === 'taxon' && !taxonName) {
-            console.log('❌ ERROR: Falta nombre de taxón');
-            alert('Por favor ingrese un nombre o ID de taxón');
-            clearInterval(progressInterval);
-            return;
-        }
-
-        if (downloadMode === 'automated' && !file) {
-            console.log('❌ ERROR: Falta archivo .txt');
-            alert('Por favor suba un archivo .txt');
-            clearInterval(progressInterval);
-            return;
-        }
-
-        console.log('📦 Preparando FormData...');
-        const formData = new FormData();
-        formData.append('downloadMode', downloadMode);
-        if (accessionNumber) formData.append('accessionNumber', accessionNumber);
-        if (taxonName) formData.append('taxonName', taxonName);
-        if (file) formData.append('accessionFile', file);
-        formData.append('assemblyLevel', assemblyLevel);
-        includeOptions.forEach(option => formData.append('includeOptions[]', option));
-
-        console.log('🚀 Enviando petición a:', `${apiEndpoint}/api/download-genomes`);
-
-        fetch(`${apiEndpoint}/api/download-genomes`, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            console.log('📨 RESPUESTA RECIBIDA:');
-            console.log('  - Status:', response.status);
-            console.log('  - Status Text:', response.statusText);
-            console.log('  - OK:', response.ok);
-            console.log('  - Headers:', response.headers);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status} - ${response.statusText}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('📄 DATOS DE RESPUESTA COMPLETOS:');
-            console.log(JSON.stringify(data, null, 2));
-            
-            clearInterval(progressInterval);
-            
+        function simulateProgress() {
+            console.log('⏳ Iniciando barra de progreso');
             let progressBar = document.getElementById('progressBar');
             let progressText = document.getElementById('progressText');
-            progressBar.value = 100;
-            progressText.textContent = 'Completado';
+            let progressPercentage = document.getElementById('progressPercentage');
+            let progress = 0;
             
-            if (data.success && data.downloadId) {
-                console.log('✅ DESCARGA EXITOSA');
-                const downloadLinkDiv = document.getElementById('downloadLink');
-                const downloadId = data.downloadId;
+            progressText.textContent = 'Iniciando descarga...';
+            progressPercentage.textContent = '0%';
+            
+            let interval = setInterval(() => {
+                progress += 5;
+                progressBar.style.width = progress + '%';
+                progressPercentage.textContent = progress + '%';
                 
-                // Verificar si hay resultados exitosos
-                const successfulDownloads = data.results?.filter(r => r.status === 'success') || [];
-                console.log('📋 Descargas exitosas:', successfulDownloads.length);
+                if (progress <= 20) {
+                    progressText.textContent = 'Validando parámetros...';
+                } else if (progress <= 40) {
+                    progressText.textContent = 'Conectando con NCBI...';
+                } else if (progress <= 60) {
+                    progressText.textContent = 'Descargando archivos...';
+                } else if (progress <= 80) {
+                    progressText.textContent = 'Procesando genomas...';
+                } else if (progress < 100) {
+                    progressText.textContent = 'Comprimiendo archivos...';
+                }
                 
-                if (successfulDownloads.length > 0) {
-                    // Crear enlaces directos a los archivos ZIP
-                    let downloadsHTML = '<ul class="mt-3 list-disc list-inside space-y-2">';
+                console.log('📊 Progreso:', progress + '%');
+                if (progress >= 90) {
+                    clearInterval(interval);
+                    progressText.textContent = 'Finalizando...';
+                }
+            }, 1000);
+            return interval;
+        }
+
+        function handleDownload() {
+            console.log('🔥 === BOTÓN DESCARGA PRESIONADO ===');
+            
+            const progressInterval = simulateProgress();
+
+            const downloadMode = document.getElementById('downloadMode').value;
+            const accessionNumber = document.getElementById('accessionInput').value;
+            const taxonName = document.getElementById('taxonInput').value;
+            const fileInput = document.getElementById('fileUpload');
+            const file = fileInput.files[0];
+            const assemblyLevel = document.getElementById('assemblyLevel').value;
+
+            console.log('📊 DATOS RECOLECTADOS:');
+            console.log('  - Modo:', downloadMode);
+            console.log('  - Accession:', accessionNumber);
+            console.log('  - Taxón:', taxonName);
+            console.log('  - Archivo:', file ? file.name : 'ninguno');
+            console.log('  - Assembly Level:', assemblyLevel);
+            console.log('  - Include Options:', includeOptions);
+
+            if (downloadMode === 'accession' && !accessionNumber) {
+                console.log('❌ ERROR: Falta número de accesión');
+                alert('Por favor ingrese un número de accesión');
+                clearInterval(progressInterval);
+                return;
+            }
+
+            if (downloadMode === 'taxon' && !taxonName) {
+                console.log('❌ ERROR: Falta nombre de taxón');
+                alert('Por favor ingrese un nombre o ID de taxón');
+                clearInterval(progressInterval);
+                return;
+            }
+
+            if (downloadMode === 'automated' && !file) {
+                console.log('❌ ERROR: Falta archivo .txt');
+                alert('Por favor suba un archivo .txt');
+                clearInterval(progressInterval);
+                return;
+            }
+
+            console.log('📦 Preparando FormData...');
+            const formData = new FormData();
+            formData.append('downloadMode', downloadMode);
+            if (accessionNumber) formData.append('accessionNumber', accessionNumber);
+            if (taxonName) formData.append('taxonName', taxonName);
+            if (file) formData.append('accessionFile', file);
+            formData.append('assemblyLevel', assemblyLevel);
+            includeOptions.forEach(option => formData.append('includeOptions[]', option));
+
+            console.log('🚀 Enviando petición a:', `${apiEndpoint}/api/download-genomes`);
+
+            fetch(`${apiEndpoint}/api/download-genomes`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                console.log('📨 RESPUESTA RECIBIDA:');
+                console.log('  - Status:', response.status);
+                console.log('  - Status Text:', response.statusText);
+                console.log('  - OK:', response.ok);
+                console.log('  - Headers:', response.headers);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status} - ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('📄 DATOS DE RESPUESTA COMPLETOS:');
+                console.log(JSON.stringify(data, null, 2));
+                
+                clearInterval(progressInterval);
+                
+                let progressBar = document.getElementById('progressBar');
+                let progressText = document.getElementById('progressText');
+                let progressPercentage = document.getElementById('progressPercentage');
+                progressBar.style.width = '100%';
+                progressPercentage.textContent = '100%';
+                progressText.textContent = 'Completado exitosamente';
+                
+                if (data.success && data.downloadId) {
+                    console.log('✅ DESCARGA EXITOSA');
+                    const downloadLinkDiv = document.getElementById('downloadLink');
+                    const downloadId = data.downloadId;
                     
-                    successfulDownloads.forEach(download => {
-                        const accessionOrTaxon = download.accession || download.taxon;
-                        const zipFile = download.zipFile;
+                    // Verificar si hay resultados exitosos
+                    const successfulDownloads = data.results?.filter(r => r.status === 'success') || [];
+                    console.log('📋 Descargas exitosas:', successfulDownloads.length);
+                    
+                    if (successfulDownloads.length > 0) {
+                        // Crear enlaces directos a los archivos ZIP
+                        let downloadsHTML = '<div class="space-y-2">';
                         
-                        console.log('🗂️ Archivo disponible:', accessionOrTaxon, '->', zipFile);
+                        successfulDownloads.forEach(download => {
+                            const accessionOrTaxon = download.accession || download.taxon;
+                            const zipFile = download.zipFile;
+                            
+                            console.log('🗂️ Archivo disponible:', accessionOrTaxon, '->', zipFile);
+                            
+                            if (zipFile) {
+                                downloadsHTML += `
+                                    <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
+                                        <div class="flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            <span class="text-gray-700 font-medium">${accessionOrTaxon || 'Genoma'}</span>
+                                        </div>
+                                        <a href="${apiEndpoint}/api/download-file/${downloadId}/${accessionOrTaxon}/${zipFile}" 
+                                           class="inline-flex items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors" 
+                                           download="${zipFile}">
+                                           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                                           </svg>
+                                           ${zipFile}
+                                        </a>
+                                    </div>`;
+                            }
+                        });
                         
-                        if (zipFile) {
-                            downloadsHTML += `
-                                <li class="flex items-center">
-                                    <span class="text-green-700">${accessionOrTaxon || 'Genoma'}: </span>
-                                    <a href="${apiEndpoint}/api/download-file/${downloadId}/${accessionOrTaxon}/${zipFile}" 
-                                       class="ml-2 text-blue-600 hover:text-blue-800 hover:underline" 
-                                       download="${zipFile}">
-                                       <i class="fas fa-file-archive mr-1"></i>${zipFile}
-                                    </a>
-                                </li>`;
-                        }
-                    });
-                    
-                    downloadsHTML += '</ul>';
-                    
-                    downloadLinkDiv.innerHTML = `
-                        <div class="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
-                            <h3 class="text-lg font-medium text-green-800 mb-2">Descarga completada</h3>
-                            <p class="text-sm text-green-700 mb-3">Se han descargado ${successfulDownloads.length} genoma(s) correctamente.</p>
-                            <p class="text-sm font-medium text-green-800">Haz clic en los enlaces para descargar los archivos ZIP:</p>
-                            ${downloadsHTML}
-                        </div>`;
+                        downloadsHTML += '</div>';
+                        
+                        downloadLinkDiv.innerHTML = `
+                            <div class="mt-4 p-6 bg-green-50 rounded-lg border border-green-200">
+                                <div class="flex items-center mb-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <h3 class="text-lg font-medium text-green-800">Descarga completada exitosamente</h3>
+                                </div>
+                                <p class="text-sm text-green-700 mb-4">Se han descargado ${successfulDownloads.length} genoma(s) correctamente.</p>
+                                ${downloadsHTML}
+                            </div>`;
+                    } else {
+                        console.log('⚠️ No hay descargas exitosas');
+                        downloadLinkDiv.innerHTML = `
+                            <div class="mt-4 p-6 bg-yellow-50 rounded-lg border border-yellow-200">
+                                <div class="flex items-center mb-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                    <h3 class="text-lg font-medium text-yellow-800">Advertencia</h3>
+                                </div>
+                                <p class="text-sm text-yellow-700">No se pudieron descargar los genomas solicitados.</p>
+                                <details class="mt-3">
+                                    <summary class="cursor-pointer text-sm font-medium text-yellow-800">Ver detalles</summary>
+                                    <pre class="text-xs mt-2 p-3 bg-yellow-100 rounded">${JSON.stringify(data.results, null, 2)}</pre>
+                                </details>
+                            </div>`;
+                    }
                 } else {
-                    console.log('⚠️ No hay descargas exitosas');
+                    console.log('❌ DESCARGA FALLIDA');
+                    const downloadLinkDiv = document.getElementById('downloadLink');
                     downloadLinkDiv.innerHTML = `
-                        <div class="mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                            <h3 class="text-lg font-medium text-yellow-800">Advertencia</h3>
-                            <p class="text-sm text-yellow-700">No se pudieron descargar los genomas solicitados.</p>
-                            <pre class="text-xs mt-2">${JSON.stringify(data.results, null, 2)}</pre>
+                        <div class="mt-4 p-6 bg-red-50 rounded-lg border border-red-200">
+                            <div class="flex items-center mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <h3 class="text-lg font-medium text-red-800">Error en la descarga</h3>
+                            </div>
+                            <p class="text-sm text-red-700">${data.error || 'Error desconocido durante la descarga'}</p>
+                            <details class="mt-3">
+                                <summary class="cursor-pointer text-sm font-medium text-red-800">Ver detalles técnicos</summary>
+                                <pre class="text-xs mt-2 p-3 bg-red-100 rounded">${JSON.stringify(data, null, 2)}</pre>
+                            </details>
                         </div>`;
                 }
-            } else {
-                console.log('❌ DESCARGA FALLIDA');
+            })
+            .catch(error => {
+                console.error('💥 ERROR EN PETICIÓN:', error);
+                console.error('Stack:', error.stack);
+                clearInterval(progressInterval);
+                
+                let progressBar = document.getElementById('progressBar');
+                let progressText = document.getElementById('progressText');
+                let progressPercentage = document.getElementById('progressPercentage');
+                progressBar.style.width = '0%';
+                progressPercentage.textContent = '0%';
+                progressText.textContent = 'Error en la descarga';
+                
                 const downloadLinkDiv = document.getElementById('downloadLink');
                 downloadLinkDiv.innerHTML = `
-                    <div class="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
-                        <h3 class="text-lg font-medium text-red-800">Error</h3>
-                        <p class="text-sm text-red-700">${data.error || 'Error desconocido durante la descarga'}</p>
-                        <pre class="text-xs mt-2">${JSON.stringify(data, null, 2)}</pre>
+                    <div class="mt-4 p-6 bg-red-50 rounded-lg border border-red-200">
+                        <div class="flex items-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <h3 class="text-lg font-medium text-red-800">Error de Conexión</h3>
+                        </div>
+                        <p class="text-sm text-red-700 mb-2">${error.message || 'Error desconocido durante la descarga'}</p>
+                        <p class="text-xs text-red-600">Verifica la consola del navegador y los logs del servidor.</p>
                     </div>`;
-            }
-        })
-        .catch(error => {
-            console.error('💥 ERROR EN PETICIÓN:', error);
-            console.error('Stack:', error.stack);
-            clearInterval(progressInterval);
+            });
             
-            let progressBar = document.getElementById('progressBar');
-            let progressText = document.getElementById('progressText');
-            progressBar.value = 0;
-            progressText.textContent = 'Error';
-            
-            const downloadLinkDiv = document.getElementById('downloadLink');
-            downloadLinkDiv.innerHTML = `
-                <div class="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
-                    <h3 class="text-lg font-medium text-red-800">Error de Conexión</h3>
-                    <p class="text-sm text-red-700">${error.message || 'Error desconocido durante la descarga'}</p>
-                    <p class="text-xs text-red-600 mt-2">Verifica la consola del navegador y los logs del servidor.</p>
-                </div>`;
-        });
-        
-        console.log('🏁 === FIN FUNCIÓN DESCARGA ===');
-    }
-
-    function handleExampleDownload() {
-        console.log('🔥 === BOTÓN EJEMPLO PRESIONADO ===');
-        
-        const progressInterval = simulateProgress();
-
-        const formData = new FormData();
-        formData.append('downloadMode', 'example');
-        formData.append('includeOptions[]', 'genome');
-
-        console.log('🚀 Enviando petición de ejemplo a:', `${apiEndpoint}/api/download-genomes`);
-
-        fetch(`${apiEndpoint}/api/download-genomes`, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            console.log('📨 RESPUESTA DE EJEMPLO:', response.status, response.statusText);
-            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-            return response.json();
-        })
-        .then(data => {
-            console.log('📄 DATOS DE EJEMPLO:', JSON.stringify(data, null, 2));
-            clearInterval(progressInterval);
-            
-            let progressBar = document.getElementById('progressBar');
-            let progressText = document.getElementById('progressText');
-            progressBar.value = 100;
-            progressText.textContent = 'Completado';
-            
-            // ... resto del código igual que en handleDownload ...
-        })
-        .catch(error => {
-            console.error('💥 ERROR EN EJEMPLO:', error);
-            clearInterval(progressInterval);
-            // ... manejo de error ...
-        });
-    }
-
-    // Inicialización del explorador de archivos cuando se carga la página
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('🎯 DOM COMPLETAMENTE CARGADO');
-        
-        // Usar la API global expuesta por el partial del explorador de archivos
-        if (window.FileExplorer) {
-            console.log('🗂️ Inicializando File Explorer');
-            window.FileExplorer.navigateTo('raw', 'genomes');
-        } else {
-            console.log('⚠️ File Explorer no disponible');
+            console.log('🏁 === FIN FUNCIÓN DESCARGA ===');
         }
-        
-        console.log('✅ Frontend listo para usar');
-    });
-</script>
+
+        function handleExampleDownload() {
+            console.log('🔥 === BOTÓN EJEMPLO PRESIONADO ===');
+            
+            const progressInterval = simulateProgress();
+
+            const formData = new FormData();
+            formData.append('downloadMode', 'example');
+            formData.append('includeOptions[]', 'genome');
+
+            console.log('🚀 Enviando petición de ejemplo a:', `${apiEndpoint}/api/download-genomes`);
+
+            fetch(`${apiEndpoint}/api/download-genomes`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                console.log('📨 RESPUESTA DE EJEMPLO:', response.status, response.statusText);
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                console.log('📄 DATOS DE EJEMPLO:', JSON.stringify(data, null, 2));
+                clearInterval(progressInterval);
+                
+                let progressBar = document.getElementById('progressBar');
+                let progressText = document.getElementById('progressText');
+                let progressPercentage = document.getElementById('progressPercentage');
+                progressBar.style.width = '100%';
+                progressPercentage.textContent = '100%';
+                progressText.textContent = 'Completado exitosamente';
+                
+                // Usar la misma lógica que handleDownload para mostrar resultados
+                if (data.success && data.downloadId) {
+                    const downloadLinkDiv = document.getElementById('downloadLink');
+                    const successfulDownloads = data.results?.filter(r => r.status === 'success') || [];
+                    
+                    if (successfulDownloads.length > 0) {
+                        let downloadsHTML = '<div class="space-y-2">';
+                        
+                        successfulDownloads.forEach(download => {
+                            const accessionOrTaxon = download.accession || download.taxon || 'E. coli';
+                            const zipFile = download.zipFile;
+                            
+                            if (zipFile) {
+                                downloadsHTML += `
+                                    <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
+                                        <div class="flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            <span class="text-gray-700 font-medium">${accessionOrTaxon}</span>
+                                        </div>
+                                        <a href="${apiEndpoint}/api/download-file/${data.downloadId}/${accessionOrTaxon}/${zipFile}" 
+                                           class="inline-flex items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors" 
+                                           download="${zipFile}">
+                                           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                                           </svg>
+                                           ${zipFile}
+                                        </a>
+                                    </div>`;
+                            }
+                        });
+                        
+                        downloadsHTML += '</div>';
+                        
+                        downloadLinkDiv.innerHTML = `
+                            <div class="mt-4 p-6 bg-green-50 rounded-lg border border-green-200">
+                                <div class="flex items-center mb-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <h3 class="text-lg font-medium text-green-800">Ejemplo descargado exitosamente</h3>
+                                </div>
+                                <p class="text-sm text-green-700 mb-4">El genoma de ejemplo de E. coli se ha descargado correctamente.</p>
+                                ${downloadsHTML}
+                            </div>`;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('💥 ERROR EN EJEMPLO:', error);
+                clearInterval(progressInterval);
+                
+                let progressBar = document.getElementById('progressBar');
+                let progressText = document.getElementById('progressText');
+                let progressPercentage = document.getElementById('progressPercentage');
+                progressBar.style.width = '0%';
+                progressPercentage.textContent = '0%';
+                progressText.textContent = 'Error en la descarga';
+                
+                const downloadLinkDiv = document.getElementById('downloadLink');
+                downloadLinkDiv.innerHTML = `
+                    <div class="mt-4 p-6 bg-red-50 rounded-lg border border-red-200">
+                        <div class="flex items-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <h3 class="text-lg font-medium text-red-800">Error en el ejemplo</h3>
+                        </div>
+                        <p class="text-sm text-red-700">${error.message}</p>
+                    </div>`;
+            });
+        }
+
+        // Inicialización del explorador de archivos cuando se carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎯 DOM COMPLETAMENTE CARGADO');
+            
+            // Usar la API global expuesta por el partial del explorador de archivos
+            if (window.FileExplorer) {
+                console.log('🗂️ Inicializando File Explorer');
+                window.FileExplorer.navigateTo('raw', 'genomes');
+            } else {
+                console.log('⚠️ File Explorer no disponible');
+            }
+            
+            console.log('✅ Frontend listo para usar');
+        });
+    </script>
+</body>
 
 <%- include('partials/footer') %>

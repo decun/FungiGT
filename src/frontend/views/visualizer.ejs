@@ -104,7 +104,7 @@
     <main class="flex-grow p-6">
         <div class="max-w-7xl mx-auto">
             <!-- Botones de Selección Principal -->
-            <div id="mainSelection" class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-6">
+            <div id="mainSelection" class="grid grid-cols-1 md:grid-cols-6 gap-6 mb-6">
                 <button class="visualizer-btn flex items-center justify-center space-x-2 px-4 py-3 rounded-lg glass-effect nav-item-hover transition-all duration-300 text-gray-800 font-medium" data-target="csvTsvVisualizer">
                     <i class="fas fa-table text-green-700"></i>
                     <span>Asistente CSV/TSV</span>
@@ -128,6 +128,11 @@
                 <button class="visualizer-btn flex items-center justify-center space-x-2 px-4 py-3 rounded-lg glass-effect nav-item-hover transition-all duration-300 text-gray-800 font-medium" data-target="seedOrthologsVisualizer">
                     <i class="fas fa-dna text-green-700"></i>
                     <span>Visualizador Seed Orthologs</span>
+                </button>
+                
+                <button class="visualizer-btn flex items-center justify-center space-x-2 px-4 py-3 rounded-lg glass-effect nav-item-hover transition-all duration-300 text-gray-800 font-medium" data-target="bindashVisualizer">
+                    <i class="fas fa-project-diagram text-green-700"></i>
+                    <span>Visualizador BinDash</span>
                 </button>
             </div>
 
@@ -178,63 +183,113 @@
                     <!-- Agregar el contenedor para los gráficos CSV/TSV -->
                     <div id="csvTsvGraphsContainer" class="mt-4">
                         <!-- Los gráficos generados se mostrarán aquí -->
-        </div>
-    </div>
-</div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Visualizador de Anotaciones -->
-<div id="annotationsVisualizer" class="visualizer hidden">
-    <div class="bg-white p-6 rounded-lg shadow-md">
-        <h3 class="text-xl font-semibold mb-4">Visualizador de Anotaciones</h3>
-        <div class="mb-4">
+            <div id="annotationsVisualizer" class="visualizer hidden">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold mb-4">Visualizador de Anotaciones</h3>
+                    <div class="mb-4">
                         <input type="file" id="annotationsFileUpload" class="hidden" accept=".annotations,.emapper.annotations"/>
                         <label for="annotationsFileUpload" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-300 cursor-pointer inline-flex items-center">
                             <i class="fas fa-upload mr-2"></i>
                             <span>Subir archivo de anotaciones (.emapper.annotations)</span>
-            </label>
-            <span id="annotationsUploadStatus" class="ml-4 text-sm text-gray-600"></span>
-        </div>
-        <div id="annotationsGraphsContainer" class="flex flex-col gap-4">
-            <!-- Selector y Visualizador se apilarán verticalmente aquí -->
-        </div>
-    </div>
-</div>
+                        </label>
+                        <span id="annotationsUploadStatus" class="ml-4 text-sm text-gray-600"></span>
+                    </div>
+                    <div id="annotationsGraphsContainer" class="flex flex-col gap-4">
+                        <!-- Selector y Visualizador se apilarán verticalmente aquí -->
+                    </div>
+                </div>
+            </div>
 
-<!-- Visualizador HMMER -->
-<div id="hmmerVisualizer" class="visualizer hidden">
-    <div class="bg-white p-6 rounded-lg shadow-md">
-        <h3 class="text-xl font-semibold mb-4">Visualizador HMMER</h3>
-        <div class="mb-4">
+            <!-- Visualizador HMMER -->
+            <div id="hmmerVisualizer" class="visualizer hidden">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold mb-4">Visualizador HMMER</h3>
+                    <div class="mb-4">
                         <input type="file" id="hmmerFileUpload" class="hidden" accept=".txt,.out,.analyze.txt"/>
                         <label for="hmmerFileUpload" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-300 cursor-pointer inline-flex items-center">
                             <i class="fas fa-upload mr-2"></i>
                             <span>Subir archivo HMMER (.analyze.txt)</span>
-            </label>
-            <span id="hmmerUploadStatus" class="ml-4 text-sm text-gray-600"></span>
-        </div>
-        <div id="hmmerGraphsContainer" class="flex flex-col gap-4">
-            <!-- Selector y Visualizador se apilarán verticalmente aquí -->
-        </div>
-    </div>
-</div>
+                        </label>
+                        <span id="hmmerUploadStatus" class="ml-4 text-sm text-gray-600"></span>
+                    </div>
+                    <div id="hmmerGraphsContainer" class="flex flex-col gap-4">
+                        <!-- Selector y Visualizador se apilarán verticalmente aquí -->
+                    </div>
+                </div>
+            </div>
 
-<!-- Visualizador Seed Orthologs -->
-<div id="seedOrthologsVisualizer" class="visualizer hidden">
-    <div class="bg-white p-6 rounded-lg shadow-md">
-        <h3 class="text-xl font-semibold mb-4">Visualizador de Seed Orthologs</h3>
-        <div class="mb-4">
-            <input type="file" id="seedOrthologsFileUpload" class="hidden" accept=".seed_orthologs"/>
-            <label for="seedOrthologsFileUpload" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-300 cursor-pointer inline-flex items-center">
-                <i class="fas fa-upload mr-2"></i>
+            <!-- Visualizador Seed Orthologs -->
+            <div id="seedOrthologsVisualizer" class="visualizer hidden">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold mb-4">Visualizador de Seed Orthologs</h3>
+                    <div class="mb-4">
+                        <input type="file" id="seedOrthologsFileUpload" class="hidden" accept=".seed_orthologs"/>
+                        <label for="seedOrthologsFileUpload" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-300 cursor-pointer inline-flex items-center">
+                            <i class="fas fa-upload mr-2"></i>
                             <span>Subir archivo Seed Orthologs (.seed_orthologs)</span>
-            </label>
-            <span id="seedOrthologsUploadStatus" class="ml-4 text-sm text-gray-600"></span>
-        </div>
-        <div id="seedOrthologsGraphsContainer" class="flex flex-col gap-4">
-            <!-- Los gráficos se mostrarán aquí -->
-        </div>
-    </div>
-</div>
+                        </label>
+                        <span id="seedOrthologsUploadStatus" class="ml-4 text-sm text-gray-600"></span>
+                    </div>
+                    <div id="seedOrthologsGraphsContainer" class="flex flex-col gap-4">
+                        <!-- Los gráficos se mostrarán aquí -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualizador BinDash -->
+            <div id="bindashVisualizer" class="visualizer hidden">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold mb-4">Visualizador de Resultados BinDash</h3>
+                    <div class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <h4 class="font-semibold text-blue-800 mb-2">📊 Análisis Genómico Comparativo</h4>
+                        <p class="text-sm text-blue-700">
+                            Visualiza matrices de distancias genómicas, dendrogramas filogenéticos, análisis de ANI (Average Nucleotide Identity) 
+                            y correlaciones entre métricas de BinDash para comparación de genomas.
+                        </p>
+                    </div>
+                    <div class="mb-4">
+                        <input type="file" id="bindashFileUpload" class="hidden" accept=".txt,.tsv,.csv,.out,.distances"/>
+                        <label for="bindashFileUpload" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-300 cursor-pointer inline-flex items-center">
+                            <i class="fas fa-upload mr-2"></i>
+                            <span>Subir archivo de resultados BinDash (.txt, .tsv, .out)</span>
+                        </label>
+                        <span id="bindashUploadStatus" class="ml-4 text-sm text-gray-600"></span>
+                    </div>
+                    
+                    <!-- Panel de estadísticas -->
+                    <div id="bindashStatsPanel" class="hidden mb-4 p-4 bg-gray-50 rounded-lg border">
+                        <h4 class="font-semibold text-gray-800 mb-3">📈 Estadísticas del Análisis</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div class="text-center">
+                                <div class="font-bold text-lg text-blue-600" id="totalComparisons">-</div>
+                                <div class="text-gray-600">Comparaciones</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="font-bold text-lg text-green-600" id="uniqueGenomes">-</div>
+                                <div class="text-gray-600">Genomas únicos</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="font-bold text-lg text-purple-600" id="meanANI">-</div>
+                                <div class="text-gray-600">ANI promedio</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="font-bold text-lg text-orange-600" id="meanDistance">-</div>
+                                <div class="text-gray-600">Distancia promedio</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Contenedor de gráficos - sin selector, mostrando todos directamente -->
+                    <div id="bindashGraphsContainer" class="space-y-6">
+                        <!-- Los gráficos se mostrarán aquí en grid directamente -->
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -253,8 +308,10 @@
     <script>
         document.addEventListener('DOMContentLoaded', async function() {
             // URLs de los servidores
-            const backendUrl = 'http://localhost:5000';  // Servidor de visualización
+            const backendUrl = 'http://localhost:4003';  // Servidor de visualización (corregido de 5000 a 4003)
             const lidaUrl = 'http://localhost:4200';     // Servidor LIDA para CSV/TSV
+            const bindashVisualizerUrl = 'http://localhost:4003';  // Servidor BinDash Visualizer
+            const drFungitoUrl = 'http://localhost:4009';  // Servidor Dr. Fungito AI Agent
             
             const mainSelection = document.getElementById('mainSelection');
             const backButton = document.getElementById('backButton');
@@ -282,6 +339,165 @@
                 .catch(error => {
                     console.error('Error al limpiar uploads:', error);
                 });
+            }
+
+            // ========== FUNCIONES DR. FUNGITO INTEGRADAS ==========
+            
+            // Función para iluminar el chat de Dr. Fungito
+            function highlightDrFungitoChat() {
+                const drFungitoButton = document.getElementById('drFungitoButton');
+                if (drFungitoButton) {
+                    drFungitoButton.style.boxShadow = '0 0 20px rgba(34, 197, 94, 0.8)';
+                    drFungitoButton.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                        drFungitoButton.style.boxShadow = '';
+                        drFungitoButton.style.transform = '';
+                    }, 2000);
+                }
+            }
+            
+            // Función para abrir Dr. Fungito y enviar análisis
+            async function analyzWithDrFungito(imageUrl, analysisType) {
+                try {
+                    // Iluminar el chat de Dr. Fungito
+                    highlightDrFungitoChat();
+                    
+                    // Abrir el panel de Dr. Fungito
+                    const drFungitoPanel = document.getElementById('drFungitoPanel');
+                    if (drFungitoPanel) {
+                        drFungitoPanel.classList.remove('hidden');
+                    }
+                    
+                    // Descargar la imagen y convertirla a blob
+                    const response = await fetch(imageUrl);
+                    const blob = await response.blob();
+                    
+                    // Crear FormData para enviar
+                    const formData = new FormData();
+                    formData.append('image', blob, `analysis_${Date.now()}.png`);
+                    formData.append('analysisType', analysisType);
+                    formData.append('userContext', `Análisis automático de gráfico ${analysisType}`);
+                    
+                    // Mostrar mensaje en el chat de Dr. Fungito
+                    const chatMessages = document.getElementById('chatMessages');
+                    let loadingDiv = null; // Declarar la variable fuera del bloque
+                    
+                    if (chatMessages) {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'flex items-start space-x-2';
+                        messageDiv.innerHTML = `
+                            <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">👤</div>
+                            <div class="bg-green-500 text-white p-3 rounded-lg shadow-sm max-w-xs">
+                                <p class="text-sm">🔍 Analizar gráfico ${analysisType}</p>
+                            </div>
+                        `;
+                        chatMessages.appendChild(messageDiv);
+                        
+                        // Mensaje de carga
+                        loadingDiv = document.createElement('div');
+                        loadingDiv.className = 'flex items-start space-x-2';
+                        loadingDiv.innerHTML = `
+                            <img src="/images/DrFungito.png" alt="Dr. Fungito" class="w-8 h-8 rounded-full object-cover flex-shrink-0" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0 hidden">🍄</div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-200 max-w-xs">
+                                <div class="flex items-center space-x-2">
+                                    <div class="loading-spinner w-4 h-4 border-2 border-gray-300 border-t-green-500 rounded-full animate-spin"></div>
+                                    <div class="text-sm text-gray-800">Analizando imagen con IA...</div>
+                                </div>
+                            </div>
+                        `;
+                        chatMessages.appendChild(loadingDiv);
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }
+                    
+                    // Enviar a Dr. Fungito
+                    const analysisResponse = await fetch(`${drFungitoUrl}/analyze-image`, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-User-Id': getUserId()
+                        }
+                    });
+                    
+                    if (!analysisResponse.ok) {
+                        throw new Error(`Error del servidor: ${analysisResponse.status}`);
+                    }
+                    
+                    const analysisData = await analysisResponse.json();
+                    
+                    // Remover mensaje de carga
+                    if (loadingDiv && loadingDiv.parentNode) {
+                        loadingDiv.remove();
+                    }
+                    
+                    // Mostrar resultado en el chat
+                    if (chatMessages) {
+                        const resultDiv = document.createElement('div');
+                        resultDiv.className = 'flex items-start space-x-2';
+                        resultDiv.innerHTML = `
+                            <img src="/images/DrFungito.png" alt="Dr. Fungito" class="w-8 h-8 rounded-full object-cover flex-shrink-0" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0 hidden">🍄</div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-200 max-w-xs">
+                                <div class="text-sm text-gray-800 whitespace-pre-wrap">${analysisData.analysis}</div>
+                                <div class="mt-2 text-xs text-gray-500">
+                                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">${analysisData.analysisType}</span>
+                                </div>
+                            </div>
+                        `;
+                        chatMessages.appendChild(resultDiv);
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }
+                    
+                } catch (error) {
+                    console.error('Error al analizar con Dr. Fungito:', error);
+                    
+                    // Remover mensaje de carga si existe
+                    const loadingElement = document.querySelector('.loading-spinner')?.closest('.flex.items-start.space-x-2');
+                    if (loadingElement) {
+                        loadingElement.remove();
+                    }
+                    
+                    // Mostrar error en el chat
+                    const chatMessages = document.getElementById('chatMessages');
+                    if (chatMessages) {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'flex items-start space-x-2';
+                        errorDiv.innerHTML = `
+                            <img src="/images/DrFungito.png" alt="Dr. Fungito" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+                            <div class="bg-red-50 border border-red-200 p-3 rounded-lg shadow-sm max-w-xs">
+                                <div class="text-sm text-red-800">❌ Error al analizar imagen: ${error.message}</div>
+                            </div>
+                        `;
+                        chatMessages.appendChild(errorDiv);
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }
+                }
+            }
+            
+            // Función para crear botón de análisis (lupita)
+            function createAnalyzeButton(imageUrl, analysisType) {
+                const button = document.createElement('button');
+                button.className = 'analyze-btn absolute top-2 right-2 bg-green-500 bg-opacity-80 hover:bg-opacity-100 text-white p-2 rounded-full shadow-lg transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-green-400';
+                button.innerHTML = '<i class="fas fa-search text-sm"></i>';
+                button.title = 'Analizar con Dr. Fungito IA';
+                
+                // Efectos hover para iluminar Dr. Fungito
+                button.addEventListener('mouseenter', () => {
+                    highlightDrFungitoChat();
+                });
+                
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    analyzWithDrFungito(imageUrl, analysisType);
+                });
+                
+                return button;
+            }
+            
+            // Función para obtener ID de usuario
+            function getUserId() {
+                return localStorage.getItem('drfungito_user_id') || 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             }
 
             // Función para mostrar el visualizador seleccionado
@@ -316,425 +532,6 @@
 
             // Asignar evento al botón de volver
             backButton.addEventListener('click', showMainSelection);
-
-            // ========== FUNCIONES PARA EL MANEJO DE ARCHIVOS DE ANOTACIONES ==========
-            document.getElementById('annotationsFileUpload').addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (!file) return;
-
-                const formData = new FormData();
-                formData.append('file', file);
-
-                const uploadStatus = document.getElementById('annotationsUploadStatus');
-                uploadStatus.innerHTML = '<span class="loading-spinner"></span> Procesando archivo...';
-
-                fetch(`${backendUrl}/process-annotations`, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        throw new Error(data.error);
-                    }
-                    uploadStatus.textContent = 'Archivo procesado exitosamente';
-                    displayGraphs('annotationsGraphsContainer', data.graphs);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    uploadStatus.textContent = `Error: ${error.message}`;
-                });
-            });
-
-            // ========== FUNCIONES PARA EL MANEJO DE ARCHIVOS HMMER ==========
-            document.getElementById('hmmerFileUpload').addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (!file) return;
-
-                const formData = new FormData();
-                formData.append('file', file);
-
-                const uploadStatus = document.getElementById('hmmerUploadStatus');
-                uploadStatus.innerHTML = '<span class="loading-spinner"></span> Procesando archivo...';
-
-                fetch(`${backendUrl}/process-hmmer`, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(async response => {
-                    const contentType = response.headers.get('content-type');
-                    if (!contentType || !contentType.includes('application/json')) {
-                        const text = await response.text();
-                        throw new Error('Respuesta no válida del servidor');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.error) {
-                        throw new Error(data.error);
-                    }
-                    uploadStatus.textContent = 'Archivo procesado exitosamente';
-                    displayGraphs('hmmerGraphsContainer', data.graphs);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    uploadStatus.textContent = `Error: ${error.message}`;
-                });
-            });
-
-            // ========== FUNCIONES PARA EL MANEJO DE ARCHIVOS SEED ORTHOLOGS ==========
-            document.getElementById('seedOrthologsFileUpload').addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (!file) return;
-
-                const formData = new FormData();
-                formData.append('file', file);
-
-                const uploadStatus = document.getElementById('seedOrthologsUploadStatus');
-                uploadStatus.innerHTML = '<span class="loading-spinner"></span> Procesando archivo...';
-
-                fetch(`${backendUrl}/process-seed-orthologs`, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(async response => {
-                    if (!response.ok) {
-                        const text = await response.text();
-                        throw new Error(`Error del servidor: ${response.status} ${text}`);
-                    }
-                    const contentType = response.headers.get('content-type');
-                    if (!contentType || !contentType.includes('application/json')) {
-                        throw new Error('Respuesta no válida del servidor');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.error) {
-                        throw new Error(data.error);
-                    }
-                    uploadStatus.textContent = 'Archivo procesado exitosamente';
-                    displayGraphs('seedOrthologsGraphsContainer', data.graphs);
-                        })
-                        .catch(error => {
-                    console.error('Error detallado:', error);
-                    uploadStatus.textContent = `Error: ${error.message}`;
-                });
-            });
-
-            // ========== FUNCIÓN MEJORADA PARA MOSTRAR GRÁFICOS ==========
-            function displayGraphs(containerId, graphs) {
-                const container = document.getElementById(containerId);
-                if (!container) {
-                    console.error(`Contenedor ${containerId} no encontrado`);
-                    return;
-                }
-                
-                console.log('Gráficos recibidos:', graphs);
-                container.innerHTML = '';
-                
-                if (!graphs || graphs.length === 0) {
-                    container.innerHTML = '<p class="text-gray-500 text-center py-8">No se generaron gráficos</p>';
-                    return;
-                }
-
-                // Crear el selector de gráficos
-                const selectorDiv = document.createElement('div');
-                selectorDiv.className = 'mb-4';
-                
-                const label = document.createElement('label');
-                label.className = 'block text-sm font-medium text-gray-700 mb-2';
-                label.textContent = 'Seleccionar Gráfico:';
-                
-                const selector = document.createElement('select');
-                selector.className = 'w-full p-3 border border-gray-300 rounded-lg bg-white shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200';
-                
-                // Poblar el selector
-                graphs.forEach((graph, index) => {
-                    const option = document.createElement('option');
-                    const graphUrl = graph.url || graph;
-                    
-                    // Construir URL correcta
-                    let correctUrl = graphUrl;
-                    if (!graphUrl.startsWith('http')) {
-                        if (containerId === 'csvTsvGraphsContainer') {
-                            correctUrl = `${lidaUrl}${graphUrl}`;
-                } else {
-                            correctUrl = `${backendUrl}${graphUrl}`;
-                        }
-                    }
-                    
-                    option.value = correctUrl;
-                    option.text = getGraphName(graphUrl, index);
-                    selector.appendChild(option);
-                });
-
-                // Crear el visualizador de gráficos
-                const viewerContainer = document.createElement('div');
-                viewerContainer.className = 'graph-viewer';
-                
-                const img = document.createElement('img');
-                img.className = 'graph-image';
-                img.style.transformOrigin = 'center center';
-                
-                // Controles de navegación
-                const controlsDiv = document.createElement('div');
-                controlsDiv.className = 'graph-controls';
-                controlsDiv.innerHTML = `
-                    <button class="control-btn zoom-in" title="Acercar">
-                        <i class="fas fa-search-plus"></i>
-                    </button>
-                    <button class="control-btn zoom-out" title="Alejar">
-                        <i class="fas fa-search-minus"></i>
-                    </button>
-                    <button class="control-btn reset-zoom" title="Restablecer">
-                        <i class="fas fa-expand-arrows-alt"></i>
-                    </button>
-                    <button class="control-btn download" title="Descargar">
-                        <i class="fas fa-download"></i>
-                    </button>
-                `;
-
-                // Variables de control
-                let currentZoom = 1;
-                let currentX = 0;
-                let currentY = 0;
-                let isDragging = false;
-                let lastX = 0;
-                let lastY = 0;
-
-                // Función para actualizar transformación
-                function updateTransform() {
-                    img.style.transform = `scale(${currentZoom}) translate(${currentX}px, ${currentY}px)`;
-                }
-
-                // Función para cargar imagen
-                function loadImage(url) {
-                    img.src = url;
-                    currentZoom = 1;
-                    currentX = 0;
-                    currentY = 0;
-                    updateTransform();
-                }
-
-                // Event listeners para controles
-                controlsDiv.querySelector('.zoom-in').addEventListener('click', () => {
-                    currentZoom = Math.min(currentZoom * 1.2, 5);
-                    updateTransform();
-                });
-
-                controlsDiv.querySelector('.zoom-out').addEventListener('click', () => {
-                    currentZoom = Math.max(currentZoom / 1.2, 0.5);
-                    updateTransform();
-                });
-
-                controlsDiv.querySelector('.reset-zoom').addEventListener('click', () => {
-                    currentZoom = 1;
-                    currentX = 0;
-                    currentY = 0;
-                    updateTransform();
-                });
-
-                controlsDiv.querySelector('.download').addEventListener('click', () => {
-                    const link = document.createElement('a');
-                    link.href = img.src;
-                    link.download = getGraphName(img.src, 0) + '.png';
-                    link.click();
-                });
-
-                // Zoom con rueda del mouse
-                viewerContainer.addEventListener('wheel', (e) => {
-                    e.preventDefault();
-                    const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
-                    currentZoom = Math.min(Math.max(currentZoom * zoomFactor, 0.5), 5);
-                    updateTransform();
-                });
-
-                // Arrastrar para hacer pan
-                img.addEventListener('mousedown', (e) => {
-                    isDragging = true;
-                    lastX = e.clientX;
-                    lastY = e.clientY;
-                    img.style.cursor = 'grabbing';
-                });
-
-                document.addEventListener('mousemove', (e) => {
-                    if (!isDragging) return;
-                    const deltaX = e.clientX - lastX;
-                    const deltaY = e.clientY - lastY;
-                    currentX += deltaX / currentZoom;
-                    currentY += deltaY / currentZoom;
-                    lastX = e.clientX;
-                    lastY = e.clientY;
-                    updateTransform();
-                });
-
-                document.addEventListener('mouseup', () => {
-                    isDragging = false;
-                    img.style.cursor = 'grab';
-                });
-
-                // Event listener para el selector
-                selector.addEventListener('change', function() {
-                    loadImage(this.value);
-                });
-
-                // Construir DOM
-                viewerContainer.appendChild(img);
-                viewerContainer.appendChild(controlsDiv);
-                
-                selectorDiv.appendChild(label);
-                selectorDiv.appendChild(selector);
-                container.appendChild(selectorDiv);
-                container.appendChild(viewerContainer);
-
-                // Cargar primera imagen
-                if (graphs.length > 0) {
-                    loadImage(selector.value);
-                }
-            }
-
-            // Función auxiliar para obtener nombres de gráficos más descriptivos
-            function getGraphName(url, index) {
-                const filename = url.split('/').pop().replace('.png', '');
-                
-                const nameMap = {
-                    'cog_categories': 'Categorías COG',
-                    'top_go_terms': 'Términos GO más comunes',
-                    'top_kegg_pathways': 'Vías KEGG más comunes',
-                    'top_pfam_families': 'Familias PFAM más comunes',
-                    'top_ec_numbers': 'Números EC más comunes',
-                    'domain_frequency': 'Frecuencia de dominios',
-                    'evalue_distribution': 'Distribución de E-values',
-                    'domain_summary_heatmap': 'Resumen de dominios',
-                    'bitscore_vs_pident': 'Bitscore vs Identidad',
-                    'bitscore_per_sequence': 'Bitscore por secuencia',
-                    'coverage_heatmap': 'Mapa de cobertura',
-                    'correlation_matrix': 'Matriz de correlación'
-                };
-
-                return nameMap[filename] || `Gráfico ${index + 1}`;
-            }
-
-            // ========== FUNCIONES PARA CSV/TSV (LIDA) ==========
-            const sendMessageButton = document.getElementById('sendMessage');
-            const fileUploadInput = document.getElementById('fileUpload');
-            const chatContainer = document.getElementById('chatContainer');
-            const userInput = document.getElementById('userInput');
-
-            sendMessageButton.addEventListener('click', function() {
-                const file = fileUploadInput.files[0];
-                const prompt = userInput.value.trim();
-
-                if (file) {
-                    displayUserMessage(`Archivo seleccionado: ${file.name}`);
-                    uploadFile(file);
-                } else if (prompt) {
-                    displayUserMessage(prompt);
-                    sendPrompt(prompt);
-                } else {
-                    alert('Por favor, selecciona un archivo o escribe un prompt.');
-                }
-
-                userInput.value = '';
-                fileUploadInput.value = '';
-            });
-
-            function uploadFile(file) {
-                if (!file) {
-                    console.error('No se proporcionó ningún archivo');
-                    return;
-                }
-
-                const formData = new FormData();
-                formData.append('file', file);
-
-                displayAssistantMessage('Procesando archivo...');
-
-                fetch(`${lidaUrl}/process-file`, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'Accept': 'application/json'
-                    },
-                    credentials: 'include',
-                    mode: 'cors'
-                })
-                .then(async response => {
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.error) {
-                        throw new Error(data.error);
-                    }
-                    displayAssistantMessage('Archivo procesado exitosamente.');
-                    if (data.charts && data.charts.length > 0) {
-                        displayGraphs('csvTsvGraphsContainer', data.charts);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error detallado:', error);
-                    displayAssistantMessage(`Error al procesar el archivo: ${error.message}`);
-                });
-            }
-
-            function sendPrompt(prompt) {
-                fetch(`${lidaUrl}/prompt`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ prompt: prompt })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        displayAssistantMessage(`Error: ${data.error}`);
-                    } else {
-                        displayAssistantMessage(data.response);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    displayAssistantMessage('Error al procesar el prompt.');
-                });
-            }
-
-            function displayUserMessage(message) {
-                const messageElement = document.createElement('div');
-                messageElement.classList.add('mb-4');
-                messageElement.innerHTML = `
-                    <p class="text-sm text-blue-500">Tú:</p>
-                    <div class="bg-blue-100 p-2 rounded-lg inline-block">
-                        <p>${message}</p>
-                    </div>
-                `;
-                chatContainer.appendChild(messageElement);
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }
-
-            function displayAssistantMessage(message) {
-                const chatContainer = document.getElementById('chatContainer');
-                if (!chatContainer) {
-                    console.error('Contenedor de chat no encontrado');
-                    return;
-                }
-                
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'mb-4 p-3 bg-gray-100 rounded-lg';
-                messageDiv.innerHTML = `<p class="text-gray-800">${message}</p>`;
-                chatContainer.appendChild(messageDiv);
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }
 
             // ========== FUNCIONES PARA IGV ==========
             let igvBrowser;
@@ -778,6 +575,303 @@
                 .then(data => console.log('Limpieza inicial completada'))
                 .catch(error => console.error('Error en limpieza inicial:', error));
             });
+
+            // ========== FUNCIONES PARA SUBIDA DE ARCHIVOS ==========
+            
+            // BinDash file upload handler
+            document.getElementById('bindashFileUpload').addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const statusElement = document.getElementById('bindashUploadStatus');
+                const graphsContainer = document.getElementById('bindashGraphsContainer');
+                const statsPanel = document.getElementById('bindashStatsPanel');
+                
+                // Verificar que los elementos existen
+                if (!statusElement || !graphsContainer) {
+                    console.error('Error: No se encontraron los elementos necesarios en el DOM');
+                    return;
+                }
+                
+                statusElement.textContent = 'Subiendo y procesando archivo...';
+                statusElement.className = 'ml-4 text-sm text-blue-600';
+                
+                // Limpiar contenedores anteriores
+                graphsContainer.innerHTML = '';
+                if (statsPanel) {
+                    statsPanel.classList.add('hidden');
+                }
+                
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                fetch(`${bindashVisualizerUrl}/process-bindash`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error HTTP: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Resultado BinDash:', data);
+                    statusElement.textContent = `✅ Archivo procesado exitosamente (${data.graphs.length} gráficos generados) Visualizador: BinDashVisualizer`;
+                    statusElement.className = 'ml-4 text-sm text-green-600';
+                    
+                    // Mostrar estadísticas usando el panel existente
+                    if (data.stats && statsPanel) {
+                        displayBinDashStatsInPanel(data.stats, statsPanel);
+                    }
+                    
+                    // Mostrar gráficos CON URLS CORREGIDAS Y DISEÑO NUEVO
+                    if (data.graphs && data.graphs.length > 0) {
+                        displayBinDashGraphsWithSelector(data.graphs, graphsContainer);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error procesando archivo BinDash:', error);
+                    statusElement.textContent = `❌ Error: ${error.message}`;
+                    statusElement.className = 'ml-4 text-sm text-red-600';
+                });
+            });
+            
+            // Función para mostrar estadísticas en el panel existente
+            function displayBinDashStatsInPanel(stats, panel) {
+                // Actualizar los valores en los elementos existentes
+                const totalComparisons = document.getElementById('totalComparisons');
+                const uniqueGenomes = document.getElementById('uniqueGenomes');
+                const meanANI = document.getElementById('meanANI');
+                const meanDistance = document.getElementById('meanDistance');
+                
+                if (totalComparisons) totalComparisons.textContent = stats.total_comparisons || 'N/A';
+                if (uniqueGenomes) uniqueGenomes.textContent = stats.unique_genomes || 'N/A';
+                if (meanANI) meanANI.textContent = stats.avg_jaccard ? stats.avg_jaccard.toFixed(3) : 'N/A';
+                if (meanDistance) meanDistance.textContent = stats.avg_mutation_distance ? stats.avg_mutation_distance.toFixed(3) : 'N/A';
+                
+                // Mostrar el panel
+                panel.classList.remove('hidden');
+            }
+            
+            // NUEVA función para mostrar gráficos con selector (como en la imagen)
+            function displayBinDashGraphsWithSelector(graphs, container) {
+                // Corregir todas las URLs para que apunten al puerto 4003
+                const correctedGraphs = graphs.map(graphUrl => {
+                    if (graphUrl.startsWith('/graphs/')) {
+                        return `http://localhost:4003${graphUrl}`;
+                    }
+                    return graphUrl.replace('http://localhost:4005', 'http://localhost:4003');
+                });
+                
+                const selectorHTML = `
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <label class="font-medium text-gray-700">Seleccionar Gráfico:</label>
+                            <select id="graphSelector" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                ${correctedGraphs.map((graphUrl, index) => {
+                                    const title = getGraphTitle(graphUrl);
+                                    return `<option value="${index}" ${index === 0 ? 'selected' : ''}>${title}</option>`;
+                                }).join('')}
+                            </select>
+                        </div>
+                        
+                        <!-- Visualizador de gráfico único -->
+                        <div class="relative bg-gray-50 rounded-lg border-2 border-gray-200">
+                            <!-- Controles en la esquina superior derecha -->
+                            <div class="absolute top-3 right-3 z-10 flex space-x-2">
+                                <!-- Botón de Dr. Fungito (lupita) -->
+                                <button id="drFungitoAnalyzeBtn" class="bg-green-500 bg-opacity-80 hover:bg-opacity-100 text-white p-2 rounded hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-400" title="Analizar con Dr. Fungito IA">
+                                    <i class="fas fa-search text-sm"></i>
+                                </button>
+                                <button id="zoomInBtn" class="bg-gray-800 bg-opacity-75 text-white p-2 rounded hover:bg-opacity-100 transition-all">
+                                    <i class="fas fa-search-plus text-sm"></i>
+                                </button>
+                                <button id="zoomOutBtn" class="bg-gray-800 bg-opacity-75 text-white p-2 rounded hover:bg-opacity-100 transition-all">
+                                    <i class="fas fa-search-minus text-sm"></i>
+                                </button>
+                                <button id="fullscreenBtn" class="bg-gray-800 bg-opacity-75 text-white p-2 rounded hover:bg-opacity-100 transition-all">
+                                    <i class="fas fa-expand text-sm"></i>
+                                </button>
+                                <button id="downloadBtn" class="bg-gray-800 bg-opacity-75 text-white p-2 rounded hover:bg-opacity-100 transition-all">
+                                    <i class="fas fa-download text-sm"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Título del gráfico -->
+                            <div class="absolute top-3 left-3 z-10">
+                                <h5 id="graphTitle" class="bg-white bg-opacity-90 px-3 py-1 rounded-md text-sm font-semibold text-gray-800 shadow-sm">
+                                    ${getGraphTitle(correctedGraphs[0])}
+                                </h5>
+                            </div>
+                            
+                            <!-- Imagen del gráfico -->
+                            <div class="p-6 min-h-[500px] flex items-center justify-center">
+                                <img id="currentGraphImage" 
+                                     src="${correctedGraphs[0]}" 
+                                     alt="Gráfico BinDash" 
+                                     class="max-w-full max-h-[500px] object-contain rounded-lg shadow-lg transition-transform duration-200"
+                                     style="cursor: grab;"
+                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzljYTNhZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkVycm9yIGNhcmdhbmRvIGltYWdlbjwvdGV4dD48L3N2Zz4='; this.alt='Error cargando imagen';" />
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.innerHTML = selectorHTML;
+                
+                // Event listeners para el selector y controles
+                const selector = document.getElementById('graphSelector');
+                const currentImage = document.getElementById('currentGraphImage');
+                const graphTitle = document.getElementById('graphTitle');
+                const drFungitoBtn = document.getElementById('drFungitoAnalyzeBtn');
+                const zoomInBtn = document.getElementById('zoomInBtn');
+                const zoomOutBtn = document.getElementById('zoomOutBtn');
+                const fullscreenBtn = document.getElementById('fullscreenBtn');
+                const downloadBtn = document.getElementById('downloadBtn');
+                
+                let currentScale = 1;
+                
+                // Dr. Fungito análisis
+                drFungitoBtn.addEventListener('mouseenter', () => {
+                    highlightDrFungitoChat();
+                });
+                
+                drFungitoBtn.addEventListener('click', function() {
+                    const selectedIndex = parseInt(selector.value);
+                    const selectedGraph = correctedGraphs[selectedIndex];
+                    analyzWithDrFungito(selectedGraph, 'bindash');
+                });
+                
+                // Cambiar gráfico
+                selector.addEventListener('change', function() {
+                    const selectedIndex = parseInt(this.value);
+                    const selectedGraph = correctedGraphs[selectedIndex];
+                    currentImage.src = selectedGraph;
+                    graphTitle.textContent = getGraphTitle(selectedGraph);
+                    currentScale = 1;
+                    currentImage.style.transform = `scale(${currentScale})`;
+                });
+                
+                // Zoom in
+                zoomInBtn.addEventListener('click', function() {
+                    currentScale = Math.min(currentScale * 1.2, 3);
+                    currentImage.style.transform = `scale(${currentScale})`;
+                });
+                
+                // Zoom out  
+                zoomOutBtn.addEventListener('click', function() {
+                    currentScale = Math.max(currentScale / 1.2, 0.5);
+                    currentImage.style.transform = `scale(${currentScale})`;
+                });
+                
+                // Pantalla completa
+                fullscreenBtn.addEventListener('click', function() {
+                    viewFullscreen(currentImage.src);
+                });
+                
+                // Descargar
+                downloadBtn.addEventListener('click', function() {
+                    downloadGraph(currentImage.src);
+                });
+                
+                // Drag para mover imagen cuando está zoomeada
+                let isDragging = false;
+                let dragStartX, dragStartY, initialTransformX = 0, initialTransformY = 0;
+                
+                currentImage.addEventListener('mousedown', function(e) {
+                    if (currentScale > 1) {
+                        isDragging = true;
+                        dragStartX = e.clientX;
+                        dragStartY = e.clientY;
+                        currentImage.style.cursor = 'grabbing';
+                    }
+                });
+                
+                document.addEventListener('mousemove', function(e) {
+                    if (isDragging && currentScale > 1) {
+                        const deltaX = e.clientX - dragStartX;
+                        const deltaY = e.clientY - dragStartY;
+                        currentImage.style.transform = `scale(${currentScale}) translate(${initialTransformX + deltaX/currentScale}px, ${initialTransformY + deltaY/currentScale}px)`;
+                    }
+                });
+                
+                document.addEventListener('mouseup', function() {
+                    if (isDragging) {
+                        isDragging = false;
+                        currentImage.style.cursor = 'grab';
+                        // Actualizar la posición inicial para el próximo drag
+                        const transform = currentImage.style.transform;
+                        const translateMatch = transform.match(/translate\(([^,]+)px,\s*([^)]+)px\)/);
+                        if (translateMatch) {
+                            initialTransformX = parseFloat(translateMatch[1]);
+                            initialTransformY = parseFloat(translateMatch[2]);
+                        }
+                    }
+                });
+                
+                // Reset posición con doble click
+                currentImage.addEventListener('dblclick', function() {
+                    currentScale = 1;
+                    initialTransformX = 0;
+                    initialTransformY = 0;
+                    currentImage.style.transform = 'scale(1) translate(0px, 0px)';
+                });
+            }
+            
+            // Función para obtener título del gráfico basado en la URL
+            function getGraphTitle(graphUrl) {
+                const filename = graphUrl.split('/').pop().replace('.png', '');
+                const titles = {
+                    'distance_heatmap': '🔥 Mapa de Calor - Distancias',
+                    'ani_heatmap': '🔥 Mapa de Calor - ANI', 
+                    'correlation_heatmap': '🔥 Mapa de Calor - Correlaciones',
+                    'dendrogram_simple': '🌳 Dendrograma Simple',
+                    'distance_distributions': '📊 Distribución de Distancias',
+                    'scatter_analysis': '📈 Análisis de Dispersión',
+                    'mds_analysis': '🗺️ Análisis Multidimensional'
+                };
+                
+                for (const [key, title] of Object.entries(titles)) {
+                    if (filename.includes(key)) {
+                        return title;
+                    }
+                }
+                
+                return '📊 Gráfico de Análisis';
+            }
+            
+            // Función para descargar gráfico
+            function downloadGraph(graphUrl) {
+                const link = document.createElement('a');
+                link.href = graphUrl;
+                link.download = graphUrl.split('/').pop();
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            
+            // Función para ver imagen en pantalla completa
+            function viewFullscreen(imageUrl) {
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4';
+                modal.innerHTML = `
+                    <div class="relative max-w-full max-h-full">
+                        <button class="absolute -top-12 right-0 text-white text-2xl hover:text-gray-300 transition-colors" onclick="this.parentElement.parentElement.remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <img src="${imageUrl}" alt="Gráfico ampliado" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl">
+                    </div>
+                `;
+                
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.remove();
+                    }
+                });
+                
+                document.body.appendChild(modal);
+            }
         });
     </script>
 </body>

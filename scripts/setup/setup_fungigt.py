@@ -438,7 +438,8 @@ def build_all_services():
         "frontend",
         "visualization",
         "quality-control",
-        "acquisition"
+        "acquisition",
+        "bindash-analysis"
     ]
     
     failed_services = []
@@ -500,7 +501,8 @@ def start_services():
         ("visualization", 4003), 
         ("quality-control", 4004),
         ("frontend", 4005),
-        ("acquisition", 4006)
+        ("acquisition", 4006),
+        ("bindash-analysis", 4007)
     ]
     
     log('INFO', "Verificando estado de servicios...")
@@ -536,6 +538,7 @@ def show_service_status():
         ("📊 Visualización", "http://localhost:4003/health"),
         ("🔍 Control de Calidad", "http://localhost:4004/health"),
         ("📥 Adquisición de Datos", "http://localhost:4006"),
+        ("🧬 Análisis Bindash", "http://localhost:4007/health"),
         ("🗄️ MongoDB", "mongodb://localhost:27017/fungigt")
     ]
     

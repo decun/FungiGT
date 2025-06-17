@@ -18,7 +18,7 @@
                         Analizador Funcional de Genomas
                     </h2>
 
-                    <!-- Selector para elegir entre eggNOG y BlastN -->
+                    <!-- Selector para elegir entre eggNOG, BlastN y Bindash -->
                     <div class="bg-white p-6 rounded-xl shadow-lg mb-8 border border-gray-200">
                         <h3 class="text-xl font-semibold mb-4 flex items-center text-gray-800">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -34,6 +34,7 @@
                                 <option value="">Seleccione una herramienta</option>
                                 <option value="eggnog">eggNOG-mapper - Anotación Funcional</option>
                                 <option value="blastn">BlastN - Búsqueda de Homología</option>
+                                <option value="bindash">BinDash - Comparación de Genomas y Cálculo de ANI</option>
                             </select>
                         </div>
                     </div>
@@ -379,6 +380,281 @@
                         </form>
                     </div>
 
+                    <!-- Configuración de BinDash -->
+                    <div id="bindashConfig" class="bg-white p-8 rounded-xl shadow-lg mb-8 border border-gray-200" style="display: none;">
+                        <div class="border-l-4 border-orange-500 pl-6 mb-6">
+                            <h3 class="text-2xl font-semibold mb-2 flex items-center text-gray-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                                Configuración de BinDash
+                            </h3>
+                            <p class="text-gray-600 text-sm">Herramienta ultrarrápida para comparación de genomas y cálculo de ANI (Average Nucleotide Identity)</p>
+                        </div>
+
+                        <!-- Información sobre BinDash -->
+                        <div class="bg-gradient-to-r from-orange-50 to-yellow-50 p-6 rounded-lg border border-orange-200 mb-6">
+                            <h4 class="text-lg font-semibold mb-3 text-gray-800 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                ¿Qué es BinDash?
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+                                <div>
+                                    <p class="mb-2"><strong>• Comparación ultrarrápida:</strong> Compara genomas completos en segundos</p>
+                                    <p class="mb-2"><strong>• Cálculo de ANI:</strong> Estima Average Nucleotide Identity con alta precisión</p>
+                                    <p class="mb-2"><strong>• Eficiente en memoria:</strong> Maneja terabytes de datos en laptops típicas</p>
+                                </div>
+                                <div>
+                                    <p class="mb-2"><strong>• Formatos soportados:</strong> FASTA, FASTQ (comprimidos o no)</p>
+                                    <p class="mb-2"><strong>• Algoritmo avanzado:</strong> Binwise Densified MinHash</p>
+                                    <p class="mb-2"><strong>• Casos de uso:</strong> Genomas, metagenomas, pangenomas</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <form id="bindashForm" class="space-y-6">
+                            <!-- Selector de Modo de Operación -->
+                            <div class="bg-gray-50 p-6 rounded-lg">
+                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Modo de Operación</h4>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Seleccionar operación a realizar:
+                                    </label>
+                                    <select id="bindashMode" name="bindashMode" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors" required>
+                                        <option value="">Seleccione una operación</option>
+                                        <option value="sketch">Sketch - Crear firmas genómicas</option>
+                                        <option value="dist">Dist - Calcular distancias entre genomas</option>
+                                        <option value="complete">Completo - Sketch + Dist en un solo paso</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Configuración para Sketch -->
+                            <div id="sketchConfig" class="bg-blue-50 p-6 rounded-lg border border-blue-200" style="display: none;">
+                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Configuración de Sketch</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                            Archivo/Lista de Genomas
+                                            <div class="relative ml-2 group">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                                                    <div class="text-center">
+                                                        <div class="font-semibold mb-1">Archivo FASTA individual o lista de archivos</div>
+                                                        <div class="mt-1 text-yellow-300">Ejemplo: genome.fasta o genomes_list.txt</div>
+                                                    </div>
+                                                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                                </div>
+                                            </div>
+                                        </label>
+                                        <input type="text" id="sketchInput" name="sketchInput" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                               placeholder="./data/genome.fasta" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Archivo de Salida (--outfname)
+                                        </label>
+                                        <input type="text" id="sketchOutput" name="sketchOutput" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                               placeholder="genome.sketch" />
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="useListFile" name="useListFile" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                        <label for="useListFile" class="ml-3 text-sm text-gray-700 font-medium">Usar archivo de lista (--listfname)</label>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">Marcar si el archivo de entrada es una lista de genomas (uno por línea)</p>
+                                </div>
+                            </div>
+
+                            <!-- Configuración para Dist -->
+                            <div id="distConfig" class="bg-green-50 p-6 rounded-lg border border-green-200" style="display: none;">
+                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Configuración de Distancias</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Sketch de Consulta
+                                        </label>
+                                        <input type="text" id="querySketch" name="querySketch" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" 
+                                               placeholder="query.sketch" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Sketch de Referencia (opcional)
+                                        </label>
+                                        <input type="text" id="targetSketch" name="targetSketch" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" 
+                                               placeholder="reference.sketch (opcional para all-vs-all)" />
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Archivo de Salida (--outfname)
+                                    </label>
+                                    <input type="text" id="distOutput" name="distOutput" 
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" 
+                                           placeholder="distances.txt" />
+                                </div>
+                            </div>
+
+                            <!-- Configuración Completa -->
+                            <div id="completeConfig" class="bg-purple-50 p-6 rounded-lg border border-purple-200" style="display: none;">
+                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Configuración Completa (Sketch + Dist)</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Directorio de Genomas
+                                        </label>
+                                        <input type="text" id="genomesDir" name="genomesDir" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                               placeholder="./data/genomes/" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Patrón de Archivos
+                                        </label>
+                                        <input type="text" id="filePattern" name="filePattern" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                               value="*.fasta" />
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Prefijo de Salida
+                                    </label>
+                                    <input type="text" id="outputPrefix" name="outputPrefix" 
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                           placeholder="analysis_result" />
+                                </div>
+                            </div>
+
+                            <!-- Parámetros Avanzados -->
+                            <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
+                                <div class="flex items-center mb-4">
+                                    <input type="checkbox" id="toggleAdvancedBindash" class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                                    <label for="toggleAdvancedBindash" class="ml-3 text-lg font-semibold text-gray-800">Mostrar Parámetros Avanzados</label>
+                                </div>
+                                
+                                <div id="advancedBindashOptions" class="space-y-4" style="display: none;">
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                Tamaño de k-mer (--kmersize)
+                                            </label>
+                                            <input type="number" id="kmerSize" name="kmerSize" 
+                                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors" 
+                                                   min="1" max="32" value="16" />
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                Tamaño de Sketch (--sketchsize64)
+                                            </label>
+                                            <input type="number" id="sketchSize" name="sketchSize" 
+                                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors" 
+                                                   min="188" value="256" />
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                Bits por Hash (--bbits)
+                                            </label>
+                                            <input type="number" id="bbits" name="bbits" 
+                                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors" 
+                                                   min="1" max="8" value="1" />
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                Estrategia de Densificación (--dens)
+                                            </label>
+                                            <select id="densification" name="densification" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors">
+                                                <option value="1">1 - Optimal Densification (Shrivastava 2017)</option>
+                                                <option value="2">2 - Faster Densification (Mai et al. 2020)</option>
+                                                <option value="3">3 - Re-randomized Densification (Li et al. 2019)</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                Modelo Evolutivo (--model)
+                                            </label>
+                                            <select id="evolutionModel" name="evolutionModel" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors">
+                                                <option value="poisson">Poisson (por defecto)</option>
+                                                <option value="binomial">Binomial</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                            <input type="checkbox" id="canonical" name="canonical" class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                                            <label for="canonical" class="ml-3 text-sm text-gray-700 font-medium">Usar k-mers canónicos (--canonical)</label>
+                                        </div>
+                                        <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                            <input type="checkbox" id="protein" name="protein" class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                                            <label for="protein" class="ml-3 text-sm text-gray-700 font-medium">Modo proteína (--protein)</label>
+                                        </div>
+                                        <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                            <input type="checkbox" id="verbose" name="verbose" class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                                            <label for="verbose" class="ml-3 text-sm text-gray-700 font-medium">Modo verbose (--verbose)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Información sobre Interpretación de Resultados -->
+                            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200">
+                                <h4 class="text-lg font-semibold mb-3 text-gray-800 flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    Interpretación de Resultados
+                                </h4>
+                                <div class="text-sm text-gray-700 space-y-2">
+                                    <p><strong>Formato de salida:</strong> Cada línea contiene 5 campos separados por tabulaciones:</p>
+                                    <ul class="list-disc list-inside ml-4 space-y-1">
+                                        <li><strong>Genoma consulta (Q):</strong> Nombre del genoma de consulta</li>
+                                        <li><strong>Genoma objetivo (T):</strong> Nombre del genoma objetivo</li>
+                                        <li><strong>Distancia de mutación:</strong> Entre Q y T (1-ANI)</li>
+                                        <li><strong>Valor p:</strong> Significancia estadística de la distancia</li>
+                                        <li><strong>Índice de Jaccard:</strong> Similitud entre Q y T</li>
+                                    </ul>
+                                    <p class="mt-3"><strong>Nota:</strong> Para genomas con ANI > 99.5%, se recomienda usar sketch size ≥ 188</p>
+                                </div>
+                            </div>
+
+                            <!-- Botones de Acción -->
+                            <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                                <button type="button" id="showBindashCommandBtn" 
+                                        class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors font-medium">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5-6h3" />
+                                    </svg>
+                                    Mostrar Comando
+                                </button>
+                                <button type="submit" 
+                                        class="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors font-medium">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                    </svg>
+                                    Ejecutar BinDash
+                                </button>
+                            </div>
+                            
+                            <div id="bindashCommandDisplay" class="mt-4 p-4 bg-gray-100 rounded-lg hidden">
+                                <h5 class="font-semibold text-gray-800 mb-2">Comando BinDash:</h5>
+                                <pre id="bindashCommand" class="text-sm text-gray-800 whitespace-pre-wrap bg-white p-3 rounded border"></pre>
+                            </div>
+                        </form>
+                    </div>
+
                     <!-- Estado del Análisis -->
                     <div class="bg-white p-6 rounded-xl shadow-lg mb-8 border border-gray-200">
                         <h3 class="text-xl font-semibold mb-6 flex items-center text-gray-800">
@@ -418,7 +694,8 @@
         // Definir las URLs del backend para cada herramienta
         const BACKEND_URLS = {
             eggnog: 'http://localhost:3001',
-            blastn: 'http://localhost:5000'
+            blastn: 'http://localhost:5000',
+            bindash: 'http://localhost:4007'
         };
 
         // Función para obtener la URL correcta según la herramienta
@@ -436,6 +713,7 @@
             const tool = e.target.value;
             document.getElementById('eggNOGConfig').style.display = tool === 'eggnog' ? 'block' : 'none';
             document.getElementById('blastnConfig').style.display = tool === 'blastn' ? 'block' : 'none';
+            document.getElementById('bindashConfig').style.display = tool === 'bindash' ? 'block' : 'none';
         });
 
         // Toggle para Opciones Avanzadas de eggNOG-mapper
@@ -456,6 +734,38 @@
                     }
                 }
             });
+        });
+
+        // Manejo del cambio de modo en BinDash
+        document.getElementById('bindashMode').addEventListener('change', function(e) {
+            const mode = e.target.value;
+            document.getElementById('sketchConfig').style.display = mode === 'sketch' ? 'block' : 'none';
+            document.getElementById('distConfig').style.display = mode === 'dist' ? 'block' : 'none';
+            document.getElementById('completeConfig').style.display = mode === 'complete' ? 'block' : 'none';
+        });
+
+        // Toggle para Opciones Avanzadas de BinDash
+        document.getElementById('toggleAdvancedBindash').addEventListener('change', function(e) {
+            const isChecked = e.target.checked;
+            const advancedOptions = document.getElementById('advancedBindashOptions');
+            advancedOptions.style.display = isChecked ? 'block' : 'none';
+
+            // Si se deshabilita, resetear los campos avanzados
+            if (!isChecked) {
+                const inputs = advancedOptions.querySelectorAll('input, select');
+                inputs.forEach(input => {
+                    if (input.type === 'checkbox' || input.type === 'radio') {
+                        input.checked = false;
+                    } else if (input.type === 'number') {
+                        // Restaurar valores por defecto
+                        if (input.id === 'kmerSize') input.value = '16';
+                        else if (input.id === 'sketchSize') input.value = '256';
+                        else if (input.id === 'bbits') input.value = '1';
+                    } else if (input.tagName === 'SELECT') {
+                        input.selectedIndex = 0;
+                    }
+                });
+            }
         });
 
         // Función para agregar análisis a la tabla
@@ -747,6 +1057,246 @@ ${data.remote_blastn ? '-remote' : ''}`;
 
             document.getElementById('blastnCommand').textContent = command;
             document.getElementById('blastnCommandDisplay').classList.toggle('hidden');
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar el explorador para usar la categoría 'results' y subcategoría 'analysis' por defecto
+            if (window.FileExplorer) {
+                window.FileExplorer.navigateTo('results', 'analysis');
+            }
+        });
+
+        // Función para monitorear progreso de BinDash en tiempo real
+        function monitorBindashProgress(uniqueId) {
+            const eventSource = new EventSource(`${BACKEND_URLS.bindash}/bindash-progress`);
+            
+            eventSource.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                
+                // Actualizar la barra de progreso
+                const progressBar = document.getElementById(`progressBar-${uniqueId}`);
+                if (progressBar) {
+                    progressBar.style.width = `${data.progress}%`;
+                }
+                
+                // Actualizar el texto de progreso
+                const progressText = document.getElementById(`progressText-${uniqueId}`);
+                if (progressText) {
+                    progressText.textContent = `${data.progress}%`;
+                }
+                
+                // Actualizar el estado según el progreso
+                const tableRow = document.querySelector(`tr[data-id="${uniqueId}"]`);
+                if (tableRow) {
+                    const statusCell = tableRow.querySelector('td:nth-child(2) span');
+                    if (data.progress < 15) {
+                        statusCell.textContent = 'Iniciando';
+                        statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800';
+                    } else if (data.progress < 35) {
+                        statusCell.textContent = 'Preparando archivos';
+                        statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800';
+                    } else if (data.progress < 75) {
+                        statusCell.textContent = 'Creando sketch';
+                        statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800';
+                    } else if (data.progress < 100) {
+                        statusCell.textContent = 'Calculando distancias';
+                        statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800';
+                    } else {
+                        statusCell.textContent = 'Completado';
+                        statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800';
+                        eventSource.close(); // Cerrar conexión cuando termine
+                    }
+                }
+                
+                console.log(`BinDash progreso: ${data.progress}% - ${data.message}`);
+            };
+            
+            eventSource.onerror = function(event) {
+                console.error('Error en EventSource de BinDash:', event);
+                eventSource.close();
+            };
+            
+            // Guardar referencia para poder cerrarla después
+            window.bindashProgressSource = eventSource;
+        }
+
+        // Manejo de la ejecución de BinDash
+        document.getElementById('bindashForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const form = e.target;
+            const mode = form.bindashMode.value;
+
+            if (!mode) {
+                alert('Por favor seleccione un modo de operación');
+                return;
+            }
+
+            try {
+                // Mostrar el análisis en la tabla
+                const uniqueId = addAnalysisToTable({
+                    type: 'BinDash',
+                    status: 'En progreso',
+                    progress: '0%',
+                    actions: ''
+                });
+
+                // Iniciar monitoreo de progreso en tiempo real
+                monitorBindashProgress(uniqueId);
+
+                // Preparar los datos según el modo seleccionado
+                let data = {
+                    mode: mode,
+                    // Parámetros avanzados (si están habilitados)
+                    kmerSize: form.kmerSize.value || '21',
+                    sketchSize: form.sketchSize.value || '32',
+                    bbits: form.bbits.value || '14',
+                    nthreads: form.nthreads ? form.nthreads.value || '1' : '1'
+                };
+
+                // Agregar parámetros específicos según el modo
+                if (mode === 'sketch') {
+                    data.sketchInput = form.sketchInput.value.trim();
+                    data.sketchOutput = form.sketchOutput.value.trim();
+                    data.useListFile = form.useListFile.checked;
+                    
+                    if (!data.sketchInput || !data.sketchOutput) {
+                        throw new Error('Los campos de entrada y salida son requeridos para el modo sketch');
+                    }
+                } else if (mode === 'dist') {
+                    data.querySketch = form.querySketch.value.trim();
+                    data.targetSketch = form.targetSketch.value.trim();
+                    data.distOutput = form.distOutput.value.trim();
+                    
+                    if (!data.querySketch) {
+                        throw new Error('El sketch de consulta es requerido para el modo dist');
+                    }
+                } else if (mode === 'complete') {
+                    data.genomesDir = form.genomesDir.value.trim();
+                    data.filePattern = form.filePattern.value.trim() || '*.fasta';
+                    data.outputPrefix = form.outputPrefix.value.trim();
+                    
+                    if (!data.genomesDir || !data.outputPrefix) {
+                        throw new Error('El directorio de genomas y prefijo de salida son requeridos');
+                    }
+                }
+
+                console.log('Enviando datos a BinDash:', data);
+
+                const response = await fetch(`${BACKEND_URLS.bindash}/run-bindash`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data),
+                    credentials: 'include'
+                }).catch(error => {
+                    console.error('Error en fetch:', error);
+                    throw new Error(`Error de conexión: ${error.message}`);
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Error del servidor: ${response.status}`);
+                }
+
+                const result = await response.json();
+                console.log('Respuesta del servidor BinDash:', result);
+                
+                // Actualizar UI con éxito
+                updateAnalysisStatus('BinDash', 'Completado', '100%', result.outputPath || data.distOutput || data.sketchOutput);
+                alert('BinDash ejecutado exitosamente');
+
+            } catch (error) {
+                console.error('Error detallado al ejecutar BinDash:', error);
+                updateAnalysisStatus('BinDash', 'Error', '0%', '');
+                
+                let errorMessage = 'Error al ejecutar BinDash: ';
+                if (error.message.includes('Failed to fetch')) {
+                    errorMessage += 'No se pudo conectar al servidor. Por favor, verifica que el servidor de BinDash (puerto 4007) esté funcionando.';
+                } else {
+                    errorMessage += error.message;
+                }
+                alert(errorMessage);
+            }
+        });
+
+        // Botón para mostrar comando de BinDash
+        document.getElementById('showBindashCommandBtn').addEventListener('click', function() {
+            const form = document.getElementById('bindashForm');
+            const mode = form.bindashMode.value;
+            
+            if (!mode) {
+                alert('Por favor seleccione un modo de operación primero');
+                return;
+            }
+
+            let command = '';
+            const advancedEnabled = document.getElementById('toggleAdvancedBindash').checked;
+            
+            // Parámetros avanzados comunes
+            let advancedParams = '';
+            if (advancedEnabled) {
+                const kmerSize = form.kmerSize.value || '16';
+                const sketchSize = form.sketchSize.value || '256';
+                const bbits = form.bbits.value || '1';
+                const densification = form.densification.value || '1';
+                const evolutionModel = form.evolutionModel.value || 'poisson';
+                
+                advancedParams = ` \\
+--kmersize ${kmerSize} \\
+--sketchsize64 ${sketchSize} \\
+--bbits ${bbits} \\
+--dens ${densification} \\
+--model ${evolutionModel}`;
+                
+                if (form.canonical.checked) advancedParams += ' \\\n--canonical';
+                if (form.protein.checked) advancedParams += ' \\\n--protein';
+                if (form.verbose.checked) advancedParams += ' \\\n--verbose';
+            }
+
+            // Generar comando según el modo
+            if (mode === 'sketch') {
+                const input = form.sketchInput.value.trim();
+                const output = form.sketchOutput.value.trim();
+                const useList = form.useListFile.checked;
+                
+                command = `bindash sketch \\
+${useList ? `--listfname="${input}"` : `"${input}"`} \\
+--outfname="${output}"${advancedParams}`;
+                
+            } else if (mode === 'dist') {
+                const query = form.querySketch.value.trim();
+                const target = form.targetSketch.value.trim();
+                const output = form.distOutput.value.trim();
+                
+                command = `bindash dist \\
+"${query}"`;
+                if (target) command += ` \\\n"${target}"`;
+                if (output) command += ` \\\n--outfname="${output}"`;
+                command += advancedParams;
+                
+            } else if (mode === 'complete') {
+                const genomesDir = form.genomesDir.value.trim();
+                const pattern = form.filePattern.value.trim() || '*.fasta';
+                const prefix = form.outputPrefix.value.trim();
+                
+                command = `# Paso 1: Crear lista de genomas
+ls ${genomesDir}${pattern} > ${prefix}_genomes.txt
+
+# Paso 2: Crear sketch
+bindash sketch \\
+--listfname="${prefix}_genomes.txt" \\
+--outfname="${prefix}.sketch"${advancedParams}
+
+# Paso 3: Calcular distancias (all-vs-all)
+bindash dist \\
+"${prefix}.sketch" \\
+--outfname="${prefix}_distances.txt"${advancedParams}`;
+            }
+
+            document.getElementById('bindashCommand').textContent = command;
+            document.getElementById('bindashCommandDisplay').classList.toggle('hidden');
         });
 
         document.addEventListener('DOMContentLoaded', function() {

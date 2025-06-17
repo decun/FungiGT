@@ -3,167 +3,320 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FungiGT</title>
+    <title>FungiGT - Iniciar Sesión</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/css/styles.css">
 </head>
-<body>
-    <div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-green-400 to-green-200 py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-md w-full space-y-8 bg-white bg-opacity-10 p-8 rounded-xl shadow-2xl">
-            <div>
-                <img class="mx-auto h-12 w-auto" src="/logo1.png" alt="Logo de FungiGT">
-                <h2 class="mt-6 text-center text-3xl font-extrabold text-white">
-                    Inicia sesión en tu cuenta
-                </h2>
-            </div>
-            <form class="mt-8 space-y-6" id="loginForm" action="#" method="POST">
-                <input type="hidden" name="remember" value="true">
-                <div class="rounded-md shadow-sm -space-y-px">
-                    <div>
-                        <label for="email-address" class="sr-only">Dirección de correo electrónico</label>
-                        <input id="email" name="email" type="email" autocomplete="email" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm" placeholder="Dirección de correo electrónico">
+<body class="min-h-screen bg-gray-100">
+    <!-- Fondo con patrón -->
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative">
+        <!-- Patrón de fondo -->
+        <div class="absolute inset-0 bg-gradient-to-br from-green-50 via-blue-50 to-green-100"></div>
+        <div class="absolute inset-0 opacity-10">
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <pattern id="fungi-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+                        <circle cx="50" cy="50" r="20" fill="none" stroke="#10b981" stroke-width="1" opacity="0.3"/>
+                        <circle cx="25" cy="25" r="10" fill="none" stroke="#3b82f6" stroke-width="1" opacity="0.2"/>
+                        <circle cx="75" cy="75" r="15" fill="none" stroke="#10b981" stroke-width="1" opacity="0.2"/>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#fungi-pattern)"/>
+            </svg>
+        </div>
+
+        <!-- Contenedor principal -->
+        <div class="max-w-md w-full space-y-8 relative z-10">
+            <!-- Tarjeta de login -->
+            <div class="bg-white rounded-2xl shadow-2xl p-8 border border-gray-200">
+                <!-- Header con logo -->
+                <div class="text-center mb-8">
+                    <div class="flex justify-center mb-6">
+                        <div class="relative">
+                            <div class="w-20 h-20 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
+                                <img class="w-12 h-12 object-contain filter brightness-0 invert" src="/logo1.png" alt="FungiGT Logo">
+                            </div>
+                            <!-- Decoración -->
+                            <div class="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full animate-pulse"></div>
+                            <div class="absolute -bottom-1 -left-1 w-4 h-4 bg-green-300 rounded-full"></div>
+                        </div>
                     </div>
-                    <div>
-                        <label for="password" class="sr-only">Contraseña</label>
-                        <input id="password" name="password" type="password" autocomplete="current-password" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm" placeholder="Contraseña">
-                    </div>
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                        Bienvenido a FungiGT
+                    </h1>
+                    <p class="text-gray-600 text-sm">
+                        Plataforma de análisis genómico de hongos
+                    </p>
                 </div>
 
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <input id="rememberMe" name="rememberMe" type="checkbox" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
-                        <label for="rememberMe" class="ml-2 block text-sm text-white">
-                            Recuérdame
+                <!-- Formulario -->
+                <form class="space-y-6" id="loginForm" action="#" method="POST">
+                    <!-- Campo de email -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                            Correo electrónico
                         </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                                </svg>
+                            </div>
+                            <input 
+                                id="email" 
+                                name="email" 
+                                type="email" 
+                                autocomplete="email" 
+                                required 
+                                class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors sm:text-sm" 
+                                placeholder="tu@email.com"
+                            >
+                        </div>
                     </div>
 
-                    <div class="text-sm">
-                        <a href="#" class="font-medium text-green-300 hover:text-green-200">
-                            ¿Olvidaste tu contraseña?
-                        </a>
+                    <!-- Campo de contraseña -->
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                            Contraseña
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                            </div>
+                            <input 
+                                id="password" 
+                                name="password" 
+                                type="password" 
+                                autocomplete="current-password" 
+                                required 
+                                class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors sm:text-sm" 
+                                placeholder="••••••••"
+                            >
+                            <button 
+                                type="button" 
+                                onclick="togglePasswordVisibility()" 
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center"
+                            >
+                                <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Opciones adicionales -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <input 
+                                id="rememberMe" 
+                                name="rememberMe" 
+                                type="checkbox" 
+                                class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                            >
+                            <label for="rememberMe" class="ml-2 block text-sm text-gray-700">
+                                Recordarme
+                            </label>
+                        </div>
+                        <div class="text-sm">
+                            <a href="#" class="font-medium text-green-600 hover:text-green-500 transition-colors">
+                                ¿Olvidaste tu contraseña?
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Botón de login -->
+                    <div>
+                        <button 
+                            type="submit" 
+                            id="loginButton" 
+                            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 shadow-lg hover:shadow-xl"
+                        >
+                            <span id="loginButtonText" class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                                </svg>
+                                Iniciar sesión
+                            </span>
+                            <span id="loginSpinner" class="hidden flex items-center">
+                                <svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Iniciando sesión...
+                            </span>
+                        </button>
+                    </div>
+
+                    <!-- Mensaje de error -->
+                    <div id="errorAlert" class="hidden">
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-red-800">
+                                        Error de autenticación
+                                    </h3>
+                                    <div class="mt-2 text-sm text-red-700" id="errorMessage">
+                                        <!-- Mensaje de error se insertará aquí -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Separador -->
+                <div class="mt-8">
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-2 bg-white text-gray-500">O continúa con</span>
+                        </div>
                     </div>
                 </div>
 
-                <div>
-                    <button type="submit" id="loginButton" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300">
-                        <span id="loginButtonText">Iniciar sesión</span>
-                        <span id="loginSpinner" class="ml-2 hidden">
-                            <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                        </span>
+                <!-- Botones de OAuth -->
+                <div class="mt-6 grid grid-cols-2 gap-3">
+                    <button class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        <span class="ml-2">Google</span>
+                    </button>
+
+                    <button class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
+                        <svg class="w-5 h-5" fill="#00BCF2" viewBox="0 0 24 24">
+                            <path d="M11.4 24H0V12.6h11.4V24zM24 24H12.6V12.6H24V24zM11.4 11.4H0V0h11.4v11.4zm12.6 0H12.6V0H24v11.4z"/>
+                        </svg>
+                        <span class="ml-2">Microsoft</span>
                     </button>
                 </div>
-                
-                <div id="errorAlert" class="mt-3 text-sm text-center text-red-600 bg-red-100 p-2 rounded hidden"></div>
-            </form>
 
-            <div class="mt-6">
-                <div class="mt-6 grid grid-cols-2 gap-3">
-                    <div>
-                        <a href="#" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition duration-300">
-                            <span class="sr-only">Iniciar sesión con Google</span>
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" />
-                            </svg>
-                        </a>
-                    </div>
-
-                    <div>
-                        <a href="#" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition duration-300">
-                            <span class="sr-only">Iniciar sesión con Microsoft</span>
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M11.4 24H0V12.6h11.4V24zM24 24H12.6V12.6H24V24zM11.4 11.4H0V0h11.4v11.4zm12.6 0H12.6V0H24v11.4z" />
-                            </svg>
-                        </a>
-                    </div>
+                <!-- Información adicional -->
+                <div class="mt-8 text-center">
+                    <p class="text-xs text-gray-500">
+                        Al iniciar sesión, aceptas nuestros 
+                        <a href="#" class="text-green-600 hover:text-green-500">Términos de Servicio</a> 
+                        y 
+                        <a href="#" class="text-green-600 hover:text-green-500">Política de Privacidad</a>
+                    </p>
                 </div>
             </div>
 
-            <% if (locals.error) { %>
-                <div class="alert alert-danger" role="alert">
-                    <%= error %>
-                </div>
-            <% } %>
+            <!-- Footer -->
+            <div class="text-center">
+                <p class="text-sm text-gray-600">
+                    ¿No tienes una cuenta? 
+                    <a href="#" class="font-medium text-green-600 hover:text-green-500 transition-colors">
+                        Regístrate aquí
+                    </a>
+                </p>
+            </div>
         </div>
     </div>
 
-<%- include('partials/footer') %>
-
-<script>
-    function togglePasswordVisibility() {
-        const passwordInput = document.getElementById('password');
-        const toggleIcon = document.getElementById('toggleIcon');
-        
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            toggleIcon.classList.remove('fa-eye');
-            toggleIcon.classList.add('fa-eye-slash');
-        } else {
-            passwordInput.type = 'password';
-            toggleIcon.classList.remove('fa-eye-slash');
-            toggleIcon.classList.add('fa-eye');
-        }
-    }
-
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const rememberMe = document.getElementById('rememberMe').checked;
-        
-        const loginButton = document.getElementById('loginButton');
-        const loginButtonText = document.getElementById('loginButtonText');
-        const loginSpinner = document.getElementById('loginSpinner');
-        const errorAlert = document.getElementById('errorAlert');
-        
-        // Deshabilitar botón y mostrar spinner
-        loginButton.disabled = true;
-        loginButtonText.innerText = 'Iniciando sesión';
-        loginSpinner.classList.remove('hidden');
-        errorAlert.classList.add('hidden');
-        
-        try {
-            console.log('Iniciando proceso de login...');
-            const response = await fetch('http://localhost:4001/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email, password })
-            });
+    <!-- Scripts -->
+    <script>
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
             
-            const data = await response.json();
-            console.log('Respuesta del servidor:', data);
-            
-            if (!response.ok) {
-                throw new Error(data.error || 'Error al iniciar sesión');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                `;
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                `;
             }
-            
-            // Guardar token en localStorage o sessionStorage según "recordarme"
-            const storage = rememberMe ? localStorage : sessionStorage;
-            storage.setItem('authToken', data.token);
-            storage.setItem('refreshToken', data.refreshToken);
-            storage.setItem('user', JSON.stringify(data.user));
-            
-            console.log('Redirigiendo a /annotator...');
-            // Redireccionar al anotador
-            window.location.href = '/annotator';
-            
-        } catch (error) {
-            console.error('Error de login:', error);
-            errorAlert.textContent = error.message;
-            errorAlert.classList.remove('hidden');
-            
-            // Resetear botón
-            loginButton.disabled = false;
-            loginButtonText.innerText = 'Iniciar sesión';
-            loginSpinner.classList.add('hidden');
         }
-    });
-</script>
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            
+            const loginButton = document.getElementById('loginButton');
+            const loginButtonText = document.getElementById('loginButtonText');
+            const loginSpinner = document.getElementById('loginSpinner');
+            const errorAlert = document.getElementById('errorAlert');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Deshabilitar botón y mostrar spinner
+            loginButton.disabled = true;
+            loginButtonText.classList.add('hidden');
+            loginSpinner.classList.remove('hidden');
+            errorAlert.classList.add('hidden');
+            
+            try {
+                console.log('Iniciando proceso de login...');
+                const response = await fetch('http://localhost:4001/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                console.log('Respuesta del servidor:', data);
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error al iniciar sesión');
+                }
+                
+                // Guardar token en localStorage o sessionStorage según "recordarme"
+                const storage = rememberMe ? localStorage : sessionStorage;
+                storage.setItem('authToken', data.token);
+                storage.setItem('refreshToken', data.refreshToken);
+                storage.setItem('user', JSON.stringify(data.user));
+                
+                console.log('Redirigiendo a /annotator...');
+                // Redireccionar al anotador
+                window.location.href = '/annotator';
+                
+            } catch (error) {
+                console.error('Error de login:', error);
+                errorMessage.textContent = error.message;
+                errorAlert.classList.remove('hidden');
+                
+                // Resetear botón
+                loginButton.disabled = false;
+                loginButtonText.classList.remove('hidden');
+                loginSpinner.classList.add('hidden');
+            }
+        });
+
+        // Animación de entrada
+        document.addEventListener('DOMContentLoaded', function() {
+            const card = document.querySelector('.bg-white.rounded-2xl');
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                card.style.transition = 'all 0.6s ease-out';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100);
+        });
+    </script>
 </body>
 </html>

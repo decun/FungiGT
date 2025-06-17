@@ -1,0 +1,12 @@
+# Ejemplo de salida de BinDash para pruebas
+# Query	Target	Mutation_distance	P_value	Jaccard_index
+genome1.fna	genome2.fna	0.05	1e-10	0.85
+genome1.fna	genome3.fna	0.12	1e-8	0.72
+genome1.fna	genome4.fna	0.08	1e-9	0.78
+genome1.fna	genome5.fna	0.15	1e-7	0.68
+genome2.fna	genome3.fna	0.09	1e-9	0.76
+genome2.fna	genome4.fna	0.06	1e-10	0.82
+genome2.fna	genome5.fna	0.13	1e-8	0.70
+genome3.fna	genome4.fna	0.11	1e-8	0.74
+genome3.fna	genome5.fna	0.07	1e-9	0.80
+genome4.fna	genome5.fna	0.10	1e-8	0.75 
