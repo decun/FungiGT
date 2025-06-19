@@ -318,20 +318,44 @@ services:
     profiles:
       - tools  # Solo se inicia con perfil "tools"
 
-  # Análisis funcional con EggNOG - Docker Hub (Biocontainers)
-  functional-analysis:
-    image: quay.io/biocontainers/eggnog-mapper:2.1.12--pyhdfd78af_1
-    container_name: fungigt-eggnog
+  # Análisis funcional con eggNOG-mapper (Servicio API personalizado)
+  eggnog-mapper:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/analysis/eggnog/Dockerfile
+    container_name: fungigt-eggnog-mapper
+    ports:
+      - "3002:3001"
     volumes:
+      # Código del servidor API
+      - ./src/modules/analysis/eggnog:/app
+      - /app/node_modules
+      # Datos de la aplicación
       - ./data:/data
-      - ./data/eggnog_output:/output
-    working_dir: /data
+      # Socket de Docker para usar contenedores nanozoo
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      # Logs
+      - ./logs:/app/logs
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - PORT=3001
+      - EGGNOG_IMAGE=nanozoo/eggnog-mapper:2.1.9--4f2b6c0
+      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin123@mongodb:27017/test?authSource=admin}
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    # Ejecutar con privilegios para acceder a Docker
+    privileged: true
     networks:
       - fungigt-network
     restart: unless-stopped
-    command: tail -f /dev/null  # Mantiene el contenedor activo
-    profiles:
-      - tools  # Solo se inicia con perfil "tools"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # Análisis filogenético con BLAST - Docker Hub
   phylogeny:

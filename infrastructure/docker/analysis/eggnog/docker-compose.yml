@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  eggnog-mapper:
+    build:
+      context: ../../../../
+      dockerfile: infrastructure/docker/analysis/eggnog/Dockerfile
+    container_name: fungigt-eggnog-mapper
+    ports:
+      - "3001:3001"
+    volumes:
+      # Datos de la aplicación
+      - ../../../../data:/data
+      # Socket de Docker para usar contenedores nanozoo
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      # Logs
+      - ../../../../logs:/app/logs
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - EGGNOG_IMAGE=nanozoo/eggnog-mapper:2.1.9--4f2b6c0
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    # Ejecutar con privilegios para acceder a Docker
+    privileged: true
+    networks:
+      - fungigt-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  fungigt-network:
+    external: true 

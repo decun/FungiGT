@@ -1,5 +1,10 @@
 <%- include('partials/header') %>
 
+<head>
+    <!-- SweetAlert2 para modales de ayuda -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
 <body class="bg-gray-100 min-h-screen flex flex-col">
     <main class="flex-grow p-6">
         <div class="max-w-7xl mx-auto">
@@ -44,11 +49,30 @@
                         <div class="border-l-4 border-green-500 pl-6 mb-6">
                             <h3 class="text-2xl font-semibold mb-2 flex items-center text-gray-800">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V3m0 0a9 9 0 019 9h-3m0 0a9 9 0 01-9 9v-3m0 0a9 9 0 019-9z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V3m0 0a9 9 0 919 9h-3m0 0a9 9 0 01-9 9v-3m0 0a9 9 0 919-9z" />
                                 </svg>
                                 Configuración de eggNOG-mapper
                             </h3>
                             <p class="text-gray-600 text-sm">Herramienta para anotación funcional de proteínas y genes</p>
+                            
+                            <!-- Información sobre bases de datos -->
+                            <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                <h4 class="font-semibold text-blue-800 mb-2 flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    ℹ️ Información sobre Base de Datos
+                                </h4>
+                                <p class="text-blue-700 text-sm">
+                                    eggNOG-mapper utiliza <strong>una sola base de datos principal</strong> (~50 GB) que contiene información de múltiples dominios taxonómicos. 
+                                    El <strong>alcance taxonómico</strong> determina qué nivel de la jerarquía usar para la anotación:
+                                </p>
+                                <ul class="text-blue-700 text-sm mt-2 ml-4 list-disc">
+                                    <li><strong>🍄 Fungi (4751)</strong>: Específico para hongos</li>
+                                    <li><strong>🌿 Eukaryota (2759)</strong>: Recomendado para hongos (más cobertura)</li>
+                                    <li><strong>🌍 Cellular organisms (1)</strong>: Máxima cobertura taxonómica</li>
+                                </ul>
+                            </div>
                         </div>
                         
                         <form id="eggNOGForm" class="space-y-6">
@@ -60,29 +84,28 @@
                                         <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
                                             Ruta al Archivo de Entrada (-i)
                                             <div class="relative ml-2 group">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <svg xmlns="http://www.w3.org/2000/svg" id="helpProteinPath" class="h-4 w-4 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
-                                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
-                                                    <div class="text-center">
-                                                        <div class="font-semibold mb-1">Archivo de proteínas en formato FASTA</div>
-                                                        <div class="mt-1 text-yellow-300">Ejemplo: ./input/GCA_000167675.2.faa</div>
-                                                    </div>
-                                                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
-                                                </div>
                                             </div>
+                                            <button type="button" id="listFilesBtn" class="ml-2 px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+                                                Ver archivos disponibles
+                                            </button>
                                         </label>
-                                        <input type="text" id="proteinFilePath" name="proteinFilePath" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" 
-                                               placeholder="./input/GCA_000167675.2.faa" required />
+                                        <input type="text" id="proteinFilePath" name="proteinFilePath" placeholder="/data/genomes/mi_archivo.faa" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                        <p class="mt-1 text-xs text-gray-500">Ruta absoluta al archivo FASTA de proteínas</p>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">
                                             Nombre de Salida (-o)
+                                            <div class="relative ml-2 inline-block group">
+                                                <svg xmlns="http://www.w3.org/2000/svg" id="helpOutputName" class="h-4 w-4 text-gray-400 cursor-help inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </div>
                                         </label>
-                                        <input type="text" id="outputName" name="outputName" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" 
-                                               placeholder="genomeresult" required />
+                                        <input type="text" id="outputName" name="outputName" placeholder="resultado_eggnog" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                        <p class="mt-1 text-xs text-gray-500">Nombre base para los archivos de salida (sin extensión)</p>
                                     </div>
                                 </div>
                             </div>
@@ -92,12 +115,32 @@
                                 <h4 class="text-lg font-semibold mb-4 text-gray-800">Configuración Básica</h4>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
                                             Alcance Taxonómico (--tax_scope)
+                                            <div class="relative ml-2 group">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                                                    <div class="text-center">
+                                                        <div class="font-semibold mb-1">Determina el nivel taxonómico para la anotación</div>
+                                                        <div class="mt-1 text-yellow-300">🍄 Para hongos: usa 4751 (Fungi) o 2759 (Eukaryota)</div>
+                                                    </div>
+                                                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                                </div>
+                                            </div>
                                         </label>
+                                        <select id="taxScopeSelect" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors mb-2">
+                                            <option value="2759">🌿 Eukaryota (2759) - Recomendado para hongos</option>
+                                            <option value="4751">🍄 Fungi (4751) - Específico para hongos</option>
+                                            <option value="1">🌍 Cellular organisms (1) - Todos los organismos</option>
+                                            <option value="2">🦠 Bacteria (2) - Solo bacterias</option>
+                                            <option value="2157">⚡ Archaea (2157) - Solo arqueas</option>
+                                            <option value="custom">✏️ Personalizado</option>
+                                        </select>
                                         <input type="text" id="taxScope" name="taxScope" 
                                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
-                                               placeholder="2759" required />
+                                               value="2759" required style="display: none;" />
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -203,16 +246,38 @@
                             </div>
 
                             <!-- Botones de Acción -->
+                                                        <!-- Verificación de Base de Datos -->
+                            <div id="databaseStatus" class="mb-6 p-6 bg-blue-50 border-2 border-blue-300 rounded-lg shadow-md">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1">
+                                        <h5 class="font-bold text-blue-800 text-lg flex items-center mb-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+                                            </svg>
+                                            Base de Datos eggNOG
+                                        </h5>
+                                        <p id="dbStatusText" class="text-blue-700 font-medium">Verificando disponibilidad...</p>
+                                    </div>
+                                    <button type="button" id="checkDbBtn" 
+                                        class="px-5 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-lg font-bold transition-all duration-200 flex items-center shadow-lg hover:shadow-xl transform hover:scale-105">
+                                        <svg xmlns="http://www.w3Estado de .org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                        🔍 VERIFICAR ESTADO
+                                    </button>
+                                </div>
+                            </div>
+
                             <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
-                                <button type="button" id="showEggNOGCommandBtn" 
+                                <button type="button" id="showEggNOGCommandBtn"
                                         class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors font-medium">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5-6h3" />
                                     </svg>
                                     Mostrar Comando
                                 </button>
-                                <button type="submit" 
-                                        class="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors font-medium">
+                                <button type="submit" id="runEggNOGBtn"
+                                        class="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m-9-4V8a2 2 0 012-2h8a2 2 0 012 2v2M7 16h10" />
                                     </svg>
@@ -655,45 +720,67 @@
                         </form>
                     </div>
 
-                    <!-- Estado del Análisis -->
-                    <div class="bg-white p-6 rounded-xl shadow-lg mb-8 border border-gray-200">
-                        <h3 class="text-xl font-semibold mb-6 flex items-center text-gray-800">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                            </svg>
-                            Estado de Análisis Funcional
-                        </h3>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo de Análisis</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progreso</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="annotationsTable" class="bg-white divide-y divide-gray-200">
-                                    <!-- Análisis se añadirán dinámicamente aquí -->
-                                </tbody>
-                            </table>
-                        </div>
+
+                    <!-- Tabla de Estado de Análisis -->
+                    <div class="bg-white p-6 rounded-xl shadow-lg mt-8 border border-gray-200">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Estado de Análisis
+            </h2>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Herramienta
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Archivo
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Estado
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Progreso
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Tiempo
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Acciones
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="analysisTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Las filas se añadirán dinámicamente aquí -->
+                    </tbody>
+                </table>
+                
+                <div id="noAnalysisMessage" class="text-center py-8 text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <p class="text-lg font-medium">No hay análisis en progreso</p>
+                    <p class="text-sm">Los análisis aparecerán aquí cuando se inicien</p>
+                </div>
+            </div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <footer class="bg-gray-800 text-white mt-auto">
-        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-            <p class="text-center text-sm">© 2025 FungiGT. Todos los derechos reservados.</p>
-        </div>
-    </footer>
+
+
+    <%- include('partials/footer') %>
 
     <script>
         // Definir las URLs del backend para cada herramienta
         const BACKEND_URLS = {
-            eggnog: 'http://localhost:3001',
+            eggnog: 'http://localhost:3002',
             blastn: 'http://localhost:5000',
             bindash: 'http://localhost:4007'
         };
@@ -707,6 +794,236 @@
         function getFilenameFromPath(filePath) {
             return filePath.split('/').pop();
         }
+
+        // Variables globales para manejo de análisis
+        let activeAnalyses = [];
+        let analysisCounter = 0;
+
+        // Función para añadir análisis a la tabla
+        function addAnalysisToTable(analysisData) {
+            analysisCounter++;
+            const analysisId = `analysis_${analysisCounter}`;
+            
+            const analysis = {
+                id: analysisId,
+                tool: analysisData.tool || 'Desconocido',
+                file: analysisData.file || 'N/A',
+                status: analysisData.status || 'Iniciando',
+                progress: analysisData.progress || 0,
+                startTime: new Date(),
+                ...analysisData
+            };
+            
+            activeAnalyses.push(analysis);
+            updateAnalysisTable();
+            
+            return analysisId;
+        }
+
+        // Función para actualizar el estado de un análisis
+        function updateAnalysisStatus(analysisId, status, progress = null, resultPath = null) {
+            const analysis = activeAnalyses.find(a => a.id === analysisId);
+            if (analysis) {
+                analysis.status = status;
+                if (progress !== null) analysis.progress = progress;
+                if (resultPath) analysis.resultPath = resultPath;
+                analysis.lastUpdate = new Date();
+                updateAnalysisTable();
+            }
+        }
+
+        // Función para actualizar la tabla visual
+        function updateAnalysisTable() {
+            const tableBody = document.getElementById('analysisTableBody');
+            const noAnalysisMessage = document.getElementById('noAnalysisMessage');
+            
+            if (activeAnalyses.length === 0) {
+                tableBody.innerHTML = '';
+                noAnalysisMessage.style.display = 'block';
+                return;
+            }
+            
+            noAnalysisMessage.style.display = 'none';
+            
+            tableBody.innerHTML = activeAnalyses.map(analysis => {
+                const elapsed = Math.floor((new Date() - analysis.startTime) / 1000);
+                const elapsedTime = formatTime(elapsed);
+                
+                const statusBadge = getStatusBadge(analysis.status);
+                const progressBar = getProgressBar(analysis.progress);
+                const actions = getActionButtons(analysis);
+                
+                return `
+                    <tr id="${analysis.id}" class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="text-sm font-medium text-gray-900">${analysis.tool}</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">${analysis.file}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            ${statusBadge}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            ${progressBar}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            ${elapsedTime}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            ${actions}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Función para obtener badge de estado
+        function getStatusBadge(status) {
+            const badges = {
+                'Iniciando': 'bg-yellow-100 text-yellow-800',
+                'En progreso': 'bg-blue-100 text-blue-800',
+                'Completado': 'bg-green-100 text-green-800',
+                'Error': 'bg-red-100 text-red-800',
+                'Cancelado': 'bg-gray-100 text-gray-800'
+            };
+            
+            const badgeClass = badges[status] || 'bg-gray-100 text-gray-800';
+            return `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${badgeClass}">${status}</span>`;
+        }
+
+        // Función para obtener barra de progreso
+        function getProgressBar(progress) {
+            const progressPercent = Math.min(100, Math.max(0, progress));
+            return `
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: ${progressPercent}%"></div>
+                </div>
+                <span class="text-xs text-gray-500 mt-1">${progressPercent}%</span>
+            `;
+        }
+
+        // Función para obtener botones de acción
+        function getActionButtons(analysis) {
+            if (analysis.status === 'Completado' && analysis.resultPath) {
+                return `
+                    <button onclick="viewResults('${analysis.id}')" class="text-indigo-600 hover:text-indigo-900 mr-2">Ver resultados</button>
+                    <button onclick="removeAnalysis('${analysis.id}')" class="text-red-600 hover:text-red-900">Eliminar</button>
+                `;
+            } else if (analysis.status === 'En progreso') {
+                return `<button onclick="cancelAnalysis('${analysis.id}')" class="text-red-600 hover:text-red-900">Cancelar</button>`;
+            } else if (analysis.status === 'Error') {
+                return `<button onclick="removeAnalysis('${analysis.id}')" class="text-red-600 hover:text-red-900">Eliminar</button>`;
+            }
+            return '';
+        }
+
+        // Función para formatear tiempo
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            
+            if (hours > 0) {
+                return `${hours}h ${minutes}m ${secs}s`;
+            } else if (minutes > 0) {
+                return `${minutes}m ${secs}s`;
+            } else {
+                return `${secs}s`;
+            }
+        }
+
+        // Función para ver resultados
+        function viewResults(analysisId) {
+            const analysis = activeAnalyses.find(a => a.id === analysisId);
+            if (analysis && analysis.resultPath) {
+                Swal.fire({
+                    title: 'Resultados del análisis',
+                    html: `
+                        <div class="text-left">
+                            <p class="mb-2"><strong>Herramienta:</strong> ${analysis.tool}</p>
+                            <p class="mb-2"><strong>Archivo:</strong> ${analysis.file}</p>
+                            <p class="mb-2"><strong>Ruta de resultados:</strong></p>
+                            <code class="bg-gray-100 px-2 py-1 rounded block">${analysis.resultPath}</code>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Ir a Visualización',
+                    cancelButtonText: 'Cerrar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '/visualizer';
+                    }
+                });
+            }
+        }
+
+        // Función para eliminar análisis
+        function removeAnalysis(analysisId) {
+            activeAnalyses = activeAnalyses.filter(a => a.id !== analysisId);
+            updateAnalysisTable();
+        }
+
+        // Función para cancelar análisis
+        function cancelAnalysis(analysisId) {
+            updateAnalysisStatus(analysisId, 'Cancelado', 0);
+        }
+
+        // Actualizar tabla cada segundo
+        setInterval(() => {
+            if (activeAnalyses.length > 0) {
+                updateAnalysisTable();
+            }
+        }, 1000);
+
+        // Validar formulario antes de enviar
+        document.getElementById('eggNOGForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const proteinFilePath = document.getElementById('proteinFilePath').value;
+            const outputName = document.getElementById('outputName').value;
+            
+            // Validar ruta del archivo
+            if (!proteinFilePath.startsWith('/data/')) {
+                Swal.fire({
+                    title: 'Error en la ruta',
+                    text: 'La ruta debe comenzar con /data/',
+                    icon: 'error',
+                    confirmButtonText: 'Corregir'
+                });
+                return;
+            }
+            
+            // Validar extensión del archivo
+            const validExtensions = ['.faa', '.fasta', '.fa', '.fas', '.pep'];
+            const hasValidExtension = validExtensions.some(ext => proteinFilePath.toLowerCase().endsWith(ext));
+            
+            if (!hasValidExtension) {
+                Swal.fire({
+                    title: 'Extensión no válida',
+                    text: 'El archivo debe tener una de las siguientes extensiones: .faa, .fasta, .fa, .fas, .pep',
+                    icon: 'warning',
+                    confirmButtonText: 'Corregir'
+                });
+                return;
+            }
+            
+            // Validar nombre de salida
+            if (!/^[a-zA-Z0-9_]+$/.test(outputName)) {
+                Swal.fire({
+                    title: 'Nombre de salida no válido',
+                    text: 'Use solo letras, números y guiones bajos. No use espacios ni caracteres especiales.',
+                    icon: 'warning',
+                    confirmButtonText: 'Corregir'
+                });
+                return;
+            }
+            
+            // Continuar con el envío del formulario
+            runEggNOGAnalysis();
+        });
 
         // Selección de herramientas para mostrar/ocultar configuraciones
         document.getElementById('toolSelector').addEventListener('change', function(e) {
@@ -768,145 +1085,194 @@
             }
         });
 
-        // Función para agregar análisis a la tabla
-        function addAnalysisToTable(analysis) {
-            const table = document.getElementById('annotationsTable');
-            const row = table.insertRow();
-            const uniqueId = Date.now();
-            
-            row.setAttribute('data-id', uniqueId);
-            row.setAttribute('data-type', analysis.type);
-            row.setAttribute('data-outputPath', analysis.outputPath || '');
-            row.innerHTML = `
-                <td class="px-6 py-4 whitespace-nowrap capitalize">${analysis.type}</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                        En progreso
-                    </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="w-full bg-gray-200 rounded-full h-4">
-                        <div id="progressBar-${uniqueId}" class="bg-green-600 h-4 rounded-full" style="width: 0%;"></div>
-                    </div>
-                    <span id="progressText-${uniqueId}" class="text-xs text-gray-700">0%</span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap" id="actions-${uniqueId}">
-                    ${analysis.actions || ''}
-                </td>
-            `;
 
-            return uniqueId;
-        }
 
-        // Función para actualizar el estado del análisis en la tabla
-        function updateAnalysisStatus(analysisType, status, progress, outputPath) {
-            const table = document.getElementById('annotationsTable');
-            for (let row of table.rows) {
-                if (row.cells[0].textContent.toLowerCase() === analysisType.toLowerCase()) {
-                    row.cells[1].innerHTML = `
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${status === 'Completado' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
-                            ${status}
-                        </span>
-                    `;
-                    
-                    if (status === 'Completado') {
-                        const filename = getFilenameFromPath(outputPath);
-                        const tool = analysisType.toLowerCase() === 'eggnog-mapper' ? 'eggnog' : 'blastn';
-                        const downloadURL = `${BACKEND_URLS[tool]}/download-file/${encodeURIComponent(filename)}`;
-                        
-                        row.cells[3].innerHTML = `
-                            <div class="flex space-x-2">
-                                <a href="${downloadURL}" target="_blank" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs">
-                                    Ver resultados
-                                </a>
-                                <a href="${downloadURL}" download class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs">
-                                    Descargar
-                                </a>
-                            </div>
-                        `;
-                    }
-                    break;
+
+
+        // ========================================
+        // GESTIÓN DE BASE DE DATOS eggNOG
+        // ========================================
+        
+        // Verificar estado de base de datos
+        async function checkDatabaseStatus() {
+            try {
+                const response = await fetch(`${BACKEND_URLS.eggnog}/database/status`);
+                const status = await response.json();
+                
+                const statusText = document.getElementById('dbStatusText');
+                const runButton = document.getElementById('runEggNOGBtn');
+                
+                if (status.isDownloaded) {
+                    statusText.textContent = `✅ Disponible (${status.size})`;
+                    statusText.className = 'text-sm text-green-700 mt-1';
+                    runButton.disabled = false;
+                } else {
+                    statusText.textContent = '❌ No disponible';
+                    statusText.className = 'text-sm text-red-700 mt-1';
+                    runButton.disabled = true;
                 }
+                
+                return status;
+            } catch (error) {
+                console.error('Error verificando base de datos:', error);
+                const statusText = document.getElementById('dbStatusText');
+                statusText.textContent = '⚠️ Error de conexión';
+                statusText.className = 'text-sm text-red-700 mt-1';
+                document.getElementById('runEggNOGBtn').disabled = true;
             }
         }
+        
+        // Event listeners para base de datos
+        document.getElementById('checkDbBtn').addEventListener('click', checkDatabaseStatus);
+        
+        // Verificar estado inicial cuando se muestra eggNOG
+        document.getElementById('toolSelector').addEventListener('change', function(e) {
+            if (e.target.value === 'eggnog') {
+                // Verificar inmediatamente y luego con un pequeño delay para asegurar que los elementos están cargados
+                checkDatabaseStatus();
+                setTimeout(checkDatabaseStatus, 100);
+            }
+        });
 
-        // Manejo de la ejecución de eggNOG
-        document.getElementById('eggNOGForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const form = e.target;
+        // Verificar automáticamente al cargar la página si eggNOG ya está seleccionado
+        document.addEventListener('DOMContentLoaded', function() {
+            const toolSelector = document.getElementById('toolSelector');
+            if (toolSelector && toolSelector.value === 'eggnog') {
+                setTimeout(checkDatabaseStatus, 500);
+            }
+        });
+        
+        // Manejar selector de taxonomic scope
+        document.getElementById('taxScopeSelect').addEventListener('change', function(e) {
+            const taxScopeInput = document.getElementById('taxScope');
+            if (e.target.value === 'custom') {
+                taxScopeInput.style.display = 'block';
+                taxScopeInput.value = '';
+                taxScopeInput.placeholder = 'Ingrese ID taxonómico personalizado';
+            } else {
+                taxScopeInput.style.display = 'none';
+                taxScopeInput.value = e.target.value;
+            }
+        });
+
+        // Ejecutar análisis eggNOG-mapper
+        async function runEggNOGAnalysis() {
+            const form = document.getElementById('eggNOGForm');
+            const formData = new FormData(form);
+            const data = {};
+            
+            // Convertir FormData a objeto
+            formData.forEach((value, key) => {
+                // Convertir checkboxes a booleanos
+                if (key === 'translate' || key === 'resume' || key === 'override' || key === 'noFileComments') {
+                    data[key] = value === 'on';
+                } else {
+                    data[key] = value;
+                }
+            });
+            
+            // Añadir análisis a la tabla
+            const fileName = getFilenameFromPath(data.proteinFilePath);
+            const analysisId = addAnalysisToTable({
+                tool: 'eggNOG-mapper',
+                file: fileName,
+                status: 'Iniciando',
+                progress: 0
+            });
+            
+
             
             try {
-                // Mostrar el análisis en la tabla y comenzar animación
-                const uniqueId = addAnalysisToTable({
-                    type: 'eggNOG-mapper',
-                    status: 'En progreso',
-                    progress: '0%',
-                    actions: ''
-                });
-
-                // Crear un objeto JSON con los datos del formulario
-                const data = {
-                    proteinFilePath: form.proteinFilePath.value.trim(),
-                    outputName: form.outputName.value.trim(),
-                    taxScope: form.taxScope.value.trim(),
-                    cpu: form.cpu.value.trim(),
-                    mode: form.mode.value.trim(),
-                    evalue: form.evalue.value.trim(),
-                    pident: form.pident.value.trim(),
-                    noFileComments: form.noFileComments.checked,
-                    resume: form.resume.checked,
-                    override: form.override.checked,
-                    itype: form.itype.value.trim(),
-                    translate: form.translate.checked,
-                    genepred: form.genepred.value.trim()
-                };
-
                 console.log('Intentando conectar a:', `${BACKEND_URLS.eggnog}/run-eggnog`);
                 console.log('Datos a enviar:', data);
-
+                
+                // Actualizar estado a "En progreso"
+                updateAnalysisStatus(analysisId, 'En progreso', 5);
+                
                 const response = await fetch(`${BACKEND_URLS.eggnog}/run-eggnog`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(data),
-                    credentials: 'include'
-                }).catch(error => {
-                    console.error('Error en fetch:', error);
-                    throw new Error(`Error de conexión: ${error.message}`);
+                    body: JSON.stringify(data)
                 });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `Error del servidor: ${response.status}`);
-                }
-
-                const result = await response.json();
-                console.log('Respuesta del servidor:', result);
-
-                // Actualizar el estado del análisis en la tabla
-                updateAnalysisStatus('eggNOG-mapper', 'Completado', '100%', result.outputPath);
-
-                // Mostrar una notificación de éxito
-                alert('eggNOG-mapper ejecutado exitosamente');
-
-            } catch (error) {
-                console.error('Error detallado al ejecutar eggNOG-mapper:', error);
                 
-                // Actualizar el estado del análisis en la tabla como error
-                updateAnalysisStatus('eggNOG-mapper', 'Error', '0%', '');
-
-                // Mostrar mensaje de error más descriptivo
-                let errorMessage = 'Error al ejecutar eggNOG-mapper: ';
-                if (error.message.includes('Failed to fetch')) {
-                    errorMessage += 'No se pudo conectar al servidor. Por favor, verifica que el servidor de eggNOG (puerto 3001) esté funcionando.';
-                } else {
-                    errorMessage += error.message;
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    let errorMessage = 'Error desconocido';
+                    
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        errorMessage = errorData.error || errorData.message || 'Error del servidor';
+                        console.error('Error detallado:', errorData);
+                    } catch (parseError) {
+                        errorMessage = `Error del servidor (${response.status}): ${errorText.substring(0, 200)}`;
+                        console.error('Error parsing response:', errorText);
+                    }
+                    
+                    throw new Error(errorMessage);
                 }
-                alert(errorMessage);
+                
+                const result = await response.json();
+                
+                // Actualizar estado a "Completado"
+                updateAnalysisStatus(analysisId, 'Completado', 100, result.outputPath);
+                
+                // Mostrar resultados
+                Swal.fire({
+                    title: '¡Análisis completado!',
+                    html: `
+                        <div class="text-left">
+                            <h3 class="font-bold text-lg mb-2">Resumen:</h3>
+                            <p class="mb-2">ID de trabajo: <code class="bg-gray-100 px-1 py-0.5 rounded">${result.jobId}</code></p>
+                            <p class="mb-2">Archivos generados: <code class="bg-gray-100 px-1 py-0.5 rounded">${result.annotationFiles?.length || 0}</code></p>
+                            <p class="mb-2">Directorio de resultados: <code class="bg-gray-100 px-1 py-0.5 rounded">${result.outputPath}</code></p>
+                            
+                            <h3 class="font-bold text-lg mt-4 mb-2">¿Qué desea hacer ahora?</h3>
+                            <p>Puede visualizar los resultados en la sección de Visualización o revisar el estado en la tabla de análisis</p>
+                        </div>
+                    `,
+                    icon: 'success',
+                    confirmButtonText: 'Ver resultados',
+                    showCancelButton: true,
+                    cancelButtonText: 'Cerrar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Redirigir a la página de visualización
+                        window.location.href = '/visualizer';
+                    }
+                });
+                
+            } catch (error) {
+                console.error(' Error detallado al ejecutar eggNOG-mapper:', error);
+                
+                // Actualizar estado a "Error"
+                updateAnalysisStatus(analysisId, 'Error', 0);
+                
+                Swal.fire({
+                    title: 'Error al ejecutar eggNOG-mapper',
+                    html: `
+                        <div class="text-left">
+                            <h3 class="font-bold text-lg mb-2">Detalles del error:</h3>
+                            <p class="mb-2 text-red-600">${error.message}</p>
+                            
+                            <h3 class="font-bold text-lg mt-4 mb-2">Posibles soluciones:</h3>
+                            <ul class="list-disc pl-5">
+                                <li class="mb-1">Verifique que la ruta del archivo sea correcta y comience con <code class="bg-gray-100 px-1 py-0.5 rounded">/data/</code></li>
+                                <li class="mb-1">Asegúrese de que el archivo exista y tenga formato FASTA válido</li>
+                                <li class="mb-1">Compruebe que la base de datos eggNOG esté descargada</li>
+                                <li class="mb-1">Verifique que el servidor eggNOG-mapper esté en ejecución</li>
+                            </ul>
+                        </div>
+                    `,
+                    icon: 'error',
+                    confirmButtonText: 'Entendido'
+                });
+                
+            } finally {
+                // La tabla ya maneja el estado del análisis
             }
-        });
+        }
 
         // Manejo de la ejecución de BlastN
         document.getElementById('blastnForm').addEventListener('submit', async function(e) {
@@ -973,12 +1339,10 @@
                 console.log('Respuesta del servidor:', result);
                 
                 // Actualizar UI con éxito
-                updateAnalysisStatus('BlastN', 'Completado', '100%', data.out_blastn);
                 alert('BlastN ejecutado exitosamente');
 
             } catch (error) {
                 console.error('Error detallado al ejecutar BlastN:', error);
-                updateAnalysisStatus('BlastN', 'Error', '0%', '');
                 alert(`Error: ${error.message}`);
             }
         });
@@ -1204,12 +1568,10 @@ ${data.remote_blastn ? '-remote' : ''}`;
                 console.log('Respuesta del servidor BinDash:', result);
                 
                 // Actualizar UI con éxito
-                updateAnalysisStatus('BinDash', 'Completado', '100%', result.outputPath || data.distOutput || data.sketchOutput);
                 alert('BinDash ejecutado exitosamente');
 
             } catch (error) {
                 console.error('Error detallado al ejecutar BinDash:', error);
-                updateAnalysisStatus('BinDash', 'Error', '0%', '');
                 
                 let errorMessage = 'Error al ejecutar BinDash: ';
                 if (error.message.includes('Failed to fetch')) {
@@ -1305,7 +1667,122 @@ bindash dist \\
                 window.FileExplorer.navigateTo('results', 'analysis');
             }
         });
+
+        // Listar archivos disponibles
+        document.getElementById('listFilesBtn').addEventListener('click', async function() {
+            try {
+                // Simular listado de archivos (en un caso real, esto sería una llamada al backend)
+                const availableFiles = [
+                    '/data/genomes/GCA_000170995.2.faa',
+                    '/data/genomes/GCA_000171015.2.faa',
+                    '/data/genomes/GCA_000513815.1.faa',
+                    '/data/genomes/GCA_000988865.1.faa',
+                    '/data/genomes/GCA_001050175.1.faa',
+                    '/data/genomes/GCA_001481775.2.faa',
+                    '/data/genomes/GCA_002022785.1.faa'
+                ];
+                
+                const fileOptions = availableFiles.map(file => {
+                    const fileName = file.split('/').pop();
+                    return `<div class="flex justify-between items-center p-2 hover:bg-gray-100 rounded cursor-pointer" onclick="selectFile('${file}')">
+                        <span class="text-sm">${fileName}</span>
+                        <span class="text-xs text-gray-500">${file}</span>
+                    </div>`;
+                }).join('');
+                
+                Swal.fire({
+                    title: 'Archivos disponibles en /data/genomes/',
+                    html: `
+                        <div class="text-left max-h-96 overflow-y-auto">
+                            <p class="mb-4 text-sm text-gray-600">Haga clic en un archivo para seleccionarlo:</p>
+                            ${fileOptions}
+                        </div>
+                    `,
+                    width: '600px',
+                    showConfirmButton: false,
+                    showCancelButton: true,
+                    cancelButtonText: 'Cerrar'
+                });
+                
+            } catch (error) {
+                console.error('Error listando archivos:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'No se pudieron listar los archivos disponibles',
+                    icon: 'error'
+                });
+            }
+        });
+        
+        // Función para seleccionar archivo
+        window.selectFile = function(filePath) {
+            document.getElementById('proteinFilePath').value = filePath;
+            Swal.close();
+            
+            // Mostrar confirmación
+            Swal.fire({
+                title: 'Archivo seleccionado',
+                text: `Se ha seleccionado: ${filePath}`,
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        };
+
+        // Ayuda para formatos de ruta
+        document.getElementById('helpProteinPath').addEventListener('click', function() {
+            Swal.fire({
+                title: 'Formato de Rutas para eggNOG-mapper',
+                html: `
+                    <div class="text-left">
+                        <h3 class="font-bold text-lg mb-2">Estructura de rutas recomendada:</h3>
+                        <ul class="list-disc pl-5 mb-4">
+                            <li class="mb-1"><code class="bg-gray-100 px-1 py-0.5 rounded">/data/genomes/mi_archivo.faa</code></li>
+                            <li class="mb-1"><code class="bg-gray-100 px-1 py-0.5 rounded">/data/proteinas/mi_archivo.fasta</code></li>
+                        </ul>
+                        
+                        <h3 class="font-bold text-lg mb-2">¡Importante!</h3>
+                        <p class="mb-2">Debe usar rutas absolutas que comiencen con <code class="bg-gray-100 px-1 py-0.5 rounded">/data/</code></p>
+                        <p class="mb-2">No use rutas relativas como <code class="bg-red-100 px-1 py-0.5 rounded">./data/...</code></p>
+                        
+                        <h3 class="font-bold text-lg mb-2">Formatos aceptados:</h3>
+                        <ul class="list-disc pl-5">
+                            <li>.faa (preferido)</li>
+                            <li>.fasta</li>
+                            <li>.fa</li>
+                            <li>.fas</li>
+                            <li>.pep</li>
+                        </ul>
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonText: 'Entendido'
+            });
+        });
+
+        document.getElementById('helpOutputName').addEventListener('click', function() {
+            Swal.fire({
+                title: 'Nombre de salida para eggNOG-mapper',
+                html: `
+                    <div class="text-left">
+                        <h3 class="font-bold text-lg mb-2">Recomendaciones:</h3>
+                        <ul class="list-disc pl-5 mb-4">
+                            <li class="mb-1">Use solo letras, números y guiones bajos</li>
+                            <li class="mb-1">No incluya extensión (.faa, .txt, etc.)</li>
+                            <li class="mb-1">No incluya espacios ni caracteres especiales</li>
+                        </ul>
+                        
+                        <h3 class="font-bold text-lg mb-2">Ejemplos:</h3>
+                        <ul class="list-disc pl-5">
+                            <li><code class="bg-gray-100 px-1 py-0.5 rounded">resultado_genoma1</code></li>
+                            <li><code class="bg-gray-100 px-1 py-0.5 rounded">anotacion_proteinas_2023</code></li>
+                            <li><code class="bg-gray-100 px-1 py-0.5 rounded">eggnog_resultado</code></li>
+                        </ul>
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonText: 'Entendido'
+            });
+        });
     </script>
 </body>
-
-<%- include('partials/footer') %>
