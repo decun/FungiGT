@@ -181,6 +181,19 @@ class BinDashVisualizer(BaseVisualizer):
                     if len(parts) < 3:
                         continue
                     
+                    # Detectar y manejar líneas problemáticas con cadenas largas
+                    if len(parts) > 3:
+                        for part_idx, part in enumerate(parts[2:], start=2):  # Empezar desde la columna 3
+                            if '/' in part and len(part) > 50:  # Cadena larga con múltiples /
+                                print(f"⚠️ Línea {i+1}: Detectada cadena problemática en columna {part_idx+1}, omitiendo línea")
+                                raise ValueError("Línea con formato problemático")
+                            elif '/' in part:
+                                # Verificar que sea una fracción válida
+                                slash_parts = part.split('/')
+                                if len(slash_parts) > 2:
+                                    print(f"⚠️ Línea {i+1}: Fracción compleja detectada: {part[:30]}..., omitiendo línea")
+                                    raise ValueError("Fracción compleja")
+                    
                     # Extraer nombres de genomas (primeras dos columnas)
                     query_raw = str(parts[0])
                     target_raw = str(parts[1])
@@ -216,14 +229,27 @@ class BinDashVisualizer(BaseVisualizer):
                     jaccard_index = max(0.0, 1.0 - distance)  # Valor por defecto
                     if len(parts) >= 5:
                         try:
-                            jaccard_raw = str(parts[4])
+                            jaccard_raw = str(parts[4]).strip()
+                            
+                            # Verificar si es una fracción simple (solo dos números separados por /)
                             if '/' in jaccard_raw:
-                                # Es una fracción
-                                numerator, denominator = jaccard_raw.split('/', 1)
-                                jaccard_index = float(numerator) / float(denominator)
+                                slash_parts = jaccard_raw.split('/')
+                                if len(slash_parts) == 2:
+                                    # Es una fracción simple como "8533/16384"
+                                    numerator = float(slash_parts[0])
+                                    denominator = float(slash_parts[1])
+                                    if denominator != 0:
+                                        jaccard_index = numerator / denominator
+                                    else:
+                                        jaccard_index = max(0.0, 1.0 - distance)
+                                else:
+                                    # Es una cadena compleja con múltiples /, usar valor por defecto
+                                    print(f"⚠️ Jaccard index complejo ignorado: {jaccard_raw[:50]}...")
+                                    jaccard_index = max(0.0, 1.0 - distance)
                             else:
                                 # Es un número decimal
                                 jaccard_index = float(jaccard_raw)
+                            
                             jaccard_index = max(0.0, min(1.0, jaccard_index))
                         except (ValueError, ZeroDivisionError, IndexError):
                             jaccard_index = max(0.0, 1.0 - distance)

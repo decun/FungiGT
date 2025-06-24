@@ -66,18 +66,23 @@ FILE_TYPE_CONFIGS = {
     },
     'annotations': {
         'extensions': ['.annotations', '.emapper.annotations', '.eggnog'],
-        'visualizer_class': None,  # TODO: Implementar
-        'description': 'Anotaciones funcionales de genes'
+        'visualizer_class': None,  # Cargado dinámicamente
+        'description': 'Anotaciones funcionales de genes EggNOG'
+    },
+    'seed_orthologs': {
+        'extensions': ['.seed_orthologs', '.emapper.seed_orthologs', '.orthologs'],
+        'visualizer_class': None,  # Cargado dinámicamente
+        'description': 'Análisis de seed orthologs EggNOG'
+    },
+    'hits': {
+        'extensions': ['.hits', '.emapper.hits', '.blast'],
+        'visualizer_class': None,  # Cargado dinámicamente
+        'description': 'Hits de homología EggNOG'
     },
     'hmmer': {
         'extensions': ['.txt', '.out', '.analyze.txt', '.domtblout'],
         'visualizer_class': None,  # TODO: Implementar
         'description': 'Análisis de dominios proteicos con HMMER'
-    },
-    'seed_orthologs': {
-        'extensions': ['.seed_orthologs', '.orthologs'],
-        'visualizer_class': None,  # TODO: Implementar
-        'description': 'Análisis de ortólogos y filogenética'
     },
     'quality_control': {
         'extensions': ['.qc', '.quality', '.stats'],
@@ -384,6 +389,94 @@ def process_bindash():
         
     except Exception as e:
         logger.error(f"Error procesando BinDash: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/process-eggnog', methods=['POST'])
+def process_eggnog():
+    """Endpoint especializado para archivos EggNOG con visualizadores completos."""
+    try:
+        # Determinar fuente del archivo
+        if 'file' in request.files:
+            # Archivo subido
+            file = request.files['file']
+            if file.filename == '':
+                return jsonify({'error': 'No se seleccionó archivo'}), 400
+            
+            filename = secure_filename(file.filename)
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            upload_path = UPLOAD_DIR / f"eggnog_{timestamp}_{filename}"
+            file.save(upload_path)
+            
+        elif 'filePath' in request.form:
+            # Archivo del servidor
+            file_path = request.form.get('filePath')
+            upload_path = Path(file_path)
+            if not upload_path.exists():
+                return jsonify({'error': 'Archivo no encontrado en el servidor'}), 400
+        else:
+            return jsonify({'error': 'No se proporcionó archivo'}), 400
+        
+        # Obtener tipo de archivo EggNOG
+        file_type = request.form.get('file_type', 'annotations')
+        logger.info(f"🧬 Procesando archivo EggNOG tipo: {file_type}")
+        
+        # Crear directorio de salida
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        output_dir = OUTPUT_DIR / f"eggnog_{file_type}_{timestamp}"
+        output_dir.mkdir(exist_ok=True)
+        
+        # Seleccionar visualizador según el tipo
+        visualizer = None
+        if file_type == 'annotations':
+            from visualizers import AnnotationsVisualizer
+            visualizer = AnnotationsVisualizer(output_dir)
+        elif file_type == 'seed_orthologs':
+            from visualizers import SeedOrthologsVisualizer
+            visualizer = SeedOrthologsVisualizer(output_dir)
+        elif file_type == 'hits':
+            from visualizers import HitsVisualizer
+            visualizer = HitsVisualizer(output_dir)
+        
+        if visualizer:
+            # Usar visualizador especializado
+            logger.info(f"✅ Usando visualizador especializado: {visualizer.name}")
+            result = visualizer.process_file(upload_path)
+            
+            # Convertir rutas absolutas a URLs relativas
+            if 'graphs' in result:
+                graphs_urls = []
+                for graph_path in result['graphs']:
+                    if isinstance(graph_path, str):
+                        graph_file = Path(graph_path)
+                        if graph_file.exists():
+                            relative_path = graph_file.relative_to(OUTPUT_DIR)
+                            graphs_urls.append(f"/graphs/{relative_path}")
+                result['graphs'] = graphs_urls
+        else:
+            # Fallback si no hay visualizador específico
+            logger.warning(f"⚠️ No hay visualizador específico para {file_type}, usando fallback")
+            result = create_fallback_visualization(upload_path, output_dir, f"eggnog_{file_type}")
+        
+        # Limpiar archivo temporal si fue subido
+        if 'file' in request.files:
+            upload_path.unlink()
+        
+        type_names = {
+            'annotations': 'Anotaciones Funcionales',
+            'seed_orthologs': 'Seed Orthologs', 
+            'hits': 'Hits de Homología'
+        }
+        type_name = type_names.get(file_type, 'EggNOG')
+        
+        return jsonify({
+            'message': f'Archivo EggNOG {type_name} procesado exitosamente',
+            'file_type': file_type,
+            'visualizer': result.get('visualizer', f'eggnog_{file_type}'),
+            **result
+        })
+        
+    except Exception as e:
+        logger.error(f"Error procesando EggNOG: {e}")
         return jsonify({'error': str(e)}), 500
 
 # ========== RUTAS DE SERVICIO ==========

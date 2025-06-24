@@ -1,12 +1,8 @@
 <%- include('partials/header') %>
-<!DOCTYPE html>
-<html lang="es">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualizador de Datos Genómicos y Filogenia</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- SweetAlert2 para modales de ayuda -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Load IGV library and styles properly -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/igv@2.15.11/dist/igv.min.css">
     <script src="https://cdn.jsdelivr.net/npm/igv@2.15.11/dist/igv.min.js"></script>
@@ -61,29 +57,6 @@
             cursor: grabbing;
         }
 
-        .graph-controls {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            display: flex;
-            gap: 5px;
-            z-index: 10;
-        }
-
-        .control-btn {
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            border: none;
-            padding: 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .control-btn:hover {
-            background: rgba(0, 0, 0, 0.9);
-        }
-
         .loading-spinner {
             display: inline-block;
             width: 20px;
@@ -98,781 +71,1181 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* Estilos para drag and drop */
+        .drag-over {
+            background-color: #e6f7ff !important;
+            border: 2px dashed #1890ff !important;
+        }
+
+        .dragging {
+            opacity: 0.5;
+        }
+
+        .drop-zone {
+            border: 2px dashed #d9d9d9;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            background-color: #fafafa;
+            transition: all 0.3s ease;
+        }
+
+        .drop-zone.drag-over {
+            border-color: #1890ff;
+            background-color: #e6f7ff;
+        }
+
+        .file-item {
+            cursor: move;
+            transition: all 0.2s ease;
+        }
+
+        .file-item:hover {
+            background-color: #f0f8ff;
+        }
     </style>
 </head>
+
 <body class="bg-gray-100 min-h-screen flex flex-col">
     <main class="flex-grow p-6">
         <div class="max-w-7xl mx-auto">
-            <!-- Botones de Selección Principal -->
-            <div id="mainSelection" class="grid grid-cols-1 md:grid-cols-6 gap-6 mb-6">
-                <button class="visualizer-btn flex items-center justify-center space-x-2 px-4 py-3 rounded-lg glass-effect nav-item-hover transition-all duration-300 text-gray-800 font-medium" data-target="csvTsvVisualizer">
-                    <i class="fas fa-table text-green-700"></i>
-                    <span>Asistente CSV/TSV</span>
-                </button>
-                
-                <button class="visualizer-btn flex items-center justify-center space-x-2 px-4 py-3 rounded-lg glass-effect nav-item-hover transition-all duration-300 text-gray-800 font-medium" data-target="igvVisualizer">
-                    <i class="fas fa-dna text-green-700"></i>
-                    <span>Visualizador IGV</span>
-                </button>
-                
-                <button class="visualizer-btn flex items-center justify-center space-x-2 px-4 py-3 rounded-lg glass-effect nav-item-hover transition-all duration-300 text-gray-800 font-medium" data-target="annotationsVisualizer">
-                    <i class="fas fa-code-branch text-green-700"></i>
-                    <span>Visualizador de Anotaciones</span>
-                </button>
-                
-                <button class="visualizer-btn flex items-center justify-center space-x-2 px-4 py-3 rounded-lg glass-effect nav-item-hover transition-all duration-300 text-gray-800 font-medium" data-target="hmmerVisualizer">
-                    <i class="fas fa-microscope text-green-700"></i>
-                    <span>Visualizador HMMER</span>
-                </button>
-                
-                <button class="visualizer-btn flex items-center justify-center space-x-2 px-4 py-3 rounded-lg glass-effect nav-item-hover transition-all duration-300 text-gray-800 font-medium" data-target="seedOrthologsVisualizer">
-                    <i class="fas fa-dna text-green-700"></i>
-                    <span>Visualizador Seed Orthologs</span>
-                </button>
-                
-                <button class="visualizer-btn flex items-center justify-center space-x-2 px-4 py-3 rounded-lg glass-effect nav-item-hover transition-all duration-300 text-gray-800 font-medium" data-target="bindashVisualizer">
-                    <i class="fas fa-project-diagram text-green-700"></i>
-                    <span>Visualizador BinDash</span>
-                </button>
-            </div>
-
-            <!-- Botón de Volver (inicialmente oculto) -->
-            <button id="backButton" class="hidden mb-6 flex items-center space-x-2 px-4 py-2 rounded-lg glass-effect nav-item-hover transition-all duration-300 text-gray-800">
-                <i class="fas fa-arrow-left text-green-700"></i>
-                <span class="font-medium">Volver</span>
-            </button>
-
-            <!-- Visualizador IGV -->
-            <div id="igvVisualizer" class="visualizer hidden">
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-xl font-semibold mb-4">Visualizador Genómico IGV</h3>
-                    <!-- Área para el visualizador IGV -->
-                    <div id="igvContainer" class="border rounded-lg mb-4" style="height: 500px;"></div>
-                    <!-- Formulario de carga de archivos -->
-                    <div class="flex items-center">
-                        <input type="file" id="genomicFileUpload" class="hidden" accept=".bam,.fna,.cram,.vcf,.bed,.gff,.gff3,.gtf" />
-                        <label for="genomicFileUpload" class="secondary-btn inline-flex cursor-pointer">
-                            <i class="fas fa-upload text-green-700"></i>
-                            <span>Subir Archivo Genómico</span>
-                        </label>
-                    </div>
-                    <!-- Mensaje de estado -->
-                    <p id="uploadStatus" class="mt-4 text-sm text-gray-500"></p>
+            <div class="flex flex-col md:flex-row gap-6">
+                <!-- Panel lateral: Explorador de archivos -->
+                <div class="w-full md:w-1/3 lg:w-1/4">
+                    <%- include('partials/file-explorer') %>
                 </div>
-            </div>
+                
+                <!-- Panel principal -->
+                <div class="w-full md:w-2/3 lg:w-3/4">
+                    <h2 class="text-3xl font-bold mb-8 flex items-center text-gray-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        Visualizador de Datos Genómicos
+                    </h2>
 
-            <!-- Visualizador CSV/TSV -->
-            <div id="csvTsvVisualizer" class="visualizer hidden">
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-xl font-semibold mb-4">Asistente de Visualización CSV/TSV</h3>
-                    <div id="chatContainer" class="h-[32rem] overflow-y-auto mb-4 p-4 border rounded-lg">
-                        <!-- Mensajes del asistente y del usuario se añadirán aquí dinámicamente -->
-                    </div>
-                    <div class="flex items-center">
-                        <div class="relative flex-grow">
-                            <input type="text" id="userInput" class="w-full px-3 py-2 pr-24 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Escribe tu pregunta o comando..." />
-                            <label for="fileUpload" class="absolute right-0 top-0 bottom-0 flex items-center px-3 bg-gray-200 rounded-r-md cursor-pointer">
-                                <span class="material-icons text-gray-600">attach_file</span>
-                                <input type="file" id="fileUpload" class="hidden" accept=".csv,.tsv" />
+                    <!-- Selector para elegir visualizador -->
+                    <div class="bg-white p-6 rounded-xl shadow-lg mb-8 border border-gray-200">
+                        <h3 class="text-xl font-semibold mb-4 flex items-center text-gray-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+                            </svg>
+                            Seleccionar Tipo de Visualización
+                        </h3>
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                                Elige el tipo de visualización que deseas utilizar:
                             </label>
-                        </div>
-                        <button id="sendMessage" class="bg-green-600 text-white px-4 py-2 rounded-r-md hover:bg-green-700 transition duration-300 ml-2">
-                            Enviar
-                        </button>
-                    </div>
-                    <!-- Agregar el contenedor para los gráficos CSV/TSV -->
-                    <div id="csvTsvGraphsContainer" class="mt-4">
-                        <!-- Los gráficos generados se mostrarán aquí -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Visualizador de Anotaciones -->
-            <div id="annotationsVisualizer" class="visualizer hidden">
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-xl font-semibold mb-4">Visualizador de Anotaciones</h3>
-                    <div class="mb-4">
-                        <input type="file" id="annotationsFileUpload" class="hidden" accept=".annotations,.emapper.annotations"/>
-                        <label for="annotationsFileUpload" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-300 cursor-pointer inline-flex items-center">
-                            <i class="fas fa-upload mr-2"></i>
-                            <span>Subir archivo de anotaciones (.emapper.annotations)</span>
-                        </label>
-                        <span id="annotationsUploadStatus" class="ml-4 text-sm text-gray-600"></span>
-                    </div>
-                    <div id="annotationsGraphsContainer" class="flex flex-col gap-4">
-                        <!-- Selector y Visualizador se apilarán verticalmente aquí -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Visualizador HMMER -->
-            <div id="hmmerVisualizer" class="visualizer hidden">
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-xl font-semibold mb-4">Visualizador HMMER</h3>
-                    <div class="mb-4">
-                        <input type="file" id="hmmerFileUpload" class="hidden" accept=".txt,.out,.analyze.txt"/>
-                        <label for="hmmerFileUpload" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-300 cursor-pointer inline-flex items-center">
-                            <i class="fas fa-upload mr-2"></i>
-                            <span>Subir archivo HMMER (.analyze.txt)</span>
-                        </label>
-                        <span id="hmmerUploadStatus" class="ml-4 text-sm text-gray-600"></span>
-                    </div>
-                    <div id="hmmerGraphsContainer" class="flex flex-col gap-4">
-                        <!-- Selector y Visualizador se apilarán verticalmente aquí -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Visualizador Seed Orthologs -->
-            <div id="seedOrthologsVisualizer" class="visualizer hidden">
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-xl font-semibold mb-4">Visualizador de Seed Orthologs</h3>
-                    <div class="mb-4">
-                        <input type="file" id="seedOrthologsFileUpload" class="hidden" accept=".seed_orthologs"/>
-                        <label for="seedOrthologsFileUpload" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-300 cursor-pointer inline-flex items-center">
-                            <i class="fas fa-upload mr-2"></i>
-                            <span>Subir archivo Seed Orthologs (.seed_orthologs)</span>
-                        </label>
-                        <span id="seedOrthologsUploadStatus" class="ml-4 text-sm text-gray-600"></span>
-                    </div>
-                    <div id="seedOrthologsGraphsContainer" class="flex flex-col gap-4">
-                        <!-- Los gráficos se mostrarán aquí -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Visualizador BinDash -->
-            <div id="bindashVisualizer" class="visualizer hidden">
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-xl font-semibold mb-4">Visualizador de Resultados BinDash</h3>
-                    <div class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                        <h4 class="font-semibold text-blue-800 mb-2">📊 Análisis Genómico Comparativo</h4>
-                        <p class="text-sm text-blue-700">
-                            Visualiza matrices de distancias genómicas, dendrogramas filogenéticos, análisis de ANI (Average Nucleotide Identity) 
-                            y correlaciones entre métricas de BinDash para comparación de genomas.
-                        </p>
-                    </div>
-                    <div class="mb-4">
-                        <input type="file" id="bindashFileUpload" class="hidden" accept=".txt,.tsv,.csv,.out,.distances"/>
-                        <label for="bindashFileUpload" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-300 cursor-pointer inline-flex items-center">
-                            <i class="fas fa-upload mr-2"></i>
-                            <span>Subir archivo de resultados BinDash (.txt, .tsv, .out)</span>
-                        </label>
-                        <span id="bindashUploadStatus" class="ml-4 text-sm text-gray-600"></span>
-                    </div>
-                    
-                    <!-- Panel de estadísticas -->
-                    <div id="bindashStatsPanel" class="hidden mb-4 p-4 bg-gray-50 rounded-lg border">
-                        <h4 class="font-semibold text-gray-800 mb-3">📈 Estadísticas del Análisis</h4>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                            <div class="text-center">
-                                <div class="font-bold text-lg text-blue-600" id="totalComparisons">-</div>
-                                <div class="text-gray-600">Comparaciones</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="font-bold text-lg text-green-600" id="uniqueGenomes">-</div>
-                                <div class="text-gray-600">Genomas únicos</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="font-bold text-lg text-purple-600" id="meanANI">-</div>
-                                <div class="text-gray-600">ANI promedio</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="font-bold text-lg text-orange-600" id="meanDistance">-</div>
-                                <div class="text-gray-600">Distancia promedio</div>
-                            </div>
+                            <select id="visualizerSelector" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                <option value="">Seleccione un visualizador</option>
+                                <option value="bindash">BinDash - Análisis de Similitud Genómica</option>
+                                <option value="eggnog">🧬 EggNOG - Annotations, Seed Orthologs, Hits</option>
+                            </select>
                         </div>
                     </div>
-                    
-                    <!-- Contenedor de gráficos - sin selector, mostrando todos directamente -->
-                    <div id="bindashGraphsContainer" class="space-y-6">
-                        <!-- Los gráficos se mostrarán aquí en grid directamente -->
+
+                    <!-- Visualizador BinDash (principal) -->
+                    <div id="bindashVisualizerSection" class="bg-white p-8 rounded-xl shadow-lg mb-8 border border-gray-200" style="display: none;">
+                        <div class="border-l-4 border-green-500 pl-6 mb-6">
+                            <h3 class="text-2xl font-semibold mb-2 flex items-center text-gray-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                                Visualizador BinDash
+                            </h3>
+                            <p class="text-gray-600 text-sm">Arrastra archivos desde el explorador de archivos o sube un archivo para visualizar análisis de similitud genómica</p>
+                        </div>
+
+                        <!-- Zona de drop para archivos -->
+                        <div id="bindashDropZone" class="drop-zone mb-6 cursor-pointer">
+                            <div class="text-center py-8">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                <p class="text-lg font-medium text-gray-700 mb-2">Arrastra archivos aquí</p>
+                                <p class="text-sm text-gray-500 mb-4">o haz clic para seleccionar archivos</p>
+                                <p class="text-xs text-gray-400">Archivos soportados: .txt, .tsv, .csv</p>
+                            </div>
+                        </div>
+
+                        <!-- Input oculto para archivos -->
+                        <input type="file" id="bindashFileInput" accept=".txt,.tsv,.csv" style="display: none;">
+
+                        <!-- Información del archivo seleccionado -->
+                        <div id="selectedFileInfo" class="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-6" style="display: none;">
+                            <h4 class="font-semibold text-blue-800 mb-2">📁 Archivo seleccionado:</h4>
+                            <p id="selectedFileName" class="text-blue-700 text-sm font-medium"></p>
+                            <p id="selectedFilePath" class="text-blue-600 text-xs mt-1"></p>
+                        </div>
+
+                        <!-- Botón de procesar -->
+                        <div class="mb-6">
+                            <button id="processBindashBtn" class="w-full bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                                Procesar Archivo con BinDash
+                            </button>
+                        </div>
+
+                        <!-- Estado del procesamiento -->
+                        <div id="bindashStatus" class="mb-6 text-sm text-gray-600"></div>
+
+                        <!-- Estadísticas del análisis -->
+                        <div id="bindashStatsPanel" class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg border border-blue-200 mb-6" style="display: none;">
+                            <h4 class="text-lg font-semibold mb-4 text-gray-800">📊 Estadísticas del Análisis</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-blue-600" id="totalComparisons">0</div>
+                                    <div class="text-sm text-gray-600">Comparaciones</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-green-600" id="uniqueGenomes">0</div>
+                                    <div class="text-sm text-gray-600">Genomas únicos</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-purple-600" id="meanANI">0</div>
+                                    <div class="text-sm text-gray-600">Jaccard promedio</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-orange-600" id="meanDistance">0</div>
+                                    <div class="text-sm text-gray-600">Distancia promedio</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contenedor para gráficos -->
+                        <div id="bindashGraphsContainer" class="mt-6"></div>
+                    </div>
+
+
+
+                    <!-- Visualizador EggNOG -->
+                    <div id="eggnogVisualizerSection" class="bg-white p-8 rounded-xl shadow-lg mb-8 border border-gray-200" style="display: none;">
+                        <div class="border-l-4 border-orange-500 pl-6 mb-6">
+                            <h3 class="text-2xl font-semibold mb-2 flex items-center text-gray-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                </svg>
+                                Visualizador EggNOG
+                            </h3>
+                            <p class="text-gray-600 text-sm">Procesamiento de archivos EggNOG-mapper: Annotations, Seed Orthologs y Hits</p>
+                        </div>
+
+                        <!-- Zona de drop para archivos -->
+                        <div id="eggnogDropZone" class="drop-zone mb-6 cursor-pointer">
+                            <div class="text-center py-8">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                <p class="text-lg font-medium text-gray-700 mb-2">Arrastra archivos EggNOG aquí</p>
+                                <p class="text-sm text-gray-500 mb-4">o haz clic para seleccionar archivos</p>
+                                <p class="text-xs text-gray-400">Archivos soportados: .emapper.annotations, .emapper.seed_orthologs, .emapper.hits</p>
+                            </div>
+                        </div>
+
+                        <!-- Input oculto para archivos -->
+                        <input type="file" id="eggnogFileInput" accept=".annotations,.emapper.annotations,.seed_orthologs,.emapper.seed_orthologs,.hits,.emapper.hits,.tsv,.txt" style="display: none;">
+
+                        <!-- Información del archivo seleccionado -->
+                        <div id="selectedEggnogFileInfo" class="bg-orange-50 p-4 rounded-lg border border-orange-200 mb-6" style="display: none;">
+                            <h4 class="font-semibold text-orange-800 mb-2">📁 Archivo EggNOG seleccionado:</h4>
+                            <p id="selectedEggnogFileName" class="text-orange-700 text-sm font-medium"></p>
+                            <p id="selectedEggnogFilePath" class="text-orange-600 text-xs mt-1"></p>
+                            <p id="selectedEggnogFileType" class="text-orange-600 text-xs mt-1 font-medium"></p>
+                        </div>
+
+                        <!-- Botón de procesar -->
+                        <div class="mb-6">
+                            <button id="processEggnogBtn" class="w-full bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                </svg>
+                                Procesar Archivo EggNOG
+                            </button>
+                        </div>
+                        
+                        <!-- Estado del procesamiento -->
+                        <div id="eggnogStatus" class="mb-6 text-sm text-gray-600"></div>
+
+                        <!-- Estadísticas del análisis -->
+                        <div id="eggnogStatsPanel" class="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-lg border border-orange-200 mb-6" style="display: none;">
+                            <h4 class="text-lg font-semibold mb-4 text-gray-800">📊 Estadísticas EggNOG</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-blue-600" id="totalEggnogRecords">0</div>
+                                    <div class="text-sm text-gray-600">Total registros</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-green-600" id="uniqueEggnogQueries">0</div>
+                                    <div class="text-sm text-gray-600">Queries únicas</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-purple-600" id="eggnogFileTypeDisplay">-</div>
+                                    <div class="text-sm text-gray-600">Tipo de archivo</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-orange-600" id="eggnogCoverage">0%</div>
+                                    <div class="text-sm text-gray-600">Cobertura</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Contenedor para gráficos -->
+                        <div id="eggnogGraphsContainer" class="mt-6"></div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Footer con copyright -->
-    <footer class="bg-gray-800 text-white mt-auto">
-        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-            <p class="text-center text-sm">© 2025 FungiGT. Todos los derechos reservados.</p>
-        </div>
-    </footer>
-
-    <!-- Footer con el asistente -->
     <%- include('partials/footer') %>
+    <%- include('partials/drfungito-chat') %>
 
-    <!-- Scripts necesarios -->
-    <script src="https://kit.fontawesome.com/your-font-awesome-kit.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', async function() {
-            // URLs de los servidores
-            const backendUrl = 'http://localhost:4003';  // Servidor de visualización (corregido de 5000 a 4003)
-            const lidaUrl = 'http://localhost:4200';     // Servidor LIDA para CSV/TSV
-            const bindashVisualizerUrl = 'http://localhost:4003';  // Servidor BinDash Visualizer
-            const drFungitoUrl = 'http://localhost:4009';  // Servidor Dr. Fungito AI Agent
+        // Variables globales
+        let currentSelectedFile = null;
+        let currentSelectedFilePath = null;
+        const bindashVisualizerUrl = 'http://localhost:4003';
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            setupVisualizerSelector();
+            setupBindashDragDrop();
+            setupEggnogDragDrop();
+            setupFileExplorerIntegration();
+        });
+
+        // Configurar selector de visualizadores
+        function setupVisualizerSelector() {
+            const selector = document.getElementById('visualizerSelector');
             
-            const mainSelection = document.getElementById('mainSelection');
-            const backButton = document.getElementById('backButton');
-            const visualizers = document.querySelectorAll('.visualizer');
-            const visualizerButtons = document.querySelectorAll('.visualizer-btn');
-
-            // Limpiar uploads al cargar la página
-            clearUploads();
-
-            function clearUploads() {
-                fetch(`${backendUrl}/clear_uploads`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer tu_token_secreto'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        console.log('Carpeta uploads/ limpiada.');
-                    } else {
-                        console.error('Error al limpiar uploads:', data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error al limpiar uploads:', error);
+            selector.addEventListener('change', function() {
+                // Ocultar todas las secciones
+                document.querySelectorAll('[id$="VisualizerSection"]').forEach(section => {
+                    section.style.display = 'none';
                 });
-            }
-
-            // ========== FUNCIONES DR. FUNGITO INTEGRADAS ==========
-            
-            // Función para iluminar el chat de Dr. Fungito
-            function highlightDrFungitoChat() {
-                const drFungitoButton = document.getElementById('drFungitoButton');
-                if (drFungitoButton) {
-                    drFungitoButton.style.boxShadow = '0 0 20px rgba(34, 197, 94, 0.8)';
-                    drFungitoButton.style.transform = 'scale(1.1)';
-                    setTimeout(() => {
-                        drFungitoButton.style.boxShadow = '';
-                        drFungitoButton.style.transform = '';
-                    }, 2000);
+                
+                // Mostrar la sección seleccionada
+                const selectedValue = this.value;
+                if (selectedValue) {
+                    const sectionId = selectedValue + 'VisualizerSection';
+                    const section = document.getElementById(sectionId);
+                    if (section) {
+                        section.style.display = 'block';
+                    }
                 }
-            }
-            
-            // Función para abrir Dr. Fungito y enviar análisis
-            async function analyzWithDrFungito(imageUrl, analysisType) {
-                try {
-                    // Iluminar el chat de Dr. Fungito
-                    highlightDrFungitoChat();
+            });
+        }
+
+        // Configurar drag and drop para BinDash
+        function setupBindashDragDrop() {
+            const dropZone = document.getElementById('bindashDropZone');
+            const fileInput = document.getElementById('bindashFileInput');
+            const processBtn = document.getElementById('processBindashBtn');
+
+            // Eventos del drop zone
+            dropZone.addEventListener('click', () => fileInput.click());
+            dropZone.addEventListener('dragover', handleDragOver);
+            dropZone.addEventListener('drop', handleDrop);
+            dropZone.addEventListener('dragleave', handleDragLeave);
+
+            // Evento del input de archivo
+            fileInput.addEventListener('change', handleFileSelect);
+
+            // Evento del botón de procesar
+            processBtn.addEventListener('click', processBindashFile);
+        }
+
+        // Configurar integración con file explorer
+        function setupFileExplorerIntegration() {
+            // Escuchar clicks en elementos del file explorer
+            document.addEventListener('click', function(e) {
+                const fileElement = e.target.closest('[data-file-path]');
+                if (fileElement) {
+                    const fileName = fileElement.dataset.fileName || fileElement.textContent.trim();
+                    const filePath = fileElement.dataset.filePath;
                     
-                    // Abrir el panel de Dr. Fungito
-                    const drFungitoPanel = document.getElementById('drFungitoPanel');
-                    if (drFungitoPanel) {
-                        drFungitoPanel.classList.remove('hidden');
-                    }
-                    
-                    // Descargar la imagen y convertirla a blob
-                    const response = await fetch(imageUrl);
-                    const blob = await response.blob();
-                    
-                    // Crear FormData para enviar
-                    const formData = new FormData();
-                    formData.append('image', blob, `analysis_${Date.now()}.png`);
-                    formData.append('analysisType', analysisType);
-                    formData.append('userContext', `Análisis automático de gráfico ${analysisType}`);
-                    
-                    // Mostrar mensaje en el chat de Dr. Fungito
-                    const chatMessages = document.getElementById('chatMessages');
-                    let loadingDiv = null; // Declarar la variable fuera del bloque
-                    
-                    if (chatMessages) {
-                        const messageDiv = document.createElement('div');
-                        messageDiv.className = 'flex items-start space-x-2';
-                        messageDiv.innerHTML = `
-                            <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">👤</div>
-                            <div class="bg-green-500 text-white p-3 rounded-lg shadow-sm max-w-xs">
-                                <p class="text-sm">🔍 Analizar gráfico ${analysisType}</p>
-                            </div>
-                        `;
-                        chatMessages.appendChild(messageDiv);
-                        
-                        // Mensaje de carga
-                        loadingDiv = document.createElement('div');
-                        loadingDiv.className = 'flex items-start space-x-2';
-                        loadingDiv.innerHTML = `
-                            <img src="/images/DrFungito.png" alt="Dr. Fungito" class="w-8 h-8 rounded-full object-cover flex-shrink-0" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0 hidden">🍄</div>
-                            <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-200 max-w-xs">
-                                <div class="flex items-center space-x-2">
-                                    <div class="loading-spinner w-4 h-4 border-2 border-gray-300 border-t-green-500 rounded-full animate-spin"></div>
-                                    <div class="text-sm text-gray-800">Analizando imagen con IA...</div>
-                                </div>
-                            </div>
-                        `;
-                        chatMessages.appendChild(loadingDiv);
-                        chatMessages.scrollTop = chatMessages.scrollHeight;
-                    }
-                    
-                    // Enviar a Dr. Fungito
-                    const analysisResponse = await fetch(`${drFungitoUrl}/analyze-image`, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-User-Id': getUserId()
+                    if (fileName && filePath) {
+                        // Verificar si es un archivo compatible con BinDash
+                        if (fileName.match(/\.(txt|tsv|csv)$/i)) {
+                            selectFileFromExplorer(fileName, filePath);
+                        } else {
+                            showNotification('Archivo no compatible', 'El archivo seleccionado no es compatible con BinDash. Selecciona un archivo .txt, .tsv o .csv', 'warning');
                         }
-                    });
-                    
-                    if (!analysisResponse.ok) {
-                        throw new Error(`Error del servidor: ${analysisResponse.status}`);
                     }
-                    
-                    const analysisData = await analysisResponse.json();
-                    
-                    // Remover mensaje de carga
-                    if (loadingDiv && loadingDiv.parentNode) {
-                        loadingDiv.remove();
-                    }
-                    
-                    // Mostrar resultado en el chat
-                    if (chatMessages) {
-                        const resultDiv = document.createElement('div');
-                        resultDiv.className = 'flex items-start space-x-2';
-                        resultDiv.innerHTML = `
-                            <img src="/images/DrFungito.png" alt="Dr. Fungito" class="w-8 h-8 rounded-full object-cover flex-shrink-0" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0 hidden">🍄</div>
-                            <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-200 max-w-xs">
-                                <div class="text-sm text-gray-800 whitespace-pre-wrap">${analysisData.analysis}</div>
-                                <div class="mt-2 text-xs text-gray-500">
-                                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">${analysisData.analysisType}</span>
-                                </div>
-                            </div>
-                        `;
-                        chatMessages.appendChild(resultDiv);
-                        chatMessages.scrollTop = chatMessages.scrollHeight;
-                    }
-                    
-                } catch (error) {
-                    console.error('Error al analizar con Dr. Fungito:', error);
-                    
-                    // Remover mensaje de carga si existe
-                    const loadingElement = document.querySelector('.loading-spinner')?.closest('.flex.items-start.space-x-2');
-                    if (loadingElement) {
-                        loadingElement.remove();
-                    }
-                    
-                    // Mostrar error en el chat
-                    const chatMessages = document.getElementById('chatMessages');
-                    if (chatMessages) {
-                        const errorDiv = document.createElement('div');
-                        errorDiv.className = 'flex items-start space-x-2';
-                        errorDiv.innerHTML = `
-                            <img src="/images/DrFungito.png" alt="Dr. Fungito" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
-                            <div class="bg-red-50 border border-red-200 p-3 rounded-lg shadow-sm max-w-xs">
-                                <div class="text-sm text-red-800">❌ Error al analizar imagen: ${error.message}</div>
-                            </div>
-                        `;
-                        chatMessages.appendChild(errorDiv);
-                        chatMessages.scrollTop = chatMessages.scrollHeight;
-                    }
-                }
-            }
-            
-            // Función para crear botón de análisis (lupita)
-            function createAnalyzeButton(imageUrl, analysisType) {
-                const button = document.createElement('button');
-                button.className = 'analyze-btn absolute top-2 right-2 bg-green-500 bg-opacity-80 hover:bg-opacity-100 text-white p-2 rounded-full shadow-lg transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-green-400';
-                button.innerHTML = '<i class="fas fa-search text-sm"></i>';
-                button.title = 'Analizar con Dr. Fungito IA';
-                
-                // Efectos hover para iluminar Dr. Fungito
-                button.addEventListener('mouseenter', () => {
-                    highlightDrFungitoChat();
-                });
-                
-                button.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    analyzWithDrFungito(imageUrl, analysisType);
-                });
-                
-                return button;
-            }
-            
-            // Función para obtener ID de usuario
-            function getUserId() {
-                return localStorage.getItem('drfungito_user_id') || 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-            }
-
-            // Función para mostrar el visualizador seleccionado
-            async function showVisualizer(visualizerId) {
-                mainSelection.classList.add('hidden');
-                backButton.classList.remove('hidden');
-                visualizers.forEach(v => v.classList.add('hidden'));
-                document.getElementById(visualizerId).classList.remove('hidden');
-
-                if (visualizerId === 'igvVisualizer') {
-                    try {
-                        await initializeIGV();
-                    } catch (error) {
-                        console.error('Error initializing IGV:', error);
-                    }
-                }
-            }
-
-            // Función para volver a la selección principal
-            function showMainSelection() {
-                mainSelection.classList.remove('hidden');
-                backButton.classList.add('hidden');
-                visualizers.forEach(v => v.classList.add('hidden'));
-            }
-
-            // Asignar eventos a los botones de visualizadores
-            visualizerButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    showVisualizer(this.dataset.target);
-                });
-            });
-
-            // Asignar evento al botón de volver
-            backButton.addEventListener('click', showMainSelection);
-
-            // ========== FUNCIONES PARA IGV ==========
-            let igvBrowser;
-            async function initializeIGV() {
-                const igvContainer = document.getElementById('igvContainer');
-                if (!igvContainer) {
-                    console.error('IGV container not found');
-                    return;
-                }
-                igvContainer.innerHTML = '';
-
-                const options = {
-                    genome: "hg38",
-                    locus: "chr8:127,736,588-127,739,371",
-                    tracks: []
-                };
-
-                try {
-                    igvBrowser = await igv.createBrowser(igvContainer, options);
-                    console.log('IGV Browser created successfully');
-                } catch (error) {
-                    console.error('Error creating IGV browser:', error);
-                    throw error;
-                }
-            }
-
-            // Limpiar al recargar o cerrar la página
-            window.addEventListener('beforeunload', function() {
-                navigator.sendBeacon(`${backendUrl}/cleanup`);
-                if (lidaUrl) {
-                    navigator.sendBeacon(`${lidaUrl}/cleanup`);
                 }
             });
 
-            // Limpiar archivos al cargar la página
-            window.addEventListener('load', function() {
-                fetch(`${backendUrl}/cleanup`, {
-                    method: 'POST'
-                })
-                .then(response => response.json())
-                .then(data => console.log('Limpieza inicial completada'))
-                .catch(error => console.error('Error en limpieza inicial:', error));
+            // Configurar drag desde file explorer
+            document.addEventListener('dragstart', function(e) {
+                const fileElement = e.target.closest('[data-file-path]');
+                if (fileElement) {
+                    const fileName = fileElement.dataset.fileName || fileElement.textContent.trim();
+                    const filePath = fileElement.dataset.filePath;
+                    
+                    e.dataTransfer.setData('text/plain', JSON.stringify({
+                        fileName: fileName,
+                        filePath: filePath
+                    }));
+                }
             });
+        }
 
-            // ========== FUNCIONES PARA SUBIDA DE ARCHIVOS ==========
+        // Seleccionar archivo desde el explorador
+        function selectFileFromExplorer(fileName, filePath) {
+            currentSelectedFile = { name: fileName };
+            currentSelectedFilePath = filePath;
             
-            // BinDash file upload handler
-            document.getElementById('bindashFileUpload').addEventListener('change', function(event) {
-                const file = event.target.files[0];
-                if (!file) return;
-                
-                const statusElement = document.getElementById('bindashUploadStatus');
-                const graphsContainer = document.getElementById('bindashGraphsContainer');
-                const statsPanel = document.getElementById('bindashStatsPanel');
-                
-                // Verificar que los elementos existen
-                if (!statusElement || !graphsContainer) {
-                    console.error('Error: No se encontraron los elementos necesarios en el DOM');
-                    return;
-                }
-                
-                statusElement.textContent = 'Subiendo y procesando archivo...';
-                statusElement.className = 'ml-4 text-sm text-blue-600';
-                
-                // Limpiar contenedores anteriores
-                graphsContainer.innerHTML = '';
-                if (statsPanel) {
-                    statsPanel.classList.add('hidden');
-                }
-                
-                const formData = new FormData();
-                formData.append('file', file);
-                
-                fetch(`${bindashVisualizerUrl}/process-bindash`, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Error HTTP: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Resultado BinDash:', data);
-                    statusElement.textContent = `✅ Archivo procesado exitosamente (${data.graphs.length} gráficos generados) Visualizador: BinDashVisualizer`;
-                    statusElement.className = 'ml-4 text-sm text-green-600';
-                    
-                    // Mostrar estadísticas usando el panel existente
-                    if (data.stats && statsPanel) {
-                        displayBinDashStatsInPanel(data.stats, statsPanel);
-                    }
-                    
-                    // Mostrar gráficos CON URLS CORREGIDAS Y DISEÑO NUEVO
-                    if (data.graphs && data.graphs.length > 0) {
-                        displayBinDashGraphsWithSelector(data.graphs, graphsContainer);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error procesando archivo BinDash:', error);
-                    statusElement.textContent = `❌ Error: ${error.message}`;
-                    statusElement.className = 'ml-4 text-sm text-red-600';
-                });
-            });
+            // Mostrar información del archivo
+            document.getElementById('selectedFileName').textContent = fileName;
+            document.getElementById('selectedFilePath').textContent = filePath;
+            document.getElementById('selectedFileInfo').style.display = 'block';
             
-            // Función para mostrar estadísticas en el panel existente
-            function displayBinDashStatsInPanel(stats, panel) {
-                // Actualizar los valores en los elementos existentes
-                const totalComparisons = document.getElementById('totalComparisons');
-                const uniqueGenomes = document.getElementById('uniqueGenomes');
-                const meanANI = document.getElementById('meanANI');
-                const meanDistance = document.getElementById('meanDistance');
-                
-                if (totalComparisons) totalComparisons.textContent = stats.total_comparisons || 'N/A';
-                if (uniqueGenomes) uniqueGenomes.textContent = stats.unique_genomes || 'N/A';
-                if (meanANI) meanANI.textContent = stats.avg_jaccard ? stats.avg_jaccard.toFixed(3) : 'N/A';
-                if (meanDistance) meanDistance.textContent = stats.avg_mutation_distance ? stats.avg_mutation_distance.toFixed(3) : 'N/A';
-                
-                // Mostrar el panel
-                panel.classList.remove('hidden');
+            // Habilitar botón de procesar
+            document.getElementById('processBindashBtn').disabled = false;
+            
+            // Cambiar al visualizador BinDash si no está seleccionado
+            const selector = document.getElementById('visualizerSelector');
+            if (selector.value !== 'bindash') {
+                selector.value = 'bindash';
+                selector.dispatchEvent(new Event('change'));
+            }
+
+            showNotification('Archivo seleccionado', `Se ha seleccionado el archivo: ${fileName}`, 'success');
+        }
+
+        // Manejar drag over
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        // Manejar drag leave
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        // Manejar drop
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            
+            // Intentar obtener datos del file explorer
+            try {
+                const dragData = e.dataTransfer.getData('text/plain');
+                if (dragData) {
+                    const fileData = JSON.parse(dragData);
+                    if (fileData.fileName && fileData.filePath) {
+                        selectFileFromExplorer(fileData.fileName, fileData.filePath);
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.log('No hay datos del file explorer, intentando con archivos locales');
             }
             
-            // NUEVA función para mostrar gráficos con selector (como en la imagen)
-            function displayBinDashGraphsWithSelector(graphs, container) {
-                // Corregir todas las URLs para que apunten al puerto 4003
-                const correctedGraphs = graphs.map(graphUrl => {
-                    if (graphUrl.startsWith('/graphs/')) {
-                        return `http://localhost:4003${graphUrl}`;
-                    }
-                    return graphUrl.replace('http://localhost:4005', 'http://localhost:4003');
-                });
+            // Si no hay datos del file explorer, usar archivos locales
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect({ target: { files: files } });
+            }
+        }
+
+        // Manejar selección de archivo
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                currentSelectedFile = file;
+                currentSelectedFilePath = null; // Es un archivo local, no del servidor
                 
-                const selectorHTML = `
-                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-                        <div class="flex items-center justify-between mb-4">
-                            <label class="font-medium text-gray-700">Seleccionar Gráfico:</label>
-                            <select id="graphSelector" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                                ${correctedGraphs.map((graphUrl, index) => {
-                                    const title = getGraphTitle(graphUrl);
-                                    return `<option value="${index}" ${index === 0 ? 'selected' : ''}>${title}</option>`;
-                                }).join('')}
-                            </select>
+                // Mostrar información del archivo
+                document.getElementById('selectedFileName').textContent = file.name;
+                document.getElementById('selectedFilePath').textContent = 'Archivo local';
+                document.getElementById('selectedFileInfo').style.display = 'block';
+                
+                // Habilitar botón de procesar
+                document.getElementById('processBindashBtn').disabled = false;
+
+                showNotification('Archivo cargado', `Se ha cargado el archivo: ${file.name}`, 'success');
+            }
+        }
+
+        // Procesar archivo con BinDash
+        function processBindashFile() {
+            const statusElement = document.getElementById('bindashStatus');
+            const graphsContainer = document.getElementById('bindashGraphsContainer');
+            const statsPanel = document.getElementById('bindashStatsPanel');
+            
+            // Limpiar contenido anterior
+            graphsContainer.innerHTML = '';
+            statsPanel.style.display = 'none';
+            
+            // Mostrar estado de carga
+            statusElement.innerHTML = '<div class="loading-spinner"></div> Procesando archivo...';
+            statusElement.className = 'mb-6 text-sm text-blue-600';
+            
+            const formData = new FormData();
+            
+            if (currentSelectedFilePath) {
+                // Archivo del servidor
+                formData.append('filePath', currentSelectedFilePath);
+            } else if (currentSelectedFile) {
+                // Archivo local
+                formData.append('file', currentSelectedFile);
+            }
+            
+            fetch(`${bindashVisualizerUrl}/process-bindash`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Resultado BinDash:', data);
+                statusElement.textContent = `✅ Archivo procesado exitosamente (${data.graphs.length} gráficos generados)`;
+                statusElement.className = 'mb-6 text-sm text-green-600';
+                
+                // Mostrar estadísticas
+                if (data.stats) {
+                    displayBinDashStats(data.stats);
+                }
+                
+                // Mostrar gráficos
+                if (data.graphs && data.graphs.length > 0) {
+                    displayBinDashGraphs(data.graphs);
+                }
+
+                showNotification('Procesamiento completado', 'El archivo ha sido procesado exitosamente', 'success');
+            })
+            .catch(error => {
+                console.error('Error procesando archivo BinDash:', error);
+                statusElement.textContent = `❌ Error: ${error.message}`;
+                statusElement.className = 'mb-6 text-sm text-red-600';
+                showNotification('Error de procesamiento', error.message, 'error');
+            });
+        }
+
+        // Mostrar estadísticas de BinDash
+        function displayBinDashStats(stats) {
+            const statsPanel = document.getElementById('bindashStatsPanel');
+            
+            document.getElementById('totalComparisons').textContent = stats.total_comparisons || 'N/A';
+            document.getElementById('uniqueGenomes').textContent = stats.unique_genomes || 'N/A';
+            document.getElementById('meanANI').textContent = stats.avg_jaccard ? stats.avg_jaccard.toFixed(3) : 'N/A';
+            document.getElementById('meanDistance').textContent = stats.avg_mutation_distance ? stats.avg_mutation_distance.toFixed(3) : 'N/A';
+            
+            statsPanel.style.display = 'block';
+        }
+
+        // Mostrar gráficos de BinDash
+        function displayBinDashGraphs(graphs) {
+            const container = document.getElementById('bindashGraphsContainer');
+            
+            // Corregir URLs para que apunten al puerto correcto
+            const correctedGraphs = graphs.map(graphUrl => {
+                if (graphUrl.startsWith('/graphs/')) {
+                    return `${bindashVisualizerUrl}${graphUrl}`;
+                }
+                return graphUrl.replace('http://localhost:4005', bindashVisualizerUrl);
+            });
+            
+            const selectorHTML = `
+                <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <label class="font-medium text-gray-700">Seleccionar Gráfico:</label>
+                        <select id="graphSelector" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            ${correctedGraphs.map((graphUrl, index) => {
+                                const title = getGraphTitle(graphUrl);
+                                return `<option value="${index}" ${index === 0 ? 'selected' : ''}>${title}</option>`;
+                            }).join('')}
+                        </select>
+                    </div>
+                    
+                    <div class="relative bg-gray-50 rounded-lg border-2 border-gray-200">
+                        <div class="absolute top-3 right-3 z-10 flex space-x-2">
+                            <button id="drFungitoAnalyzeBtn" class="bg-green-500 bg-opacity-80 hover:bg-opacity-100 text-white p-2 rounded hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-400" title="Analizar con Dr. Fungito IA">
+                                <i class="fas fa-search text-sm"></i>
+                            </button>
+                            <button id="zoomInBtn" class="bg-gray-800 bg-opacity-75 text-white p-2 rounded hover:bg-opacity-100 transition-all">
+                                <i class="fas fa-search-plus text-sm"></i>
+                            </button>
+                            <button id="zoomOutBtn" class="bg-gray-800 bg-opacity-75 text-white p-2 rounded hover:bg-opacity-100 transition-all">
+                                <i class="fas fa-search-minus text-sm"></i>
+                            </button>
+                            <button id="fullscreenBtn" class="bg-gray-800 bg-opacity-75 text-white p-2 rounded hover:bg-opacity-100 transition-all">
+                                <i class="fas fa-expand text-sm"></i>
+                            </button>
+                            <button id="downloadBtn" class="bg-gray-800 bg-opacity-75 text-white p-2 rounded hover:bg-opacity-100 transition-all">
+                                <i class="fas fa-download text-sm"></i>
+                            </button>
                         </div>
                         
-                        <!-- Visualizador de gráfico único -->
-                        <div class="relative bg-gray-50 rounded-lg border-2 border-gray-200">
-                            <!-- Controles en la esquina superior derecha -->
-                            <div class="absolute top-3 right-3 z-10 flex space-x-2">
-                                <!-- Botón de Dr. Fungito (lupita) -->
-                                <button id="drFungitoAnalyzeBtn" class="bg-green-500 bg-opacity-80 hover:bg-opacity-100 text-white p-2 rounded hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-400" title="Analizar con Dr. Fungito IA">
-                                    <i class="fas fa-search text-sm"></i>
-                                </button>
-                                <button id="zoomInBtn" class="bg-gray-800 bg-opacity-75 text-white p-2 rounded hover:bg-opacity-100 transition-all">
-                                    <i class="fas fa-search-plus text-sm"></i>
-                                </button>
-                                <button id="zoomOutBtn" class="bg-gray-800 bg-opacity-75 text-white p-2 rounded hover:bg-opacity-100 transition-all">
-                                    <i class="fas fa-search-minus text-sm"></i>
-                                </button>
-                                <button id="fullscreenBtn" class="bg-gray-800 bg-opacity-75 text-white p-2 rounded hover:bg-opacity-100 transition-all">
-                                    <i class="fas fa-expand text-sm"></i>
-                                </button>
-                                <button id="downloadBtn" class="bg-gray-800 bg-opacity-75 text-white p-2 rounded hover:bg-opacity-100 transition-all">
-                                    <i class="fas fa-download text-sm"></i>
-                                </button>
-                            </div>
-                            
-                            <!-- Título del gráfico -->
-                            <div class="absolute top-3 left-3 z-10">
-                                <h5 id="graphTitle" class="bg-white bg-opacity-90 px-3 py-1 rounded-md text-sm font-semibold text-gray-800 shadow-sm">
-                                    ${getGraphTitle(correctedGraphs[0])}
-                                </h5>
-                            </div>
-                            
-                            <!-- Imagen del gráfico -->
-                            <div class="p-6 min-h-[500px] flex items-center justify-center">
-                                <img id="currentGraphImage" 
-                                     src="${correctedGraphs[0]}" 
-                                     alt="Gráfico BinDash" 
-                                     class="max-w-full max-h-[500px] object-contain rounded-lg shadow-lg transition-transform duration-200"
-                                     style="cursor: grab;"
-                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzljYTNhZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkVycm9yIGNhcmdhbmRvIGltYWdlbjwvdGV4dD48L3N2Zz4='; this.alt='Error cargando imagen';" />
-                            </div>
+                        <div class="absolute top-3 left-3 z-10">
+                            <h5 id="graphTitle" class="bg-white bg-opacity-90 px-3 py-1 rounded-md text-sm font-semibold text-gray-800 shadow-sm">
+                                ${getGraphTitle(correctedGraphs[0])}
+                            </h5>
+                        </div>
+                        
+                        <div class="p-6 min-h-[500px] flex items-center justify-center">
+                            <img id="currentGraphImage" 
+                                 src="${correctedGraphs[0]}" 
+                                 alt="Gráfico BinDash" 
+                                 class="max-w-full max-h-[500px] object-contain rounded-lg shadow-lg transition-transform duration-200"
+                                 style="cursor: grab;"
+                                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzljYTNhZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkVycm9yIGNhcmdhbmRvIGltYWdlbjwvdGV4dD48L3N2Zz4='; this.alt='Error cargando imagen';" />
                         </div>
                     </div>
-                `;
-                
-                container.innerHTML = selectorHTML;
-                
-                // Event listeners para el selector y controles
-                const selector = document.getElementById('graphSelector');
-                const currentImage = document.getElementById('currentGraphImage');
-                const graphTitle = document.getElementById('graphTitle');
-                const drFungitoBtn = document.getElementById('drFungitoAnalyzeBtn');
-                const zoomInBtn = document.getElementById('zoomInBtn');
-                const zoomOutBtn = document.getElementById('zoomOutBtn');
-                const fullscreenBtn = document.getElementById('fullscreenBtn');
-                const downloadBtn = document.getElementById('downloadBtn');
-                
-                let currentScale = 1;
-                
-                // Dr. Fungito análisis
-                drFungitoBtn.addEventListener('mouseenter', () => {
-                    highlightDrFungitoChat();
-                });
-                
-                drFungitoBtn.addEventListener('click', function() {
-                    const selectedIndex = parseInt(selector.value);
-                    const selectedGraph = correctedGraphs[selectedIndex];
-                    analyzWithDrFungito(selectedGraph, 'bindash');
-                });
-                
-                // Cambiar gráfico
-                selector.addEventListener('change', function() {
-                    const selectedIndex = parseInt(this.value);
-                    const selectedGraph = correctedGraphs[selectedIndex];
-                    currentImage.src = selectedGraph;
-                    graphTitle.textContent = getGraphTitle(selectedGraph);
-                    currentScale = 1;
-                    currentImage.style.transform = `scale(${currentScale})`;
-                });
-                
-                // Zoom in
-                zoomInBtn.addEventListener('click', function() {
-                    currentScale = Math.min(currentScale * 1.2, 3);
-                    currentImage.style.transform = `scale(${currentScale})`;
-                });
-                
-                // Zoom out  
-                zoomOutBtn.addEventListener('click', function() {
-                    currentScale = Math.max(currentScale / 1.2, 0.5);
-                    currentImage.style.transform = `scale(${currentScale})`;
-                });
-                
-                // Pantalla completa
-                fullscreenBtn.addEventListener('click', function() {
-                    viewFullscreen(currentImage.src);
-                });
-                
-                // Descargar
-                downloadBtn.addEventListener('click', function() {
-                    downloadGraph(currentImage.src);
-                });
-                
-                // Drag para mover imagen cuando está zoomeada
-                let isDragging = false;
-                let dragStartX, dragStartY, initialTransformX = 0, initialTransformY = 0;
-                
-                currentImage.addEventListener('mousedown', function(e) {
-                    if (currentScale > 1) {
-                        isDragging = true;
-                        dragStartX = e.clientX;
-                        dragStartY = e.clientY;
-                        currentImage.style.cursor = 'grabbing';
-                    }
-                });
-                
-                document.addEventListener('mousemove', function(e) {
-                    if (isDragging && currentScale > 1) {
-                        const deltaX = e.clientX - dragStartX;
-                        const deltaY = e.clientY - dragStartY;
-                        currentImage.style.transform = `scale(${currentScale}) translate(${initialTransformX + deltaX/currentScale}px, ${initialTransformY + deltaY/currentScale}px)`;
-                    }
-                });
-                
-                document.addEventListener('mouseup', function() {
-                    if (isDragging) {
-                        isDragging = false;
-                        currentImage.style.cursor = 'grab';
-                        // Actualizar la posición inicial para el próximo drag
-                        const transform = currentImage.style.transform;
-                        const translateMatch = transform.match(/translate\(([^,]+)px,\s*([^)]+)px\)/);
-                        if (translateMatch) {
-                            initialTransformX = parseFloat(translateMatch[1]);
-                            initialTransformY = parseFloat(translateMatch[2]);
-                        }
-                    }
-                });
-                
-                // Reset posición con doble click
-                currentImage.addEventListener('dblclick', function() {
-                    currentScale = 1;
-                    initialTransformX = 0;
-                    initialTransformY = 0;
-                    currentImage.style.transform = 'scale(1) translate(0px, 0px)';
-                });
-            }
+                </div>
+            `;
             
-            // Función para obtener título del gráfico basado en la URL
-            function getGraphTitle(graphUrl) {
-                const filename = graphUrl.split('/').pop().replace('.png', '');
-                const titles = {
-                    'distance_heatmap': '🔥 Mapa de Calor - Distancias',
-                    'ani_heatmap': '🔥 Mapa de Calor - ANI', 
-                    'correlation_heatmap': '🔥 Mapa de Calor - Correlaciones',
-                    'dendrogram_simple': '🌳 Dendrograma Simple',
-                    'distance_distributions': '📊 Distribución de Distancias',
-                    'scatter_analysis': '📈 Análisis de Dispersión',
-                    'mds_analysis': '🗺️ Análisis Multidimensional'
-                };
-                
-                for (const [key, title] of Object.entries(titles)) {
-                    if (filename.includes(key)) {
-                        return title;
-                    }
+            container.innerHTML = selectorHTML;
+            setupGraphControls(correctedGraphs);
+        }
+
+        // Configurar controles de gráficos
+        function setupGraphControls(graphs) {
+            const selector = document.getElementById('graphSelector');
+            const currentImage = document.getElementById('currentGraphImage');
+            const graphTitle = document.getElementById('graphTitle');
+            const drFungitoBtn = document.getElementById('drFungitoAnalyzeBtn');
+            const zoomInBtn = document.getElementById('zoomInBtn');
+            const zoomOutBtn = document.getElementById('zoomOutBtn');
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            let currentScale = 1;
+            let isDragging = false;
+            let dragStartX, dragStartY, initialTransformX = 0, initialTransformY = 0;
+            
+            // Cambiar gráfico
+            selector.addEventListener('change', function() {
+                const selectedIndex = parseInt(this.value);
+                const selectedGraph = graphs[selectedIndex];
+                currentImage.src = selectedGraph;
+                graphTitle.textContent = getGraphTitle(selectedGraph);
+                currentScale = 1;
+                initialTransformX = 0;
+                initialTransformY = 0;
+                currentImage.style.transform = 'scale(1) translate(0px, 0px)';
+            });
+            
+            // Zoom in
+            zoomInBtn.addEventListener('click', function() {
+                currentScale = Math.min(currentScale * 1.2, 3);
+                currentImage.style.transform = `scale(${currentScale}) translate(${initialTransformX}px, ${initialTransformY}px)`;
+            });
+            
+            // Zoom out  
+            zoomOutBtn.addEventListener('click', function() {
+                currentScale = Math.max(currentScale / 1.2, 0.5);
+                currentImage.style.transform = `scale(${currentScale}) translate(${initialTransformX}px, ${initialTransformY}px)`;
+            });
+            
+            // Pantalla completa
+            fullscreenBtn.addEventListener('click', function() {
+                if (currentImage.requestFullscreen) {
+                    currentImage.requestFullscreen();
+                } else if (currentImage.webkitRequestFullscreen) {
+                    currentImage.webkitRequestFullscreen();
+                } else if (currentImage.mozRequestFullScreen) {
+                    currentImage.mozRequestFullScreen();
                 }
-                
-                return '📊 Gráfico de Análisis';
-            }
+            });
             
-            // Función para descargar gráfico
-            function downloadGraph(graphUrl) {
+            // Descargar
+            downloadBtn.addEventListener('click', function() {
                 const link = document.createElement('a');
-                link.href = graphUrl;
-                link.download = graphUrl.split('/').pop();
+                link.href = currentImage.src;
+                link.download = currentImage.src.split('/').pop();
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+            });
+            
+            // Dr. Fungito análisis
+            drFungitoBtn.addEventListener('click', function() {
+                showNotification('Dr. Fungito', 'Función de análisis con Dr. Fungito en desarrollo', 'info');
+            });
+            
+            // Drag para mover imagen
+            currentImage.addEventListener('mousedown', function(e) {
+                if (currentScale > 1) {
+                    isDragging = true;
+                    dragStartX = e.clientX;
+                    dragStartY = e.clientY;
+                    currentImage.style.cursor = 'grabbing';
+                }
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (isDragging && currentScale > 1) {
+                    const deltaX = e.clientX - dragStartX;
+                    const deltaY = e.clientY - dragStartY;
+                    currentImage.style.transform = `scale(${currentScale}) translate(${initialTransformX + deltaX/currentScale}px, ${initialTransformY + deltaY/currentScale}px)`;
+                }
+            });
+            
+            document.addEventListener('mouseup', function() {
+                if (isDragging) {
+                    isDragging = false;
+                    currentImage.style.cursor = 'grab';
+                    const transform = currentImage.style.transform;
+                    const translateMatch = transform.match(/translate\(([^,]+)px,\s*([^)]+)px\)/);
+                    if (translateMatch) {
+                        initialTransformX = parseFloat(translateMatch[1]);
+                        initialTransformY = parseFloat(translateMatch[2]);
+                    }
+                }
+            });
+            
+            // Reset posición con doble click
+            currentImage.addEventListener('dblclick', function() {
+                currentScale = 1;
+                initialTransformX = 0;
+                initialTransformY = 0;
+                currentImage.style.transform = 'scale(1) translate(0px, 0px)';
+            });
+        }
+
+        // Obtener título del gráfico
+        function getGraphTitle(graphUrl) {
+            const filename = graphUrl.split('/').pop().replace('.png', '');
+            const titles = {
+                'distance_heatmap': '🔥 Mapa de Calor - Distancias',
+                'ani_heatmap': '🔥 Mapa de Calor - ANI', 
+                'correlation_heatmap': '🔥 Mapa de Calor - Correlaciones',
+                'dendrogram_simple': '🌳 Dendrograma Simple',
+                'distance_distributions': '📊 Distribución de Distancias',
+                'scatter_analysis': '📈 Análisis de Dispersión',
+                'mds_analysis': '🗺️ Análisis Multidimensional'
+            };
+            
+            for (const [key, title] of Object.entries(titles)) {
+                if (filename.includes(key)) {
+                    return title;
+                }
             }
             
-            // Función para ver imagen en pantalla completa
-            function viewFullscreen(imageUrl) {
-                const modal = document.createElement('div');
-                modal.className = 'fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4';
-                modal.innerHTML = `
-                    <div class="relative max-w-full max-h-full">
-                        <button class="absolute -top-12 right-0 text-white text-2xl hover:text-gray-300 transition-colors" onclick="this.parentElement.parentElement.remove()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                        <img src="${imageUrl}" alt="Gráfico ampliado" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl">
-                    </div>
-                `;
-                
-                modal.addEventListener('click', (e) => {
-                    if (e.target === modal) {
-                        modal.remove();
+            return '📊 Gráfico de Análisis';
+        }
+
+        // ===== FUNCIONES PARA VISUALIZADOR EGGNOG =====
+
+        // Configurar drag and drop para EggNOG
+        function setupEggnogDragDrop() {
+            const dropZone = document.getElementById('eggnogDropZone');
+            const fileInput = document.getElementById('eggnogFileInput');
+            const processBtn = document.getElementById('processEggnogBtn');
+
+            if (!dropZone || !fileInput || !processBtn) return;
+
+            // Eventos del drop zone
+            dropZone.addEventListener('click', () => fileInput.click());
+            dropZone.addEventListener('dragover', handleEggnogDragOver);
+            dropZone.addEventListener('drop', handleEggnogDrop);
+            dropZone.addEventListener('dragleave', handleEggnogDragLeave);
+
+            // Evento del input de archivo
+            fileInput.addEventListener('change', handleEggnogFileSelect);
+
+            // Evento del botón de procesar
+            processBtn.addEventListener('click', processEggnogFile);
+        }
+
+        // Verificar si un archivo es compatible para EggNOG
+        function isEggNOGFile(fileName) {
+            const lowerName = fileName.toLowerCase();
+            return lowerName.includes('.emapper.annotations') || 
+                   lowerName.includes('.emapper.seed_orthologs') ||
+                   lowerName.includes('.emapper.hits') ||
+                   lowerName.endsWith('.annotations') ||
+                   lowerName.endsWith('.seed_orthologs') ||
+                   lowerName.endsWith('.hits') ||
+                   lowerName.includes('eggnog') ||
+                   (lowerName.endsWith('.tsv') && (lowerName.includes('annot') || lowerName.includes('seed') || lowerName.includes('hits'))) ||
+                   (lowerName.endsWith('.txt') && (lowerName.includes('annot') || lowerName.includes('seed') || lowerName.includes('hits')));
+        }
+        
+        // Detectar tipo específico de archivo EggNOG
+        function getEggNOGFileType(fileName) {
+            const lowerName = fileName.toLowerCase();
+            if (lowerName.includes('seed_orthologs') || lowerName.includes('seed-orthologs')) {
+                return 'seed_orthologs';
+            } else if (lowerName.includes('hits')) {
+                return 'hits';
+            } else if (lowerName.includes('annotations') || lowerName.includes('annot')) {
+                return 'annotations';
+            }
+            return 'annotations'; // Por defecto
+        }
+
+        // Manejar drag over para EggNOG
+        function handleEggnogDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        // Manejar drag leave para EggNOG
+        function handleEggnogDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        // Manejar drop para EggNOG
+        function handleEggnogDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            
+            // Intentar obtener datos del file explorer
+            try {
+                const dragData = e.dataTransfer.getData('text/plain');
+                if (dragData) {
+                    const fileData = JSON.parse(dragData);
+                    if (fileData.fileName && fileData.filePath && !fileData.isDirectory) {
+                        if (isEggNOGFile(fileData.fileName)) {
+                            selectEggnogFileFromExplorer(fileData.fileName, fileData.filePath);
+                        } else {
+                            showNotification('Archivo no compatible', 
+                                `El archivo "${fileData.fileName}" no es compatible con EggNOG. Formatos soportados: .emapper.annotations, .emapper.seed_orthologs, .emapper.hits`, 
+                                'warning');
+                        }
+                        return;
                     }
+                }
+            } catch (error) {
+                console.log('No hay datos del file explorer, intentando con archivos locales');
+            }
+            
+            // Si no hay datos del file explorer, usar archivos locales
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (isEggNOGFile(file.name)) {
+                    handleEggnogFileSelect({ target: { files: files } });
+                } else {
+                    showNotification('Archivo no compatible', 
+                        `El archivo "${file.name}" no es compatible con EggNOG. Formatos soportados: .emapper.annotations, .emapper.seed_orthologs, .emapper.hits`, 
+                        'warning');
+                }
+            }
+        }
+
+        // Seleccionar archivo EggNOG desde el explorador
+        function selectEggnogFileFromExplorer(fileName, filePath) {
+            currentSelectedFile = { name: fileName };
+            currentSelectedFilePath = filePath;
+            
+            const fileType = getEggNOGFileType(fileName);
+            const typeNames = {
+                'seed_orthologs': 'Seed Orthologs',
+                'hits': 'Hits',
+                'annotations': 'Anotaciones'
+            };
+            
+            // Mostrar información del archivo
+            document.getElementById('selectedEggnogFileName').textContent = fileName;
+            document.getElementById('selectedEggnogFilePath').textContent = filePath;
+            document.getElementById('selectedEggnogFileType').textContent = `Tipo: ${typeNames[fileType]}`;
+            document.getElementById('selectedEggnogFileInfo').style.display = 'block';
+            
+            // Habilitar botón de procesar
+            document.getElementById('processEggnogBtn').disabled = false;
+            
+            // Cambiar al visualizador EggNOG si no está seleccionado
+            const selector = document.getElementById('visualizerSelector');
+            if (selector.value !== 'eggnog') {
+                selector.value = 'eggnog';
+                selector.dispatchEvent(new Event('change'));
+            }
+
+            showNotification('Archivo EggNOG seleccionado', 
+                `Se ha seleccionado el archivo: ${fileName} (${typeNames[fileType]})`, 'success');
+        }
+
+        // Manejar selección de archivo EggNOG
+        function handleEggnogFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                currentSelectedFile = file;
+                currentSelectedFilePath = null;
+                
+                const fileType = getEggNOGFileType(file.name);
+                const typeNames = {
+                    'seed_orthologs': 'Seed Orthologs',
+                    'hits': 'Hits',
+                    'annotations': 'Anotaciones'
+                };
+                
+                document.getElementById('selectedEggnogFileName').textContent = file.name;
+                document.getElementById('selectedEggnogFilePath').textContent = 'Archivo local';
+                document.getElementById('selectedEggnogFileType').textContent = `Tipo: ${typeNames[fileType]}`;
+                document.getElementById('selectedEggnogFileInfo').style.display = 'block';
+                
+                document.getElementById('processEggnogBtn').disabled = false;
+
+                showNotification('Archivo EggNOG cargado', 
+                    `Se ha cargado el archivo: ${file.name} (${typeNames[fileType]})`, 'success');
+            }
+        }
+
+        // Procesar archivo EggNOG
+        async function processEggnogFile() {
+            const statusElement = document.getElementById('eggnogStatus');
+            const graphsContainer = document.getElementById('eggnogGraphsContainer');
+            const statsPanel = document.getElementById('eggnogStatsPanel');
+            
+            const fileName = currentSelectedFile?.name || currentSelectedFilePath?.split('/').pop() || '';
+            const fileType = getEggNOGFileType(fileName);
+            
+            // Limpiar contenido anterior
+            graphsContainer.innerHTML = '';
+            statsPanel.style.display = 'none';
+            
+            const typeNames = {
+                'seed_orthologs': 'Seed Orthologs',
+                'hits': 'Hits',
+                'annotations': 'Anotaciones'
+            };
+            statusElement.innerHTML = `<div class="loading-spinner"></div> Procesando archivo EggNOG (${typeNames[fileType]})...`;
+            statusElement.className = 'mb-6 text-sm text-blue-600';
+            
+            try {
+                const formData = new FormData();
+                
+                if (currentSelectedFilePath) {
+                    // Archivo del servidor - usar la nueva ruta simple
+                    formData.append('filePath', currentSelectedFilePath);
+                    formData.append('file_type', fileType);
+                } else if (currentSelectedFile) {
+                    // Archivo local
+                    formData.append('file', currentSelectedFile);
+                    formData.append('file_type', fileType);
+                } else {
+                    throw new Error('No hay archivo seleccionado');
+                }
+                
+                const response = await fetch(`${bindashVisualizerUrl}/process-eggnog`, {
+                    method: 'POST',
+                    body: formData
                 });
                 
-                document.body.appendChild(modal);
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Resultado EggNOG:', data);
+                statusElement.textContent = `✅ Archivo procesado exitosamente (${data.graphs?.length || 0} gráficos generados)`;
+                statusElement.className = 'mb-6 text-sm text-green-600';
+                
+                // Mostrar estadísticas
+                if (data.stats) {
+                    displayEggnogStats(data.stats, fileType);
+                }
+                
+                // Mostrar gráficos
+                if (data.graphs && data.graphs.length > 0) {
+                    displayEggnogGraphs(data.graphs);
+                }
+
+                showNotification('Procesamiento completado', 
+                    `El archivo EggNOG (${typeNames[fileType]}) ha sido procesado exitosamente`, 'success');
+                
+            } catch (error) {
+                console.error('Error procesando archivo EggNOG:', error);
+                statusElement.textContent = `❌ Error: ${error.message}`;
+                statusElement.className = 'mb-6 text-sm text-red-600';
+                showNotification('Error de procesamiento', error.message, 'error');
             }
-        });
+        }
+
+        // Mostrar estadísticas EggNOG
+        function displayEggnogStats(stats, fileType) {
+            const statsPanel = document.getElementById('eggnogStatsPanel');
+            
+            document.getElementById('totalEggnogRecords').textContent = stats.total_records || stats.total_annotations || stats.total_hits || stats.total_seed_orthologs || 'N/A';
+            document.getElementById('uniqueEggnogQueries').textContent = stats.unique_queries || stats.unique_proteins || 'N/A';
+            document.getElementById('eggnogFileTypeDisplay').textContent = fileType.replace('_', ' ').toUpperCase();
+            document.getElementById('eggnogCoverage').textContent = stats.coverage ? `${stats.coverage}%` : 'N/A';
+            
+            statsPanel.style.display = 'block';
+        }
+
+        // Mostrar gráficos EggNOG
+        function displayEggnogGraphs(graphs) {
+            const container = document.getElementById('eggnogGraphsContainer');
+            
+            // Corregir URLs
+            const correctedGraphs = graphs.map(graphUrl => {
+                if (graphUrl.startsWith('/graphs/')) {
+                    return `${bindashVisualizerUrl}${graphUrl}`;
+                }
+                return graphUrl.replace('http://localhost:4005', bindashVisualizerUrl);
+            });
+
+            const selectorHTML = `
+                <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <label class="font-medium text-gray-700">Seleccionar Gráfico:</label>
+                        <select id="eggnogGraphSelector" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                            ${correctedGraphs.map((graph, index) => 
+                                `<option value="${index}" ${index === 0 ? 'selected' : ''}>${getEggnogGraphTitle(graph)}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    
+                    <div class="relative bg-gray-50 rounded-lg border-2 border-gray-200">
+                        <div class="absolute top-3 right-3 z-10 flex space-x-2">
+                            <button id="eggnogDrFungitoAnalyzeBtn" class="bg-green-500 bg-opacity-80 hover:bg-opacity-100 text-white p-2 rounded hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-400" title="Analizar con Dr. Fungito IA">
+                                <i class="fas fa-search text-sm"></i>
+                            </button>
+                            <button id="eggnogZoomInBtn" class="bg-gray-800 bg-opacity-75 text-white p-2 rounded hover:bg-opacity-100 transition-all" title="Zoom In">
+                                <i class="fas fa-search-plus text-sm"></i>
+                            </button>
+                            <button id="eggnogZoomOutBtn" class="bg-gray-800 bg-opacity-75 text-white p-2 rounded hover:bg-opacity-100 transition-all" title="Zoom Out">
+                                <i class="fas fa-search-minus text-sm"></i>
+                            </button>
+                            <button id="eggnogFullscreenBtn" class="bg-gray-800 bg-opacity-75 text-white p-2 rounded hover:bg-opacity-100 transition-all" title="Pantalla completa">
+                                <i class="fas fa-expand text-sm"></i>
+                            </button>
+                            <button id="eggnogDownloadBtn" class="bg-gray-800 bg-opacity-75 text-white p-2 rounded hover:bg-opacity-100 transition-all" title="Descargar">
+                                <i class="fas fa-download text-sm"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="absolute top-3 left-3 z-10">
+                            <h5 id="eggnogGraphTitle" class="bg-white bg-opacity-90 px-3 py-1 rounded-md text-sm font-semibold text-gray-800 shadow-sm">
+                                ${getEggnogGraphTitle(correctedGraphs[0])}
+                            </h5>
+                        </div>
+                        
+                        <div class="p-6 min-h-[500px] flex items-center justify-center">
+                            <img id="currentEggnogGraphImage" 
+                                 src="${correctedGraphs[0]}" 
+                                 alt="Gráfico EggNOG" 
+                                 class="max-w-full max-h-[500px] object-contain rounded-lg shadow-lg transition-transform duration-200"
+                                 style="cursor: grab;"
+                                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzljYTNhZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkVycm9yIGNhcmdhbmRvIGltYWdlbjwvdGV4dD48L3N2Zz4='; this.alt='Error cargando imagen';" />
+                        </div>
+                    </div>
+                </div>
+            `;
+                
+            container.innerHTML = selectorHTML;
+            setupEggnogGraphControls(correctedGraphs);
+        }
+
+        // Configurar controles de gráficos EggNOG
+        function setupEggnogGraphControls(graphs) {
+            const selector = document.getElementById('eggnogGraphSelector');
+            const currentImage = document.getElementById('currentEggnogGraphImage');
+            const graphTitle = document.getElementById('eggnogGraphTitle');
+            const drFungitoBtn = document.getElementById('eggnogDrFungitoAnalyzeBtn');
+            const zoomInBtn = document.getElementById('eggnogZoomInBtn');
+            const zoomOutBtn = document.getElementById('eggnogZoomOutBtn');
+            const fullscreenBtn = document.getElementById('eggnogFullscreenBtn');
+            const downloadBtn = document.getElementById('eggnogDownloadBtn');
+            
+            let currentScale = 1;
+            let isDragging = false;
+            let dragStartX, dragStartY, initialTransformX = 0, initialTransformY = 0;
+            
+            // Cambiar gráfico
+            selector.addEventListener('change', function() {
+                const selectedIndex = parseInt(this.value);
+                const selectedGraph = graphs[selectedIndex];
+                currentImage.src = selectedGraph;
+                graphTitle.textContent = getEggnogGraphTitle(selectedGraph);
+                currentScale = 1;
+                initialTransformX = 0;
+                initialTransformY = 0;
+                currentImage.style.transform = 'scale(1) translate(0px, 0px)';
+            });
+            
+            // Zoom in
+            zoomInBtn.addEventListener('click', function() {
+                currentScale = Math.min(currentScale * 1.2, 3);
+                currentImage.style.transform = `scale(${currentScale}) translate(${initialTransformX}px, ${initialTransformY}px)`;
+            });
+            
+            // Zoom out  
+            zoomOutBtn.addEventListener('click', function() {
+                currentScale = Math.max(currentScale / 1.2, 0.5);
+                currentImage.style.transform = `scale(${currentScale}) translate(${initialTransformX}px, ${initialTransformY}px)`;
+            });
+            
+            // Pantalla completa
+            fullscreenBtn.addEventListener('click', function() {
+                if (currentImage.requestFullscreen) {
+                    currentImage.requestFullscreen();
+                } else if (currentImage.webkitRequestFullscreen) {
+                    currentImage.webkitRequestFullscreen();
+                } else if (currentImage.mozRequestFullScreen) {
+                    currentImage.mozRequestFullScreen();
+                }
+            });
+            
+            // Descargar
+            downloadBtn.addEventListener('click', function() {
+                const link = document.createElement('a');
+                link.href = currentImage.src;
+                link.download = currentImage.src.split('/').pop();
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+            
+            // Dr. Fungito análisis
+            drFungitoBtn.addEventListener('click', function() {
+                // Activar el chat de Dr. Fungito si no está visible
+                const drFungitoPanel = document.getElementById('drFungitoPanel');
+                if (drFungitoPanel && drFungitoPanel.classList.contains('hidden')) {
+                    document.getElementById('drFungitoButton').click();
+                }
+                
+                // Enviar mensaje automático para análisis
+                const userInput = document.getElementById('userInput');
+                if (userInput) {
+                    const analysisPrompt = `Analiza este gráfico de EggNOG: ${getEggnogGraphTitle(currentImage.src)}. Proporciona una interpretación detallada de los resultados de análisis funcional.`;
+                    userInput.value = analysisPrompt;
+                    
+                    // Simular envío del mensaje
+                    const sendButton = document.getElementById('sendButton');
+                    if (sendButton) {
+                        sendButton.click();
+                    }
+                }
+                
+                showNotification('Dr. Fungito', 'Análisis del gráfico EggNOG enviado a Dr. Fungito IA', 'info');
+            });
+            
+            // Drag para mover imagen
+            currentImage.addEventListener('mousedown', function(e) {
+                if (currentScale > 1) {
+                    isDragging = true;
+                    dragStartX = e.clientX;
+                    dragStartY = e.clientY;
+                    currentImage.style.cursor = 'grabbing';
+                }
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (isDragging && currentScale > 1) {
+                    const deltaX = e.clientX - dragStartX;
+                    const deltaY = e.clientY - dragStartY;
+                    currentImage.style.transform = `scale(${currentScale}) translate(${initialTransformX + deltaX/currentScale}px, ${initialTransformY + deltaY/currentScale}px)`;
+                }
+            });
+            
+            document.addEventListener('mouseup', function() {
+                if (isDragging) {
+                    isDragging = false;
+                    currentImage.style.cursor = 'grab';
+                    const transform = currentImage.style.transform;
+                    const translateMatch = transform.match(/translate\(([^,]+)px,\s*([^)]+)px\)/);
+                    if (translateMatch) {
+                        initialTransformX = parseFloat(translateMatch[1]);
+                        initialTransformY = parseFloat(translateMatch[2]);
+                    }
+                }
+            });
+            
+            // Reset posición con doble click
+            currentImage.addEventListener('dblclick', function() {
+                currentScale = 1;
+                initialTransformX = 0;
+                initialTransformY = 0;
+                currentImage.style.transform = 'scale(1) translate(0px, 0px)';
+            });
+        }
+
+        // Obtener título del gráfico EggNOG
+        function getEggnogGraphTitle(graphUrl) {
+            const filename = graphUrl.split('/').pop().replace('.png', '');
+            
+            const titles = {
+                // Análisis de Anotaciones
+                'annotation_coverage': '🔬 Cobertura de Anotaciones',
+                'annotation_stats': '📊 Estadísticas de Anotaciones',
+                'go_analysis': '🧬 Análisis Gene Ontology (GO)',
+                'kegg_pathways': '🗺️ Vías KEGG',
+                'cog_categories': '⚙️ Categorías COG',
+                'pfam_domains': '🧩 Dominios Pfam',
+                'description_wordcloud': '☁️ Nube de Descripciones',
+                'evalue_distribution': '📈 Distribución E-values',
+                'score_distribution': '📊 Distribución de Scores',
+                
+                // Análisis de Hits
+                'hits_analysis': '🎯 Análisis de Hits',
+                'hits_distribution': '📈 Distribución de Hits',
+                'hits_quality': '✅ Calidad de Hits',
+                'identity_coverage': '🔍 Identidad vs Cobertura',
+                'hits_heatmap': '🔥 Mapa de Calor - Hits',
+                
+                // Análisis de Seed Orthologs
+                'seed_ortholog_analysis': '🌱 Análisis Seed Orthologs',
+                'ortholog_quality': '⭐ Calidad de Ortólogos',
+                'coverage_identity': '📊 Cobertura vs Identidad',
+                'taxonomic_distribution': '🌿 Distribución Taxonómica',
+                'top_orthologs': '🏆 Top Ortólogos',
+                
+                // Gráficos generales
+                'statistics': '📊 Estadísticas Generales',
+                'summary': '📋 Resumen del Análisis',
+                'quality_control': '🔬 Control de Calidad'
+            };
+            
+            for (const [key, title] of Object.entries(titles)) {
+                if (filename.includes(key)) {
+                    return title;
+                }
+            }
+            
+            // Detección por palabras clave específicas
+            if (filename.includes('seed_ortholog') || filename.includes('orthologs')) return '🌱 Análisis Seed Orthologs';
+            if (filename.includes('hits')) return '🎯 Análisis de Hits';
+            if (filename.includes('annotation')) return '🔬 Análisis de Anotaciones';
+            if (filename.includes('go_') || filename.includes('gene_ontology')) return '🧬 Análisis GO';
+            if (filename.includes('kegg_') || filename.includes('pathway')) return '🗺️ Análisis KEGG';
+            if (filename.includes('cog_') || filename.includes('cluster_ortholog')) return '⚙️ Análisis COG';
+            if (filename.includes('pfam_') || filename.includes('domain')) return '🧩 Análisis Pfam';
+            if (filename.includes('score') || filename.includes('evalue')) return '📊 Distribución de Scores';
+            if (filename.includes('coverage')) return '📈 Análisis de Cobertura';
+            if (filename.includes('identity')) return '🔍 Análisis de Identidad';
+            if (filename.includes('stats') || filename.includes('statistics')) return '📊 Estadísticas';
+            if (filename.includes('quality')) return '✅ Control de Calidad';
+            if (filename.includes('heatmap')) return '🔥 Mapa de Calor';
+            if (filename.includes('distribution')) return '📈 Distribución';
+            if (filename.includes('wordcloud')) return '☁️ Nube de Palabras';
+            
+            return '🧬 Gráfico EggNOG';
+        }
+
+        // Función para mostrar notificaciones
+        function showNotification(title, message, type = 'info') {
+            const icon = {
+                'success': 'success',
+                'error': 'error',
+                'warning': 'warning',
+                'info': 'info'
+            }[type] || 'info';
+
+            Swal.fire({
+                icon: icon,
+                title: title,
+                text: message,
+                timer: 3000,
+                timerProgressBar: true,
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false
+            });
+        }
     </script>
 </body>
-</html>
+</html> 

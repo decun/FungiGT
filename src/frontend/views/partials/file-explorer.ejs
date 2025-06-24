@@ -1,4 +1,24 @@
 <!-- Explorador de Archivos Profesional -->
+<style>
+/* Estilos específicos para drag and drop */
+.draggable-file {
+    cursor: grab !important;
+}
+
+.draggable-file:active {
+    cursor: grabbing !important;
+}
+
+.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+}
+
+.file-item:not(.draggable-file) {
+    cursor: pointer !important;
+}
+</style>
+
 <div class="bg-white rounded-lg shadow-lg border max-w-full">
     <!-- Header -->
     <div class="p-3 border-b bg-gray-50">
@@ -715,8 +735,27 @@ document.addEventListener('DOMContentLoaded', function() {
             
             files.forEach(file => {
                 const fileEl = document.createElement('div');
-                fileEl.className = 'flex items-center justify-between p-2 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 transition-colors duration-150';
+                
+                // Determinar si el archivo es compatible para visualización
+                const isVisualizableFile = !file.isDirectory && this.isVisualizableFile(file.name);
+                
+                // Aplicar clases CSS apropiadas
+                let className = 'file-item flex items-center justify-between p-2 hover:bg-gray-50 border-b last:border-b-0 transition-colors duration-150';
+                if (file.isDirectory) {
+                    className += ' cursor-pointer'; // Carpetas: cursor normal
+                } else if (isVisualizableFile) {
+                    className += ' cursor-grab draggable-file'; // Archivos compatibles: cursor grab
+                } else {
+                    className += ' cursor-pointer'; // Archivos no compatibles: cursor normal
+                }
+                
+                fileEl.className = className;
                 fileEl.dataset.file = JSON.stringify(file);
+                fileEl.dataset.fileName = file.name;
+                fileEl.dataset.filePath = [...this.currentPath, file.name].join('/');
+                
+                // Solo hacer draggable los archivos compatibles para visualización
+                fileEl.draggable = isVisualizableFile;
                 
                 const date = new Date(file.modified || file.mtime);
                 const formattedDate = date.toLocaleDateString('es-ES');
@@ -749,6 +788,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Agregar evento de clic derecho
                 fileEl.addEventListener('contextmenu', (e) => this.showContextMenu(e, file));
+                
+                        // Agregar eventos de drag solo para archivos compatibles
+                if (isVisualizableFile) {
+                    fileEl.addEventListener('dragstart', (e) => {
+                        e.dataTransfer.setData('text/plain', JSON.stringify({
+                            fileName: file.name,
+                            filePath: [...this.currentPath, file.name].join('/'),
+                            fullPath: `data/${[...this.currentPath, file.name].join('/')}`,
+                            isDirectory: file.isDirectory
+                        }));
+                        fileEl.classList.add('dragging');
+                    });
+                    
+                    fileEl.addEventListener('dragend', (e) => {
+                        fileEl.classList.remove('dragging');
+                    });
+                }
                 
                 container.appendChild(fileEl);
             });
@@ -1065,6 +1121,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 'zip': 'text-yellow-600'  // Destacar archivos ZIP
             };
             return colorMap[extension] || 'text-gray-600';
+        },
+
+        // Verificar si un archivo es compatible para visualización
+        isVisualizableFile: function(fileName) {
+            const extension = fileName.split('.').pop().toLowerCase();
+            // Extensiones compatibles con BinDash (principalmente archivos de texto tabulares)
+            const compatibleExtensions = ['txt', 'tsv', 'csv', 'tab', 'data', 'out'];
+            return compatibleExtensions.includes(extension);
         },
         
         escapeHtml: function(text) {

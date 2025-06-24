@@ -19,21 +19,23 @@ Visualizadores en desarrollo:
 
 from .base_visualizer import BaseVisualizer
 from .bindash_visualizer import BinDashVisualizer
+from .annotations_visualizer import AnnotationsVisualizer
+from .seed_orthologs_visualizer import SeedOrthologsVisualizer
+from .hits_visualizer import HitsVisualizer
 
 # TODO: Implementar estos visualizadores
-# from .annotations_visualizer import AnnotationsVisualizer
 # from .hmmer_visualizer import HMMERVisualizer
-# from .seed_orthologs_visualizer import SeedOrthologsVisualizer
 # from .quality_control_visualizer import QualityControlVisualizer
 # from .phylogeny_visualizer import PhylogenyVisualizer
 # from .general_genomics_visualizer import GeneralGenomicsVisualizer
 
 __all__ = [
     'BaseVisualizer',
-    'BinDashVisualizer'
-    # 'AnnotationsVisualizer', 
+    'BinDashVisualizer',
+    'AnnotationsVisualizer',
+    'SeedOrthologsVisualizer',
+    'HitsVisualizer',
     # 'HMMERVisualizer',
-    # 'SeedOrthologsVisualizer',
     # 'QualityControlVisualizer',
     # 'PhylogenyVisualizer',
     # 'GeneralGenomicsVisualizer'
