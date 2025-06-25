@@ -111,12 +111,12 @@ services:
       retries: 3
       start_period: 40s
 
-  # Visualización (custom - generado por nosotros)
-  visualization:
+  # Servidor Principal de Visualización Genómica (Python Flask)
+  visualization-server:
     build:
       context: .
       dockerfile: infrastructure/docker/visualization/Dockerfile
-    container_name: fungigt-visualization
+    container_name: fungigt-visualization-server
     volumes:
       - ./src/modules/visualization:/app
       - ./data:/app/data
@@ -125,6 +125,7 @@ services:
     environment:
       - PORT=4003
       - PYTHONUNBUFFERED=1
+      - FLASK_ENV=production
     restart: unless-stopped
     networks:
       - fungigt-network
@@ -227,32 +228,7 @@ services:
       retries: 3
       start_period: 40s
 
-  # Visualización de resultados BinDash (custom - generado por nosotros)
-  bindash-visualizer:
-    build:
-      context: ./src/modules/visualization/bindash_visualizer
-      dockerfile: Dockerfile
-    container_name: fungigt-bindash-visualizer
-    volumes:
-      - ./src/modules/visualization/bindash_visualizer:/app
-      - ./data:/app/data
-    ports:
-      - "4008:4008"
-    environment:
-      - FLASK_APP=server.py
-      - FLASK_ENV=production
-      - PYTHONUNBUFFERED=1
-    restart: unless-stopped
-    networks:
-      - fungigt-network
-    depends_on:
-      - mongodb
-    healthcheck:
-      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:4008/')"]
-      interval: 15s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+
 
   # ===== SERVICIOS EXTERNOS DE DOCKER HUB =====
   

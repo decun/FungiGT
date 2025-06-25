@@ -76,6 +76,8 @@
         .drag-over {
             background-color: #e6f7ff !important;
             border: 2px dashed #1890ff !important;
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(24, 144, 255, 0.15);
         }
 
         .dragging {
@@ -89,11 +91,30 @@
             text-align: center;
             background-color: #fafafa;
             transition: all 0.3s ease;
+            position: relative;
         }
 
         .drop-zone.drag-over {
             border-color: #1890ff;
             background-color: #e6f7ff;
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(24, 144, 255, 0.15);
+        }
+
+        .drop-zone.drag-over::after {
+            content: "📁 Suelta el archivo aquí";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(24, 144, 255, 0.9);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            pointer-events: none;
+            z-index: 10;
         }
 
         .file-item {
@@ -141,6 +162,7 @@
                                 <option value="">Seleccione un visualizador</option>
                                 <option value="bindash">BinDash - Análisis de Similitud Genómica</option>
                                 <option value="eggnog">🧬 EggNOG - Annotations, Seed Orthologs, Hits</option>
+                                <option value="checkm">🔬 CheckM - Control de Calidad de Genomas</option>
                             </select>
                         </div>
                     </div>
@@ -295,6 +317,155 @@
                         <!-- Contenedor para gráficos -->
                         <div id="eggnogGraphsContainer" class="mt-6"></div>
                     </div>
+
+                    <!-- Visualizador CheckM -->
+                    <div id="checkmVisualizerSection" class="bg-white p-8 rounded-xl shadow-lg mb-8 border border-gray-200" style="display: none;">
+                        <div class="border-l-4 border-blue-500 pl-6 mb-6">
+                            <h3 class="text-2xl font-semibold mb-2 flex items-center text-gray-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                                Visualizador CheckM
+                            </h3>
+                            <p class="text-gray-600 text-sm">Análisis de control de calidad de genomas: lineage, bins stats, archivos .fna y más</p>
+                        </div>
+
+                        <!-- Información de detección automática -->
+                        <div class="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                            <h4 class="font-semibold text-green-800 mb-2">🤖 Detección Automática</h4>
+                            <p class="text-sm text-green-700">El tipo de análisis se detecta automáticamente basado en el nombre y contenido del archivo.</p>
+                            <div class="mt-3 text-xs text-green-600">
+                                <p><strong>Formatos soportados:</strong></p>
+                                <p>• CheckM: lineage_ms, bins_stats, qa_results</p>
+                                <p>• HMMER: .analyze, .tree (hmmer.analyze, hmmer.tree)</p>
+                                <p>• Secuencias: .fna, .fasta, .fa</p>
+                                <p>• Árboles: .tree, .nwk</p>
+                            </div>
+                        </div>
+
+                        <!-- Zona de drop para archivos -->
+                        <div id="checkmDropZone" class="drop-zone mb-6 cursor-pointer">
+                            <div class="text-center py-8">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                <p class="text-lg font-medium text-gray-700 mb-2">Arrastra archivos CheckM aquí</p>
+                                <p class="text-sm text-gray-500 mb-4">o haz clic para seleccionar archivos</p>
+                                <div class="text-xs text-gray-400 space-y-1">
+                                    <p><strong>Formatos soportados:</strong></p>
+                                    <p>• .tsv, .txt (lineage_ms, bins_stats, qa_results)</p>
+                                    <p>• .fna, .fasta, .fa (secuencias genómicas)</p>
+                                    <p>• .tree, .nwk (árboles filogenéticos)</p>
+                                    <p>• Cualquier salida de CheckM</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Input oculto para archivos -->
+                        <input type="file" id="checkmFileInput" accept=".tsv,.txt,.fna,.fasta,.fa,.tree,.nwk,.csv" style="display: none;">
+
+                        <!-- Información del archivo seleccionado -->
+                        <div id="selectedCheckmFileInfo" class="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-6" style="display: none;">
+                            <h4 class="font-semibold text-blue-800 mb-2">📁 Archivo CheckM seleccionado:</h4>
+                            <p id="selectedCheckmFileName" class="text-blue-700 text-sm font-medium"></p>
+                            <p id="selectedCheckmFilePath" class="text-blue-600 text-xs mt-1"></p>
+                            <p id="selectedCheckmFileType" class="text-green-700 text-xs mt-1 font-medium">🤖 Tipo detectado automáticamente</p>
+                            <p id="selectedCheckmAnalysisInfo" class="text-blue-600 text-xs mt-1"></p>
+                        </div>
+
+                        <!-- Opciones adicionales para análisis FNA -->
+                        <div id="fnaAnalysisOptions" class="bg-green-50 p-4 rounded-lg border border-green-200 mb-6" style="display: none;">
+                            <h4 class="font-semibold text-green-800 mb-3">🧬 Opciones de Análisis BioPython</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="basicStats" checked class="text-green-600">
+                                    <span class="text-sm">Estadísticas básicas</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="gcContent" checked class="text-green-600">
+                                    <span class="text-sm">Contenido GC</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="n50Stats" checked class="text-green-600">
+                                    <span class="text-sm">N50/N90</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="lengthDistribution" checked class="text-green-600">
+                                    <span class="text-sm">Distribución de longitudes</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="codonUsage" class="text-green-600">
+                                    <span class="text-sm">Uso de codones</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="orfPrediction" class="text-green-600">
+                                    <span class="text-sm">Predicción ORF</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Botón de procesar -->
+                        <div class="mb-6">
+                            <button id="processCheckmBtn" class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                                Procesar Archivo CheckM
+                            </button>
+                        </div>
+                        
+                        <!-- Estado del procesamiento -->
+                        <div id="checkmStatus" class="mb-6 text-sm text-gray-600"></div>
+
+                        <!-- Estadísticas del análisis -->
+                        <div id="checkmStatsPanel" class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-lg border border-blue-200 mb-6" style="display: none;">
+                            <h4 class="text-lg font-semibold mb-4 text-gray-800">📊 Estadísticas CheckM</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-blue-600" id="totalCheckmBins">0</div>
+                                    <div class="text-sm text-gray-600">Total bins/genomas</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-green-600" id="highQualityBins">0</div>
+                                    <div class="text-sm text-gray-600">Alta calidad</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-yellow-600" id="mediumQualityBins">0</div>
+                                    <div class="text-sm text-gray-600">Calidad media</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-red-600" id="lowQualityBins">0</div>
+                                    <div class="text-sm text-gray-600">Baja calidad</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Estadísticas adicionales para FNA -->
+                            <div id="fnaStatsSection" class="mt-6 pt-6 border-t border-blue-200" style="display: none;">
+                                <h5 class="text-md font-semibold mb-3 text-gray-800">🧬 Estadísticas de Secuencias</h5>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div class="text-center">
+                                        <div class="text-xl font-bold text-purple-600" id="totalSequences">0</div>
+                                        <div class="text-sm text-gray-600">Total secuencias</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-xl font-bold text-indigo-600" id="totalLength">0</div>
+                                        <div class="text-sm text-gray-600">Longitud total</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-xl font-bold text-teal-600" id="averageGC">0%</div>
+                                        <div class="text-sm text-gray-600">GC promedio</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-xl font-bold text-cyan-600" id="n50Value">0</div>
+                                        <div class="text-sm text-gray-600">N50</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Contenedor para gráficos -->
+                        <div id="checkmGraphsContainer" class="mt-6"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -314,6 +485,7 @@
             setupVisualizerSelector();
             setupBindashDragDrop();
             setupEggnogDragDrop();
+            setupCheckmDragDrop();
             setupFileExplorerIntegration();
         });
 
@@ -347,12 +519,12 @@
 
             // Eventos del drop zone
             dropZone.addEventListener('click', () => fileInput.click());
-            dropZone.addEventListener('dragover', handleDragOver);
-            dropZone.addEventListener('drop', handleDrop);
-            dropZone.addEventListener('dragleave', handleDragLeave);
+            dropZone.addEventListener('dragover', handleBindashDragOver);
+            dropZone.addEventListener('drop', handleBindashDrop);
+            dropZone.addEventListener('dragleave', handleBindashDragLeave);
 
             // Evento del input de archivo
-            fileInput.addEventListener('change', handleFileSelect);
+            fileInput.addEventListener('change', handleBindashFileSelect);
 
             // Evento del botón de procesar
             processBtn.addEventListener('click', processBindashFile);
@@ -437,8 +609,12 @@
                 const dragData = e.dataTransfer.getData('text/plain');
                 if (dragData) {
                     const fileData = JSON.parse(dragData);
-                    if (fileData.fileName && fileData.filePath) {
+                    if (fileData.fileName && fileData.filePath && !fileData.isDirectory) {
                         selectFileFromExplorer(fileData.fileName, fileData.filePath);
+                        return;
+                    } else if (fileData.isDirectory) {
+                        // No hacer nada si es una carpeta, solo log
+                        console.log('Carpeta arrastrada a BinDash, ignorando');
                         return;
                     }
                 }
@@ -474,6 +650,10 @@
 
         // Procesar archivo con BinDash
         function processBindashFile() {
+            console.log('🚀 Iniciando procesamiento BinDash...');
+            console.log('📁 currentSelectedFile:', currentSelectedFile);
+            console.log('📂 currentSelectedFilePath:', currentSelectedFilePath);
+            
             const statusElement = document.getElementById('bindashStatus');
             const graphsContainer = document.getElementById('bindashGraphsContainer');
             const statsPanel = document.getElementById('bindashStatsPanel');
@@ -490,25 +670,38 @@
             
             if (currentSelectedFilePath) {
                 // Archivo del servidor
+                console.log('📂 Usando archivo del servidor:', currentSelectedFilePath);
                 formData.append('filePath', currentSelectedFilePath);
             } else if (currentSelectedFile) {
                 // Archivo local
+                console.log('📁 Usando archivo local:', currentSelectedFile.name, currentSelectedFile.size, 'bytes');
                 formData.append('file', currentSelectedFile);
+            } else {
+                console.error('❌ No hay archivo seleccionado');
+                statusElement.textContent = '❌ Error: No hay archivo seleccionado';
+                statusElement.className = 'mb-6 text-sm text-red-600';
+                return;
             }
+            
+            console.log('🌐 Enviando petición a:', `${bindashVisualizerUrl}/process-bindash`);
             
             fetch(`${bindashVisualizerUrl}/process-bindash`, {
                 method: 'POST',
                 body: formData
             })
             .then(response => {
+                console.log('📡 Respuesta del servidor:', response.status, response.statusText);
                 if (!response.ok) {
-                    throw new Error(`Error HTTP: ${response.status}`);
+                    return response.text().then(text => {
+                        console.error('❌ Error del servidor:', text);
+                        throw new Error(`Error HTTP: ${response.status} - ${text}`);
+                    });
                 }
                 return response.json();
             })
             .then(data => {
-                console.log('Resultado BinDash:', data);
-                statusElement.textContent = `✅ Archivo procesado exitosamente (${data.graphs.length} gráficos generados)`;
+                console.log('✅ Resultado BinDash:', data);
+                statusElement.textContent = `✅ Archivo procesado exitosamente (${data.graphs?.length || 0} gráficos generados)`;
                 statusElement.className = 'mb-6 text-sm text-green-600';
                 
                 // Mostrar estadísticas
@@ -524,7 +717,7 @@
                 showNotification('Procesamiento completado', 'El archivo ha sido procesado exitosamente', 'success');
             })
             .catch(error => {
-                console.error('Error procesando archivo BinDash:', error);
+                console.error('❌ Error procesando archivo BinDash:', error);
                 statusElement.textContent = `❌ Error: ${error.message}`;
                 statusElement.className = 'mb-6 text-sm text-red-600';
                 showNotification('Error de procesamiento', error.message, 'error');
@@ -808,12 +1001,14 @@
                     const fileData = JSON.parse(dragData);
                     if (fileData.fileName && fileData.filePath && !fileData.isDirectory) {
                         if (isEggNOGFile(fileData.fileName)) {
-                            selectEggnogFileFromExplorer(fileData.fileName, fileData.filePath);
+                            // Descargar archivo del file manager y luego procesarlo
+                            downloadAndProcessFile(fileData.fileName, fileData.filePath, 'eggnog');
                         } else {
-                            showNotification('Archivo no compatible', 
-                                `El archivo "${fileData.fileName}" no es compatible con EggNOG. Formatos soportados: .emapper.annotations, .emapper.seed_orthologs, .emapper.hits`, 
-                                'warning');
+                            console.log(`Archivo no compatible con EggNOG: ${fileData.fileName}`);
                         }
+                        return;
+                    } else if (fileData.isDirectory) {
+                        console.log('Carpeta arrastrada a EggNOG, ignorando');
                         return;
                     }
                 }
@@ -828,9 +1023,7 @@
                 if (isEggNOGFile(file.name)) {
                     handleEggnogFileSelect({ target: { files: files } });
                 } else {
-                    showNotification('Archivo no compatible', 
-                        `El archivo "${file.name}" no es compatible con EggNOG. Formatos soportados: .emapper.annotations, .emapper.seed_orthologs, .emapper.hits`, 
-                        'warning');
+                    console.log(`Archivo no compatible con EggNOG: ${file.name}`);
                 }
             }
         }
@@ -1226,6 +1419,571 @@
             return '🧬 Gráfico EggNOG';
         }
 
+        // ===== FUNCIONES PARA VISUALIZADOR CHECKM =====
+
+        // Configurar drag and drop para CheckM
+        function setupCheckmDragDrop() {
+            const dropZone = document.getElementById('checkmDropZone');
+            const fileInput = document.getElementById('checkmFileInput');
+            const processBtn = document.getElementById('processCheckmBtn');
+
+            if (!dropZone || !fileInput || !processBtn) return;
+
+            // Eventos del drop zone
+            dropZone.addEventListener('click', () => fileInput.click());
+            dropZone.addEventListener('dragover', handleCheckmDragOver);
+            dropZone.addEventListener('drop', handleCheckmDrop);
+            dropZone.addEventListener('dragleave', handleCheckmDragLeave);
+
+            // Evento del input de archivo
+            fileInput.addEventListener('change', handleCheckmFileSelect);
+
+            // Evento del botón de procesar
+            processBtn.addEventListener('click', processCheckmFile);
+        }
+
+        // Verificar si un archivo es compatible para CheckM
+        function isCheckmFile(fileName) {
+            const lowerName = fileName.toLowerCase();
+            return lowerName.endsWith('.tsv') || 
+                   lowerName.endsWith('.txt') ||
+                   lowerName.endsWith('.fna') ||
+                   lowerName.endsWith('.fasta') ||
+                   lowerName.endsWith('.fa') ||
+                   lowerName.endsWith('.tree') ||
+                   lowerName.endsWith('.nwk') ||
+                   lowerName.endsWith('.csv') ||
+                   lowerName.endsWith('.analyze') ||
+                   lowerName.includes('lineage') ||
+                   lowerName.includes('bins') ||
+                   lowerName.includes('checkm') ||
+                   lowerName.includes('qa_results') ||
+                   lowerName.includes('tree_qa') ||
+                   lowerName.includes('hmmer');
+        }
+        
+        // Detectar tipo específico de archivo CheckM (detección automática)
+        function getCheckmFileType(fileName) {
+            const lowerName = fileName.toLowerCase();
+            
+            if (lowerName.endsWith('.fna') || lowerName.endsWith('.fasta') || lowerName.endsWith('.fa')) {
+                return 'Análisis de secuencias FASTA';
+            } else if (lowerName.endsWith('.tree') || lowerName.endsWith('.nwk')) {
+                return 'Análisis filogenético';
+            } else if (lowerName.includes('hmmer.analyze') || lowerName.endsWith('.analyze')) {
+                return 'Análisis HMMER';
+            } else if (lowerName.includes('hmmer.tree')) {
+                return 'Árbol HMMER';
+            } else if (lowerName.includes('lineage') || lowerName.includes('ms.tsv')) {
+                return 'Análisis de linaje CheckM';
+            } else if (lowerName.includes('bins') || lowerName.includes('stats')) {
+                return 'Estadísticas de bins CheckM';
+            } else if (lowerName.includes('qa_results') || lowerName.includes('qa.tsv')) {
+                return 'Resultados de calidad CheckM';
+            } else if (lowerName.includes('checkm')) {
+                return 'Análisis CheckM general';
+            }
+            
+            return 'Análisis CheckM general'; // Por defecto
+        }
+
+
+
+        // Manejar drag over para CheckM
+        function handleCheckmDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        // Manejar drag leave para CheckM
+        function handleCheckmDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        // Manejar drop para CheckM
+        function handleCheckmDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            
+            // Intentar obtener datos del file explorer
+            try {
+                const dragData = e.dataTransfer.getData('text/plain');
+                if (dragData) {
+                    const fileData = JSON.parse(dragData);
+                    if (fileData.fileName && fileData.filePath && !fileData.isDirectory) {
+                        if (isCheckmFile(fileData.fileName)) {
+                            // Descargar archivo del file manager y luego procesarlo
+                            downloadAndProcessFile(fileData.fileName, fileData.filePath, 'checkm');
+                        } else {
+                            console.log(`Archivo no compatible con CheckM: ${fileData.fileName}`);
+                        }
+                        return;
+                    } else if (fileData.isDirectory) {
+                        console.log('Carpeta arrastrada a CheckM, ignorando');
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.log('No hay datos del file explorer, intentando con archivos locales');
+            }
+            
+            // Si no hay datos del file explorer, usar archivos locales
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (isCheckmFile(file.name)) {
+                    handleCheckmFileSelect({ target: { files: files } });
+                } else {
+                    console.log(`Archivo no compatible con CheckM: ${file.name}`);
+                }
+            }
+        }
+
+        // Seleccionar archivo CheckM desde el explorador
+        function selectCheckmFileFromExplorer(fileName, filePath) {
+            currentSelectedFile = { name: fileName };
+            currentSelectedFilePath = filePath;
+            
+            const fileType = getCheckmFileType(fileName);
+            
+            // Mostrar información del archivo
+            document.getElementById('selectedCheckmFileName').textContent = fileName;
+            document.getElementById('selectedCheckmFilePath').textContent = filePath;
+            document.getElementById('selectedCheckmFileType').textContent = `🤖 Tipo detectado: ${fileType}`;
+            document.getElementById('selectedCheckmAnalysisInfo').textContent = getCheckmAnalysisInfo(fileType);
+            document.getElementById('selectedCheckmFileInfo').style.display = 'block';
+            
+            // Mostrar opciones FNA si es necesario
+            const fnaOptions = document.getElementById('fnaAnalysisOptions');
+            if (fileType === 'Análisis de secuencias FASTA') {
+                fnaOptions.style.display = 'block';
+            } else {
+                fnaOptions.style.display = 'none';
+            }
+            
+            // Habilitar botón de procesar
+            document.getElementById('processCheckmBtn').disabled = false;
+            
+            // Cambiar al visualizador CheckM si no está seleccionado
+            const selector = document.getElementById('visualizerSelector');
+            if (selector.value !== 'checkm') {
+                selector.value = 'checkm';
+                selector.dispatchEvent(new Event('change'));
+            }
+
+            showNotification('Archivo CheckM seleccionado', 
+                `Se ha seleccionado el archivo: ${fileName} (${fileType})`, 'success');
+        }
+
+        // Obtener información del análisis CheckM
+        function getCheckmAnalysisInfo(fileType) {
+            const analysisInfo = {
+                'Análisis de linaje CheckM': 'Análisis de linaje y marcadores específicos',
+                'Estadísticas de bins CheckM': 'Estadísticas de bins y métricas de calidad',
+                'Resultados de calidad CheckM': 'Resultados de control de calidad',
+                'Análisis filogenético': 'Análisis filogenético y posicionamiento taxonómico',
+                'Análisis de secuencias FASTA': 'Análisis de secuencias FASTA con BioPython',
+                'Análisis HMMER': 'Análisis de búsqueda de homología con HMMER',
+                'Árbol HMMER': 'Visualización de árboles filogenéticos HMMER',
+                'Análisis CheckM general': 'Análisis general de salidas CheckM'
+            };
+            
+            return analysisInfo[fileType] || 'Análisis CheckM';
+        }
+
+        // Manejar selección de archivo CheckM
+        function handleCheckmFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                currentSelectedFile = file;
+                currentSelectedFilePath = null;
+                
+                const fileType = getCheckmFileType(file.name);
+                
+                document.getElementById('selectedCheckmFileName').textContent = file.name;
+                document.getElementById('selectedCheckmFilePath').textContent = 'Archivo local';
+                document.getElementById('selectedCheckmFileType').textContent = `🤖 Tipo detectado: ${fileType}`;
+                document.getElementById('selectedCheckmAnalysisInfo').textContent = getCheckmAnalysisInfo(fileType);
+                document.getElementById('selectedCheckmFileInfo').style.display = 'block';
+                
+                // Mostrar opciones FNA si es necesario
+                const fnaOptions = document.getElementById('fnaAnalysisOptions');
+                if (fileType === 'Análisis de secuencias FASTA') {
+                    fnaOptions.style.display = 'block';
+                } else {
+                    fnaOptions.style.display = 'none';
+                }
+                
+                document.getElementById('processCheckmBtn').disabled = false;
+
+                showNotification('Archivo CheckM cargado', 
+                    `Se ha cargado el archivo: ${file.name} (${fileType})`, 'success');
+            }
+        }
+
+        // Procesar archivo CheckM
+        async function processCheckmFile() {
+            const statusElement = document.getElementById('checkmStatus');
+            const graphsContainer = document.getElementById('checkmGraphsContainer');
+            const statsPanel = document.getElementById('checkmStatsPanel');
+            
+            const fileName = currentSelectedFile?.name || currentSelectedFilePath?.split('/').pop() || '';
+            const fileType = getCheckmFileType(fileName);
+            
+            // Limpiar contenido anterior
+            graphsContainer.innerHTML = '';
+            statsPanel.style.display = 'none';
+            
+            statusElement.innerHTML = `<div class="loading-spinner"></div> Procesando archivo CheckM (${fileType})...`;
+            statusElement.className = 'mb-6 text-sm text-blue-600';
+            
+            try {
+                const formData = new FormData();
+                
+                if (currentSelectedFilePath) {
+                    // Archivo del servidor
+                    formData.append('filePath', currentSelectedFilePath);
+                } else if (currentSelectedFile) {
+                    // Archivo local
+                    formData.append('file', currentSelectedFile);
+                } else {
+                    throw new Error('No hay archivo seleccionado');
+                }
+                
+                // Si es análisis FNA, agregar opciones de BioPython
+                if (fileType === 'Análisis de secuencias FASTA') {
+                    const options = {
+                        basic_stats: document.getElementById('basicStats')?.checked || false,
+                        gc_content: document.getElementById('gcContent')?.checked || false,
+                        n50_stats: document.getElementById('n50Stats')?.checked || false,
+                        length_distribution: document.getElementById('lengthDistribution')?.checked || false,
+                        codon_usage: document.getElementById('codonUsage')?.checked || false,
+                        orf_prediction: document.getElementById('orfPrediction')?.checked || false
+                    };
+                    formData.append('fna_options', JSON.stringify(options));
+                }
+                
+                const response = await fetch(`${bindashVisualizerUrl}/process-checkm`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Resultado CheckM:', data);
+                statusElement.textContent = `✅ Archivo procesado exitosamente (${data.graphs?.length || 0} gráficos generados)`;
+                statusElement.className = 'mb-6 text-sm text-green-600';
+                
+                // Mostrar estadísticas
+                if (data.stats) {
+                    displayCheckmStats(data.stats, fileType);
+                }
+                
+                // Mostrar gráficos
+                if (data.graphs && data.graphs.length > 0) {
+                    displayCheckmGraphs(data.graphs);
+                }
+
+                showNotification('Procesamiento completado', 
+                    `El archivo CheckM (${fileType}) ha sido procesado exitosamente`, 'success');
+                
+            } catch (error) {
+                console.error('Error procesando archivo CheckM:', error);
+                statusElement.textContent = `❌ Error: ${error.message}`;
+                statusElement.className = 'mb-6 text-sm text-red-600';
+                showNotification('Error de procesamiento', error.message, 'error');
+            }
+        }
+
+        // Mostrar estadísticas CheckM
+        function displayCheckmStats(stats, fileType) {
+            const statsPanel = document.getElementById('checkmStatsPanel');
+            
+            // Estadísticas generales de CheckM
+            document.getElementById('totalCheckmBins').textContent = stats.total_bins || stats.total_genomes || 'N/A';
+            document.getElementById('highQualityBins').textContent = stats.high_quality || stats.complete_genomes || '0';
+            document.getElementById('mediumQualityBins').textContent = stats.medium_quality || stats.near_complete || '0';
+            document.getElementById('lowQualityBins').textContent = stats.low_quality || stats.contaminated || '0';
+            
+            // Estadísticas específicas para FNA
+            if (fileType === 'Análisis de secuencias FASTA' && stats.fna_stats) {
+                const fnaSection = document.getElementById('fnaStatsSection');
+                document.getElementById('totalSequences').textContent = stats.fna_stats.total_sequences || '0';
+                document.getElementById('totalLength').textContent = formatLength(stats.fna_stats.total_length) || '0';
+                document.getElementById('averageGC').textContent = stats.fna_stats.average_gc ? `${stats.fna_stats.average_gc}%` : '0%';
+                document.getElementById('n50Value').textContent = formatLength(stats.fna_stats.n50) || '0';
+                fnaSection.style.display = 'block';
+            } else {
+                document.getElementById('fnaStatsSection').style.display = 'none';
+            }
+            
+            statsPanel.style.display = 'block';
+        }
+
+        // Formatear longitud para mostrar
+        function formatLength(length) {
+            if (!length) return '0';
+            if (length >= 1000000) {
+                return (length / 1000000).toFixed(1) + 'M';
+            } else if (length >= 1000) {
+                return (length / 1000).toFixed(1) + 'K';
+            }
+            return length.toString();
+        }
+
+        // Mostrar gráficos CheckM
+        function displayCheckmGraphs(graphs) {
+            const container = document.getElementById('checkmGraphsContainer');
+            
+            // Corregir URLs
+            const correctedGraphs = graphs.map(graphUrl => {
+                if (graphUrl.startsWith('/graphs/')) {
+                    return `${bindashVisualizerUrl}${graphUrl}`;
+                }
+                return graphUrl.replace('http://localhost:4005', bindashVisualizerUrl);
+            });
+
+            const selectorHTML = `
+                <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <label class="font-medium text-gray-700">Seleccionar Gráfico:</label>
+                        <select id="checkmGraphSelector" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            ${correctedGraphs.map((graph, index) => 
+                                `<option value="${index}" ${index === 0 ? 'selected' : ''}>${getCheckmGraphTitle(graph)}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    
+                    <div class="relative bg-gray-50 rounded-lg border-2 border-gray-200">
+                        <div class="absolute top-3 right-3 z-10 flex space-x-2">
+                            <button id="checkmDrFungitoAnalyzeBtn" class="bg-green-500 bg-opacity-80 hover:bg-opacity-100 text-white p-2 rounded hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-400" title="Analizar con Dr. Fungito IA">
+                                <i class="fas fa-search text-sm"></i>
+                            </button>
+                            <button id="checkmZoomInBtn" class="bg-gray-800 bg-opacity-75 text-white p-2 rounded hover:bg-opacity-100 transition-all" title="Zoom In">
+                                <i class="fas fa-search-plus text-sm"></i>
+                            </button>
+                            <button id="checkmZoomOutBtn" class="bg-gray-800 bg-opacity-75 text-white p-2 rounded hover:bg-opacity-100 transition-all" title="Zoom Out">
+                                <i class="fas fa-search-minus text-sm"></i>
+                            </button>
+                            <button id="checkmFullscreenBtn" class="bg-gray-800 bg-opacity-75 text-white p-2 rounded hover:bg-opacity-100 transition-all" title="Pantalla completa">
+                                <i class="fas fa-expand text-sm"></i>
+                            </button>
+                            <button id="checkmDownloadBtn" class="bg-gray-800 bg-opacity-75 text-white p-2 rounded hover:bg-opacity-100 transition-all" title="Descargar">
+                                <i class="fas fa-download text-sm"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="absolute top-3 left-3 z-10">
+                            <h5 id="checkmGraphTitle" class="bg-white bg-opacity-90 px-3 py-1 rounded-md text-sm font-semibold text-gray-800 shadow-sm">
+                                ${getCheckmGraphTitle(correctedGraphs[0])}
+                            </h5>
+                        </div>
+                        
+                        <div class="p-6 min-h-[500px] flex items-center justify-center">
+                            <img id="currentCheckmGraphImage" 
+                                 src="${correctedGraphs[0]}" 
+                                 alt="Gráfico CheckM" 
+                                 class="max-w-full max-h-[500px] object-contain rounded-lg shadow-lg transition-transform duration-200"
+                                 style="cursor: grab;"
+                                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzljYTNhZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkVycm9yIGNhcmdhbmRvIGltYWdlbjwvdGV4dD48L3N2Zz4='; this.alt='Error cargando imagen';" />
+                        </div>
+                    </div>
+                </div>
+            `;
+                
+            container.innerHTML = selectorHTML;
+            setupCheckmGraphControls(correctedGraphs);
+        }
+
+        // Configurar controles de gráficos CheckM
+        function setupCheckmGraphControls(graphs) {
+            const selector = document.getElementById('checkmGraphSelector');
+            const currentImage = document.getElementById('currentCheckmGraphImage');
+            const graphTitle = document.getElementById('checkmGraphTitle');
+            const drFungitoBtn = document.getElementById('checkmDrFungitoAnalyzeBtn');
+            const zoomInBtn = document.getElementById('checkmZoomInBtn');
+            const zoomOutBtn = document.getElementById('checkmZoomOutBtn');
+            const fullscreenBtn = document.getElementById('checkmFullscreenBtn');
+            const downloadBtn = document.getElementById('checkmDownloadBtn');
+            
+            let currentScale = 1;
+            let isDragging = false;
+            let dragStartX, dragStartY, initialTransformX = 0, initialTransformY = 0;
+            
+            // Cambiar gráfico
+            selector.addEventListener('change', function() {
+                const selectedIndex = parseInt(this.value);
+                const selectedGraph = graphs[selectedIndex];
+                currentImage.src = selectedGraph;
+                graphTitle.textContent = getCheckmGraphTitle(selectedGraph);
+                currentScale = 1;
+                initialTransformX = 0;
+                initialTransformY = 0;
+                currentImage.style.transform = 'scale(1) translate(0px, 0px)';
+            });
+            
+            // Zoom in
+            zoomInBtn.addEventListener('click', function() {
+                currentScale = Math.min(currentScale * 1.2, 3);
+                currentImage.style.transform = `scale(${currentScale}) translate(${initialTransformX}px, ${initialTransformY}px)`;
+            });
+            
+            // Zoom out  
+            zoomOutBtn.addEventListener('click', function() {
+                currentScale = Math.max(currentScale / 1.2, 0.5);
+                currentImage.style.transform = `scale(${currentScale}) translate(${initialTransformX}px, ${initialTransformY}px)`;
+            });
+            
+            // Pantalla completa
+            fullscreenBtn.addEventListener('click', function() {
+                if (currentImage.requestFullscreen) {
+                    currentImage.requestFullscreen();
+                } else if (currentImage.webkitRequestFullscreen) {
+                    currentImage.webkitRequestFullscreen();
+                } else if (currentImage.mozRequestFullScreen) {
+                    currentImage.mozRequestFullScreen();
+                }
+            });
+            
+            // Descargar
+            downloadBtn.addEventListener('click', function() {
+                const link = document.createElement('a');
+                link.href = currentImage.src;
+                link.download = currentImage.src.split('/').pop();
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+            
+            // Dr. Fungito análisis
+            drFungitoBtn.addEventListener('click', function() {
+                // Activar el chat de Dr. Fungito si no está visible
+                const drFungitoPanel = document.getElementById('drFungitoPanel');
+                if (drFungitoPanel && drFungitoPanel.classList.contains('hidden')) {
+                    document.getElementById('drFungitoButton').click();
+                }
+                
+                // Enviar mensaje automático para análisis
+                const userInput = document.getElementById('userInput');
+                if (userInput) {
+                    const analysisPrompt = `Analiza este gráfico de CheckM: ${getCheckmGraphTitle(currentImage.src)}. Proporciona una interpretación detallada de los resultados de control de calidad genómica.`;
+                    userInput.value = analysisPrompt;
+                    
+                    // Simular envío del mensaje
+                    const sendButton = document.getElementById('sendButton');
+                    if (sendButton) {
+                        sendButton.click();
+                    }
+                }
+                
+                showNotification('Dr. Fungito', 'Análisis del gráfico CheckM enviado a Dr. Fungito IA', 'info');
+            });
+            
+            // Drag para mover imagen
+            currentImage.addEventListener('mousedown', function(e) {
+                if (currentScale > 1) {
+                    isDragging = true;
+                    dragStartX = e.clientX;
+                    dragStartY = e.clientY;
+                    currentImage.style.cursor = 'grabbing';
+                }
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (isDragging && currentScale > 1) {
+                    const deltaX = e.clientX - dragStartX;
+                    const deltaY = e.clientY - dragStartY;
+                    currentImage.style.transform = `scale(${currentScale}) translate(${initialTransformX + deltaX/currentScale}px, ${initialTransformY + deltaY/currentScale}px)`;
+                }
+            });
+            
+            document.addEventListener('mouseup', function() {
+                if (isDragging) {
+                    isDragging = false;
+                    currentImage.style.cursor = 'grab';
+                    const transform = currentImage.style.transform;
+                    const translateMatch = transform.match(/translate\(([^,]+)px,\s*([^)]+)px\)/);
+                    if (translateMatch) {
+                        initialTransformX = parseFloat(translateMatch[1]);
+                        initialTransformY = parseFloat(translateMatch[2]);
+                    }
+                }
+            });
+            
+            // Reset posición con doble click
+            currentImage.addEventListener('dblclick', function() {
+                currentScale = 1;
+                initialTransformX = 0;
+                initialTransformY = 0;
+                currentImage.style.transform = 'scale(1) translate(0px, 0px)';
+            });
+        }
+
+        // Obtener título del gráfico CheckM
+        function getCheckmGraphTitle(graphUrl) {
+            const filename = graphUrl.split('/').pop().replace('.png', '');
+            
+            const titles = {
+                // Análisis de calidad
+                'completeness_contamination': '📊 Completitud vs Contaminación',
+                'quality_assessment': '✅ Evaluación de Calidad',
+                'bins_quality_distribution': '📈 Distribución de Calidad de Bins',
+                'lineage_marker_analysis': '🧬 Análisis de Marcadores de Linaje',
+                'genome_size_distribution': '📏 Distribución de Tamaños de Genoma',
+                
+                // Análisis de lineage
+                'lineage_tree': '🌳 Árbol de Linaje',
+                'marker_gene_analysis': '🎯 Análisis de Genes Marcadores',
+                'phylogenetic_placement': '🌿 Ubicación Filogenética',
+                'taxonomic_classification': '📋 Clasificación Taxonómica',
+                
+                // Análisis FNA
+                'sequence_length_distribution': '📊 Distribución de Longitudes',
+                'gc_content_distribution': '🧬 Distribución de Contenido GC',
+                'n50_analysis': '📈 Análisis N50/N90',
+                'sequence_statistics': '📊 Estadísticas de Secuencias',
+                'codon_usage_analysis': '🔤 Análisis de Uso de Codones',
+                'orf_prediction': '🧬 Predicción de ORFs',
+                
+                // Análisis de bins
+                'bin_completeness': '✅ Completitud de Bins',
+                'bin_contamination': '❌ Contaminación de Bins',
+                'bin_strain_heterogeneity': '🔀 Heterogeneidad de Cepas',
+                'marker_lineage_stats': '📊 Estadísticas de Marcadores',
+                
+                // Gráficos generales
+                'quality_summary': '📋 Resumen de Calidad',
+                'checkm_overview': '🔬 Resumen CheckM',
+                'statistics_overview': '📊 Resumen Estadístico'
+            };
+            
+            for (const [key, title] of Object.entries(titles)) {
+                if (filename.includes(key)) {
+                    return title;
+                }
+            }
+            
+            // Detección por palabras clave específicas
+            if (filename.includes('completeness')) return '✅ Análisis de Completitud';
+            if (filename.includes('contamination')) return '❌ Análisis de Contaminación';
+            if (filename.includes('quality')) return '📊 Análisis de Calidad';
+            if (filename.includes('lineage')) return '🧬 Análisis de Linaje';
+            if (filename.includes('marker')) return '🎯 Análisis de Marcadores';
+            if (filename.includes('tree') || filename.includes('phylo')) return '🌳 Análisis Filogenético';
+            if (filename.includes('gc_content') || filename.includes('gc')) return '🧬 Contenido GC';
+            if (filename.includes('length') || filename.includes('size')) return '📏 Distribución de Longitudes';
+            if (filename.includes('n50') || filename.includes('n90')) return '📈 Análisis N50';
+            if (filename.includes('sequence')) return '🧬 Análisis de Secuencias';
+            if (filename.includes('bin')) return '📦 Análisis de Bins';
+            if (filename.includes('stats') || filename.includes('statistics')) return '📊 Estadísticas';
+            if (filename.includes('summary') || filename.includes('overview')) return '📋 Resumen';
+            
+            return '🔬 Gráfico CheckM';
+        }
+
         // Función para mostrar notificaciones
         function showNotification(title, message, type = 'info') {
             const icon = {
@@ -1246,6 +2004,204 @@
                 showConfirmButton: false
             });
         }
+
+        // Función para descargar archivo del file manager y procesarlo
+        async function downloadAndProcessFile(fileName, filePath, visualizerType) {
+            try {
+                console.log(`🔍 Iniciando descarga: ${fileName} desde ${filePath}`);
+                showNotification('Descargando archivo', `Preparando ${fileName} para análisis...`, 'info');
+                
+                // Descargar archivo del file manager usando la URL correcta desde el navegador
+                const fileManagerUrl = 'http://localhost:4002';
+                const downloadUrl = `${fileManagerUrl}/download?path=${encodeURIComponent(filePath)}`;
+                
+                console.log(`📥 URL de descarga: ${downloadUrl}`);
+                
+                const response = await fetch(downloadUrl);
+                console.log(`📡 Respuesta del file manager: ${response.status} ${response.statusText}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Error al descargar archivo: ${response.status} - ${response.statusText}`);
+                }
+                
+                const blob = await response.blob();
+                console.log(`📦 Blob creado: ${blob.size} bytes, tipo: ${blob.type}`);
+                
+                const file = new File([blob], fileName, { type: blob.type || 'application/octet-stream' });
+                console.log(`📄 File object creado: ${file.name}, ${file.size} bytes`);
+                
+                // Procesar según el tipo de visualizador
+                if (visualizerType === 'bindash') {
+                    currentSelectedFile = file;
+                    currentSelectedFilePath = null;
+                    
+                    document.getElementById('selectedFileName').textContent = fileName;
+                    document.getElementById('selectedFilePath').textContent = 'Archivo del explorador';
+                    document.getElementById('selectedFileInfo').style.display = 'block';
+                    document.getElementById('processBindashBtn').disabled = false;
+                    
+                    const selector = document.getElementById('visualizerSelector');
+                    if (selector.value !== 'bindash') {
+                        selector.value = 'bindash';
+                        selector.dispatchEvent(new Event('change'));
+                    }
+                    
+                    console.log(`✅ Archivo BinDash preparado: ${fileName}`);
+                    showNotification('Archivo preparado', `${fileName} listo para procesar con BinDash`, 'success');
+                } else if (visualizerType === 'eggnog') {
+                    currentSelectedFile = file;
+                    currentSelectedFilePath = null;
+                    
+                    const fileType = getEggNOGFileType(fileName);
+                    const typeNames = {
+                        'seed_orthologs': 'Seed Orthologs',
+                        'hits': 'Hits',
+                        'annotations': 'Anotaciones'
+                    };
+                    
+                    document.getElementById('selectedEggnogFileName').textContent = fileName;
+                    document.getElementById('selectedEggnogFilePath').textContent = 'Archivo del explorador';
+                    document.getElementById('selectedEggnogFileType').textContent = `Tipo: ${typeNames[fileType]}`;
+                    document.getElementById('selectedEggnogFileInfo').style.display = 'block';
+                    document.getElementById('processEggnogBtn').disabled = false;
+                    
+                    const selector = document.getElementById('visualizerSelector');
+                    if (selector.value !== 'eggnog') {
+                        selector.value = 'eggnog';
+                        selector.dispatchEvent(new Event('change'));
+                    }
+                    
+                    console.log(`✅ Archivo EggNOG preparado: ${fileName}`);
+                    showNotification('Archivo preparado', `${fileName} listo para procesar con EggNOG`, 'success');
+                } else if (visualizerType === 'checkm') {
+                    currentSelectedFile = file;
+                    currentSelectedFilePath = null;
+                    
+                    const fileType = getCheckmFileType(fileName);
+                    
+                    document.getElementById('selectedCheckmFileName').textContent = fileName;
+                    document.getElementById('selectedCheckmFilePath').textContent = 'Archivo del explorador';
+                    document.getElementById('selectedCheckmFileType').textContent = `🤖 Tipo detectado: ${fileType}`;
+                    document.getElementById('selectedCheckmAnalysisInfo').textContent = getCheckmAnalysisInfo(fileType);
+                    document.getElementById('selectedCheckmFileInfo').style.display = 'block';
+                    
+                    const fnaOptions = document.getElementById('fnaAnalysisOptions');
+                    if (fileType === 'Análisis de secuencias FASTA') {
+                        fnaOptions.style.display = 'block';
+                    } else {
+                        fnaOptions.style.display = 'none';
+                    }
+                    
+                    document.getElementById('processCheckmBtn').disabled = false;
+                    
+                    const selector = document.getElementById('visualizerSelector');
+                    if (selector.value !== 'checkm') {
+                        selector.value = 'checkm';
+                        selector.dispatchEvent(new Event('change'));
+                    }
+                    
+                    console.log(`✅ Archivo CheckM preparado: ${fileName}`);
+                    showNotification('Archivo preparado', `${fileName} listo para procesar con CheckM`, 'success');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error descargando archivo:', error);
+                showNotification('Error', `Error al preparar archivo: ${error.message}`, 'error');
+            }
+        }
+
+        // Verificar si un archivo es compatible para BinDash
+        function isVisualizableFile(fileName) {
+            const lowerName = fileName.toLowerCase();
+            return lowerName.endsWith('.txt') || 
+                   lowerName.endsWith('.tsv') || 
+                   lowerName.endsWith('.csv') ||
+                   lowerName.endsWith('.tab') ||
+                   lowerName.endsWith('.data') ||
+                   lowerName.endsWith('.out');
+        }
+
+        // Manejar drag over para BinDash
+        function handleBindashDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        // Manejar drag leave para BinDash
+        function handleBindashDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        // Funciones de drop para BinDash
+        function handleBindashDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            
+            console.log('🎯 handleBindashDrop ejecutado');
+            
+            // Intentar obtener datos del file explorer
+            try {
+                const dragData = e.dataTransfer.getData('text/plain');
+                console.log('📋 Datos de drag:', dragData);
+                
+                if (dragData) {
+                    const fileData = JSON.parse(dragData);
+                    console.log('📄 Datos del archivo:', fileData);
+                    
+                    if (fileData.fileName && fileData.filePath && !fileData.isDirectory) {
+                        if (isVisualizableFile(fileData.fileName)) {
+                            console.log('✅ Archivo compatible, descargando...');
+                            // Descargar archivo del file manager y luego procesarlo
+                            downloadAndProcessFile(fileData.fileName, fileData.filePath, 'bindash');
+                        } else {
+                            console.log(`❌ Archivo no compatible con BinDash: ${fileData.fileName}`);
+                            showNotification('Archivo no compatible', 
+                                `El archivo "${fileData.fileName}" no es compatible con BinDash. Usa archivos .txt, .tsv, .csv`, 
+                                'warning');
+                        }
+                        return;
+                    } else if (fileData.isDirectory) {
+                        console.log('📁 Carpeta arrastrada a BinDash, ignorando');
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.log('⚠️ No hay datos del file explorer, intentando con archivos locales');
+            }
+            
+            // Si no hay datos del file explorer, usar archivos locales
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (isVisualizableFile(file.name)) {
+                    console.log('📁 Usando archivo local:', file.name);
+                    handleBindashFileSelect({ target: { files: files } });
+                } else {
+                    console.log(`❌ Archivo local no compatible: ${file.name}`);
+                    showNotification('Archivo no compatible', 
+                        `El archivo "${file.name}" no es compatible con BinDash. Usa archivos .txt, .tsv, .csv`, 
+                        'warning');
+                }
+            }
+        }
+
+        // Manejar selección de archivo BinDash
+        function handleBindashFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                console.log('📁 Archivo seleccionado:', file.name, file.size, 'bytes');
+                currentSelectedFile = file;
+                currentSelectedFilePath = null;
+                
+                document.getElementById('selectedFileName').textContent = file.name;
+                document.getElementById('selectedFilePath').textContent = 'Archivo local';
+                document.getElementById('selectedFileInfo').style.display = 'block';
+                document.getElementById('processBindashBtn').disabled = false;
+
+                showNotification('Archivo cargado', `Se ha cargado el archivo: ${file.name}`, 'success');
+            }
+        }
+
     </script>
 </body>
 </html> 

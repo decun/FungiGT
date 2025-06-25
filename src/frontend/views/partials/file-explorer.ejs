@@ -572,22 +572,13 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         
         renameFile: function() {
-            const newName = document.getElementById('renameInput').value.trim();
-            
-            if (!newName || !this.contextMenuFile) {
-                alert('Por favor, introduce un nombre válido');
+            const newName = prompt('Por favor, introduce el nuevo nombre para el archivo');
+            if (!newName || newName.trim() === '') {
+                console.log('Renombrado cancelado o nombre vacío');
                 return;
             }
             
-            if (newName === this.contextMenuFile.name) {
-                this.hideRenameModal();
-                return;
-            }
-            
-            // Aquí implementarías la lógica de renombrado en el servidor
-            // Por ahora solo mostramos un mensaje
-            alert('Función de renombrado no implementada aún en el servidor');
-            this.hideRenameModal();
+            console.log('Función de renombrado no implementada aún en el servidor');
         },
         
         updateServerStatus: function(connected, message = '') {
@@ -912,12 +903,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const folderName = document.getElementById('folderNameInput').value.trim();
             
             if (!folderName) {
-                alert('Por favor, introduce un nombre para la carpeta');
+                console.log('Nombre de carpeta vacío');
                 return;
             }
             
             if (!/^[a-zA-Z0-9_\-\s]+$/.test(folderName)) {
-                alert('El nombre de la carpeta solo puede contener letras, números, guiones y espacios');
+                console.log('Nombre de carpeta con caracteres no válidos');
                 return;
             }
             
@@ -938,12 +929,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.hideCreateFolderModal();
                     this.loadFiles();
                 } else {
-                    alert('Error al crear la carpeta: ' + data.error);
+                    console.error('Error al crear la carpeta:', data.error);
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('Error de conexión: ' + error.message);
+                console.error('Error de conexión:', error.message);
             });
         },
         
@@ -968,12 +958,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.loadFiles();
                     document.getElementById('fileInput').value = '';
                 } else {
-                    alert('Error al subir archivos: ' + data.error);
+                    console.error('Error al subir archivos:', data.error);
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('Error de conexión: ' + error.message);
+                console.error('Error de conexión:', error.message);
             });
         },
         
@@ -1050,31 +1039,27 @@ document.addEventListener('DOMContentLoaded', function() {
             const file = this.contextMenuFile || this.selectedFile;
             if (!file) return;
             
-            const itemType = file.isDirectory ? 'carpeta' : 'archivo';
-            if (!confirm(`¿Estás seguro de que quieres eliminar ${itemType} "${file.name}"?`)) {
-                return;
+            if (confirm(`¿Estás seguro de que quieres eliminar "${file.name}"?`)) {
+                const pathStr = [...this.currentPath, file.name].join('/');
+                
+                fetch(`${this.apiUrl}/delete`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ path: pathStr })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        this.loadFiles();
+                        this.clearSelection();
+                    } else {
+                        console.error('Error al eliminar:', data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error de conexión:', error.message);
+                });
             }
-            
-            const filePath = [...this.currentPath, file.name].join('/');
-            
-            fetch(`${this.apiUrl}/delete`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ path: filePath })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    this.loadFiles();
-                    this.clearSelection();
-                } else {
-                    alert('Error al eliminar: ' + data.error);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error de conexión: ' + error.message);
-            });
         },
         
         showError: function(message) {
@@ -1125,10 +1110,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Verificar si un archivo es compatible para visualización
         isVisualizableFile: function(fileName) {
+            const lowerName = fileName.toLowerCase();
+            
+            // Extensiones básicas compatibles
             const extension = fileName.split('.').pop().toLowerCase();
-            // Extensiones compatibles con BinDash (principalmente archivos de texto tabulares)
-            const compatibleExtensions = ['txt', 'tsv', 'csv', 'tab', 'data', 'out'];
-            return compatibleExtensions.includes(extension);
+            const basicExtensions = ['txt', 'tsv', 'csv', 'tab', 'data', 'out'];
+            
+            // Archivos específicos EggNOG
+            const isEggNOG = lowerName.includes('emapper') || 
+                           lowerName.includes('annotations') || 
+                           lowerName.includes('seed_orthologs') || 
+                           lowerName.includes('hits');
+            
+            // Archivos específicos CheckM y HMMER
+            const isCheckM = lowerName.includes('checkm') || 
+                           lowerName.includes('lineage') || 
+                           lowerName.includes('bins') || 
+                           lowerName.includes('qa_results') ||
+                           lowerName.includes('hmmer');
+            
+            // Archivos de secuencias y árboles
+            const isSequenceOrTree = ['fna', 'fasta', 'fa', 'tree', 'nwk', 'analyze'].includes(extension);
+            
+            return basicExtensions.includes(extension) || isEggNOG || isCheckM || isSequenceOrTree;
         },
         
         escapeHtml: function(text) {
@@ -1152,7 +1156,7 @@ document.addEventListener('DOMContentLoaded', function() {
         showExtractZipModal: function() {
             const file = this.selectedFile || this.contextMenuFile;
             if (!file || !file.name.toLowerCase().endsWith('.zip')) {
-                alert('Por favor, selecciona un archivo ZIP');
+                console.log('Archivo no válido para extraer ZIP');
                 return;
             }
             
@@ -1207,7 +1211,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.loadFiles();
                     this.showCopyNotification(`✅ ZIP extraído: ${data.extractedCount} archivos`);
                 } else {
-                    alert('Error al extraer ZIP: ' + data.error);
+                    console.error('Error al extraer ZIP:', data.error);
                 }
             })
             .catch(error => {
@@ -1254,7 +1258,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.loadFiles();
                     this.showCopyNotification(`✅ ZIP extraído en carpeta: ${data.extractedCount} archivos`);
                 } else {
-                    alert('Error al extraer ZIP: ' + data.error);
+                    console.error('Error al extraer ZIP:', data.error);
                 }
             })
             .catch(error => {
@@ -1266,6 +1270,78 @@ document.addEventListener('DOMContentLoaded', function() {
                 confirmBtn.disabled = false;
                 confirmBtn.innerHTML = originalText;
             });
+        },
+        
+        handleExtractZip: function() {
+            const file = this.contextMenuFile || this.selectedFile;
+            if (!file || !file.name.toLowerCase().endsWith('.zip')) {
+                console.log('Archivo no válido para extraer ZIP');
+                return;
+            }
+            
+            this.extractZip(file.name, this.currentPath.join('/'));
+        },
+        
+        extractZip: function(fileName, currentPath) {
+            const filePath = currentPath ? `${currentPath}/${fileName}` : fileName;
+            
+            fetch(`${this.apiUrl}/extract-zip`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    filePath: filePath,
+                    extractPath: currentPath || ''
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    this.loadFiles();
+                    console.log('ZIP extraído exitosamente');
+                } else {
+                    console.error('Error al extraer ZIP:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error de conexión:', error.message);
+            });
+        },
+        
+        handleZipDrop: function(e) {
+            e.preventDefault();
+            const files = e.dataTransfer.files;
+            
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.name.toLowerCase().endsWith('.zip')) {
+                    // Subir y extraer automáticamente
+                    const formData = new FormData();
+                    const pathStr = this.currentPath.join('/');
+                    
+                    formData.append('path', pathStr);
+                    formData.append('files', file);
+                    
+                    // Primero subir el archivo
+                    fetch(`${this.apiUrl}/upload`, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Luego extraer
+                            this.extractZip(file.name, pathStr);
+                        } else {
+                            console.error('Error al extraer ZIP:', data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error de conexión:', error.message);
+                    });
+                } else {
+                    console.log('Solo se pueden extraer archivos ZIP');
+                }
+            }
         }
     };
     
