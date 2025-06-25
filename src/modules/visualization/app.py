@@ -31,6 +31,7 @@ from typing import Dict, Any, Optional
 # Importar visualizadores especializados
 sys.path.append(str(Path(__file__).parent))
 from visualizers.bindash_visualizer import BinDashVisualizer
+from visualizers.checkm_visualizer import CheckMVisualizer
 from visualizers.base_visualizer import BaseVisualizer
 
 # Configurar logging
@@ -85,9 +86,14 @@ FILE_TYPE_CONFIGS = {
         'description': 'Análisis de dominios proteicos con HMMER'
     },
     'quality_control': {
-        'extensions': ['.qc', '.quality', '.stats'],
-        'visualizer_class': None,  # TODO: Implementar
-        'description': 'Métricas de calidad genómica'
+        'extensions': ['.qc', '.quality', '.stats', '.tsv', '.txt', '.csv'],
+        'visualizer_class': CheckMVisualizer,
+        'description': 'Métricas de calidad genómica con CheckM'
+    },
+    'checkm': {
+        'extensions': ['.tsv', '.txt', '.csv', '.qa', '.stats', '.fna', '.fasta', '.fa', '.marker_stats'],
+        'visualizer_class': CheckMVisualizer,
+        'description': 'Análisis de calidad CheckM - completitud y contaminación'
     }
 }
 
@@ -120,6 +126,10 @@ def detect_file_type(file_path: Path) -> Optional[str]:
         # Detectar anotaciones por contenido
         if any(keyword in content.lower() for keyword in ['go:', 'kegg:', 'pfam:', 'cog']):
             return 'annotations'
+            
+        # Detectar CheckM por contenido
+        if any(keyword in content.lower() for keyword in ['completeness', 'contamination', 'bin id', 'lineage', 'marker']):
+            return 'checkm'
             
         # Detectar HMMER por contenido
         if any(keyword in content.lower() for keyword in ['domain', 'evalue', 'bitscore']):
@@ -246,6 +256,8 @@ def index():
             'GET / - Estado del servidor',
             'POST /process-file - Procesar cualquier archivo genómico (auto-detección)',
             'POST /process-bindash - Procesar archivos BinDash específicamente',
+            'POST /process-checkm - Procesar archivos CheckM específicamente',
+            'POST /process-eggnog - Procesar archivos EggNOG especializados',
             'GET /graphs/<path> - Servir gráficos generados',
             'POST /cleanup - Limpiar archivos temporales',
             'GET /supported-types - Ver tipos de archivos soportados'
@@ -477,6 +489,70 @@ def process_eggnog():
         
     except Exception as e:
         logger.error(f"Error procesando EggNOG: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/process-checkm', methods=['POST'])
+def process_checkm():
+    """Endpoint especializado para archivos CheckM con análisis completo."""
+    try:
+        # Determinar fuente del archivo
+        if 'file' in request.files:
+            # Archivo subido
+            file = request.files['file']
+            if file.filename == '':
+                return jsonify({'error': 'No se seleccionó archivo'}), 400
+            
+            filename = secure_filename(file.filename)
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            upload_path = UPLOAD_DIR / f"checkm_{timestamp}_{filename}"
+            file.save(upload_path)
+            
+        elif 'filePath' in request.form:
+            # Archivo del servidor
+            file_path = request.form.get('filePath')
+            upload_path = Path(file_path)
+            if not upload_path.exists():
+                return jsonify({'error': 'Archivo no encontrado en el servidor'}), 400
+        else:
+            return jsonify({'error': 'No se proporcionó archivo'}), 400
+        
+        logger.info(f"🔬 Procesando archivo CheckM: {upload_path.name}")
+        
+        # Crear directorio de salida
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        output_dir = OUTPUT_DIR / f"checkm_{timestamp}"
+        output_dir.mkdir(exist_ok=True)
+        
+        # Usar visualizador CheckM especializado
+        visualizer = CheckMVisualizer(output_dir)
+        result = visualizer.process_file(upload_path)
+        
+        # Convertir rutas absolutas a URLs relativas
+        if 'graphs' in result:
+            graphs_urls = []
+            for graph_path in result['graphs']:
+                if isinstance(graph_path, str):
+                    graph_file = Path(graph_path)
+                    if graph_file.exists():
+                        relative_path = graph_file.relative_to(OUTPUT_DIR)
+                        graphs_urls.append(f"/graphs/{relative_path}")
+            result['graphs'] = graphs_urls
+        
+        # Limpiar archivo temporal si fue subido
+        if 'file' in request.files:
+            upload_path.unlink()
+        
+        logger.info(f"✅ CheckM procesado exitosamente: {len(result.get('graphs', []))} gráficos generados")
+        
+        return jsonify({
+            'message': 'Archivo CheckM procesado exitosamente',
+            'file_type': 'checkm',
+            'visualizer': result.get('visualizer', 'CheckMVisualizer'),
+            **result
+        })
+        
+    except Exception as e:
+        logger.error(f"Error procesando CheckM: {e}")
         return jsonify({'error': str(e)}), 500
 
 # ========== RUTAS DE SERVICIO ==========

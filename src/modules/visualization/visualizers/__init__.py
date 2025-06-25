@@ -22,10 +22,10 @@ from .bindash_visualizer import BinDashVisualizer
 from .annotations_visualizer import AnnotationsVisualizer
 from .seed_orthologs_visualizer import SeedOrthologsVisualizer
 from .hits_visualizer import HitsVisualizer
+from .checkm_visualizer import CheckMVisualizer
 
 # TODO: Implementar estos visualizadores
 # from .hmmer_visualizer import HMMERVisualizer
-# from .quality_control_visualizer import QualityControlVisualizer
 # from .phylogeny_visualizer import PhylogenyVisualizer
 # from .general_genomics_visualizer import GeneralGenomicsVisualizer
 
@@ -35,8 +35,8 @@ __all__ = [
     'AnnotationsVisualizer',
     'SeedOrthologsVisualizer',
     'HitsVisualizer',
+    'CheckMVisualizer',
     # 'HMMERVisualizer',
-    # 'QualityControlVisualizer',
     # 'PhylogenyVisualizer',
     # 'GeneralGenomicsVisualizer'
 ]

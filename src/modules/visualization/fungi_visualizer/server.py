@@ -1193,13 +1193,13 @@ class CheckMVisualizer:
 def index():
     """Ruta principal"""
     return jsonify({
-        'service': 'BinDash & CheckM Visualizer',
-        'version': '2.0.0',
+        'service': 'FungiGT Multi-Genomic Visualizer',
+        'version': '2.1.0',
         'status': 'running',
         'biopython_available': BIOPYTHON_AVAILABLE,
         'endpoints': [
             'POST /process-bindash - Procesar archivo BinDash',
-            'POST /process-checkm - Procesar archivo CheckM',
+            'POST /process-checkm - Procesar archivo CheckM (mejorado)',
             'GET /graphs/<path> - Servir gráficos generados',
             'POST /cleanup - Limpiar archivos temporales'
         ]
@@ -1342,14 +1342,14 @@ def cleanup():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    print("🧬 Iniciando servidor BinDash & CheckM Visualizer...")
+    print("🧬 Iniciando FungiGT Multi-Genomic Visualizer...")
     print(f"📁 Directorio de uploads: {UPLOAD_DIR}")
     print(f"📊 Directorio de output: {OUTPUT_DIR}")
     print(f"🔬 BioPython disponible: {BIOPYTHON_AVAILABLE}")
     print("🚀 Servidor disponible en http://localhost:4008")
     print("📋 Endpoints disponibles:")
     print("   - POST /process-bindash - Procesar archivos BinDash")
-    print("   - POST /process-checkm - Procesar archivos CheckM")
+    print("   - POST /process-checkm - Procesar archivos CheckM (mejorado)")
     print("   - GET /graphs/<path> - Servir gráficos generados")
     
     app.run(host='0.0.0.0', port=4008, debug=True) 
