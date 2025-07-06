@@ -31,6 +31,8 @@ from typing import Dict, Any, Optional
 # Importar visualizadores especializados
 sys.path.append(str(Path(__file__).parent))
 from visualizers.bindash_visualizer import BinDashVisualizer
+from visualizers.checkm_visualizer import CheckMVisualizer
+from visualizers.dna_features_visualizer import DNAFeaturesVisualizer
 from visualizers.base_visualizer import BaseVisualizer
 
 # Configurar logging
@@ -63,6 +65,16 @@ FILE_TYPE_CONFIGS = {
         'extensions': ['.txt', '.tsv', '.csv', '.out', '.distances'],
         'visualizer_class': BinDashVisualizer,
         'description': 'Análisis genómico comparativo con BinDash'
+    },
+    'checkm': {
+        'extensions': ['.txt', '.tsv', '.csv', '.qc', '.quality', '.stats'],
+        'visualizer_class': CheckMVisualizer,
+        'description': 'Control de calidad genómica con CheckM'
+    },
+    'dna_features': {
+        'extensions': ['.gb', '.gbk', '.genbank', '.gff', '.gff3', '.fna', '.faa', '.fasta', '.fa', '.fas'],
+        'visualizer_class': DNAFeaturesVisualizer,
+        'description': 'Visualización de características de DNA/RNA con DNA Features Viewer'
     },
     'annotations': {
         'extensions': ['.annotations', '.emapper.annotations', '.eggnog'],
@@ -116,6 +128,16 @@ def detect_file_type(file_path: Path) -> Optional[str]:
         # Detectar BinDash por contenido
         if any(keyword in content.lower() for keyword in ['query', 'target', 'mutation_distance', 'jaccard']):
             return 'bindash'
+        
+        # Detectar CheckM por contenido
+        if any(keyword in content.lower() for keyword in ['completeness', 'contamination', 'strain heterogeneity', 'bin id', 'marker lineage']):
+            return 'checkm'
+        
+        # Detectar archivos FASTA y GenBank para DNA Features
+        if content.strip().startswith('>'):
+            return 'dna_features'  # Los FASTA son perfectos para DNA Features Viewer
+        if content.strip().startswith('LOCUS'):
+            return 'dna_features'  # GenBank files
             
         # Detectar anotaciones por contenido
         if any(keyword in content.lower() for keyword in ['go:', 'kegg:', 'pfam:', 'cog']):
@@ -477,6 +499,168 @@ def process_eggnog():
         
     except Exception as e:
         logger.error(f"Error procesando EggNOG: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/process-checkm', methods=['POST'])
+def process_checkm():
+    """Endpoint específico para archivos CheckM y análisis de calidad genómica"""
+    try:
+        # Determinar fuente del archivo
+        if 'file' in request.files:
+            # Archivo subido
+            file = request.files['file']
+            if file.filename == '':
+                return jsonify({'error': 'No se seleccionó archivo'}), 400
+            
+            filename = secure_filename(file.filename)
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            upload_path = UPLOAD_DIR / f"checkm_{timestamp}_{filename}"
+            file.save(upload_path)
+            
+        elif 'filePath' in request.form:
+            # Archivo del servidor
+            file_path = request.form.get('filePath')
+            upload_path = Path(file_path)
+            if not upload_path.exists():
+                return jsonify({'error': 'Archivo no encontrado en el servidor'}), 400
+        else:
+            return jsonify({'error': 'No se proporcionó archivo'}), 400
+        
+        # Obtener tipo de análisis CheckM
+        analysis_type = request.form.get('analysis_type', 'quality_assessment')
+        logger.info(f"🔬 Procesando archivo CheckM - Tipo: {analysis_type}")
+        
+        # Crear directorio de salida
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        output_dir = OUTPUT_DIR / f"checkm_{timestamp}"
+        output_dir.mkdir(exist_ok=True)
+        
+        # Usar visualizador CheckM
+        visualizer = CheckMVisualizer(output_dir)
+        logger.info(f"✅ Usando visualizador CheckM especializado")
+        
+        result = visualizer.process_file(upload_path)
+        
+        # Convertir rutas absolutas a URLs relativas
+        if 'graphs' in result:
+            graphs_urls = []
+            for graph_path in result['graphs']:
+                if isinstance(graph_path, str):
+                    graph_file = Path(graph_path)
+                    if graph_file.exists():
+                        relative_path = graph_file.relative_to(OUTPUT_DIR)
+                        graphs_urls.append(f"/graphs/{relative_path}")
+            result['graphs'] = graphs_urls
+        
+        # Limpiar archivo temporal si fue subido
+        if 'file' in request.files:
+            upload_path.unlink()
+        
+        analysis_names = {
+            'quality_assessment': 'Evaluación de Calidad',
+            'lineage_wf': 'Análisis de Linaje',
+            'fasta_analysis': 'Análisis de Secuencias FASTA',
+            'general': 'Análisis General'
+        }
+        analysis_name = analysis_names.get(analysis_type, 'CheckM')
+        
+        return jsonify({
+            'message': f'Archivo CheckM {analysis_name} procesado exitosamente',
+            'file_type': 'checkm',
+            'analysis_type': analysis_type,
+            'visualizer': 'CheckMVisualizer',
+            **result
+        })
+        
+    except Exception as e:
+        logger.error(f"Error procesando CheckM: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/process-dna-features', methods=['POST'])
+def process_dna_features():
+    """Endpoint específico para archivos DNA Features (GenBank, GFF, FASTA)"""
+    try:
+        # Determinar fuente del archivo
+        if 'file' in request.files:
+            # Archivo subido
+            file = request.files['file']
+            if file.filename == '':
+                return jsonify({'error': 'No se seleccionó archivo'}), 400
+            
+            filename = secure_filename(file.filename)
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            upload_path = UPLOAD_DIR / f"dna_features_{timestamp}_{filename}"
+            file.save(upload_path)
+            
+        elif 'filePath' in request.form:
+            # Archivo del servidor
+            file_path = request.form.get('filePath')
+            upload_path = Path(file_path)
+            if not upload_path.exists():
+                return jsonify({'error': 'Archivo no encontrado en el servidor'}), 400
+        else:
+            return jsonify({'error': 'No se proporcionó archivo'}), 400
+        
+        # Obtener configuraciones opcionales
+        visualization_type = request.form.get('visualization_type', 'all')
+        theme = request.form.get('theme', 'default')
+        
+        logger.info(f"🧬 Procesando archivo DNA Features - Tipo: {visualization_type}, Tema: {theme}")
+        
+        # Crear directorio de salida
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        output_dir = OUTPUT_DIR / f"dna_features_{timestamp}"
+        output_dir.mkdir(exist_ok=True)
+        
+        # Usar visualizador DNA Features
+        visualizer = DNAFeaturesVisualizer(output_dir)
+        logger.info(f"✅ Usando DNA Features Viewer especializado")
+        
+        result = visualizer.process_file(upload_path)
+        
+        # Convertir rutas absolutas a URLs relativas
+        if 'graphs' in result:
+            graphs_urls = []
+            for graph_path in result['graphs']:
+                if isinstance(graph_path, str):
+                    graph_file = Path(graph_path)
+                    if graph_file.exists():
+                        relative_path = graph_file.relative_to(OUTPUT_DIR)
+                        graphs_urls.append(f"/graphs/{relative_path}")
+            result['graphs'] = graphs_urls
+        
+        # Limpiar archivo temporal si fue subido
+        if 'file' in request.files:
+            upload_path.unlink()
+        
+        # Determinar tipo de archivo para el mensaje
+        file_ext = Path(upload_path).suffix.lower()
+        file_type_names = {
+            '.gb': 'GenBank',
+            '.gbk': 'GenBank', 
+            '.genbank': 'GenBank',
+            '.gff': 'GFF',
+            '.gff3': 'GFF3',
+            '.fna': 'FASTA Nucleotides',
+            '.faa': 'FASTA Amino Acids',
+            '.fasta': 'FASTA',
+            '.fa': 'FASTA',
+            '.fas': 'FASTA'
+        }
+        file_type_name = file_type_names.get(file_ext, 'DNA/RNA')
+        
+        return jsonify({
+            'message': f'🧬 Archivo {file_type_name} procesado exitosamente con DNA Features Viewer',
+            'file_type': 'dna_features',
+            'visualization_type': visualization_type,
+            'theme': theme,
+            'visualizer': 'DNAFeaturesVisualizer',
+            'file_format': file_type_name,
+            **result
+        })
+        
+    except Exception as e:
+        logger.error(f"Error procesando DNA Features: {e}")
         return jsonify({'error': str(e)}), 500
 
 # ========== RUTAS DE SERVICIO ==========

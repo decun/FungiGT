@@ -1,14 +1,31 @@
-# Dependencias para módulo de visualización FungiGT
-flask>=2.3.0
-flask-cors>=4.0.0
-matplotlib>=3.7.0
-seaborn>=0.12.0
-plotly>=5.15.0
-pandas>=2.0.0
-numpy>=1.24.0
-biopython>=1.81
-requests>=2.31.0
-pillow>=10.0.0
-scipy>=1.10.0
-scikit-learn>=1.3.0
-werkzeug>=2.3.0 
+# DNA Features Viewer y dependencias principales
+dna_features_viewer>=3.1.0
+biopython>=1.79
+matplotlib>=3.5.0
+pandas>=1.3.0
+numpy>=1.21.0
+
+# Para análisis GFF
+bcbio-gff>=0.6.9
+
+# Para visualizaciones interactivas (opcional)
+bokeh>=2.4.0
+
+# Para el servidor Flask
+Flask>=2.0.0
+Flask-CORS>=3.0.0
+Werkzeug>=2.0.0
+
+# Para manipulación de archivos y paths
+pathlib2>=2.3.0
+
+# Para gráficos y colores
+seaborn>=0.11.0
+plotly>=5.0.0
+
+# Para procesamiento de texto y análisis
+scikit-learn>=1.0.0
+
+# Dependencias del sistema
+setuptools>=45.0.0
+wheel>=0.36.0 

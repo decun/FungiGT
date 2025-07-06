@@ -163,6 +163,7 @@
                                 <option value="bindash">BinDash - Análisis de Similitud Genómica</option>
                                 <option value="eggnog">🧬 EggNOG - Annotations, Seed Orthologs, Hits</option>
                                 <option value="checkm">🔬 CheckM - Control de Calidad de Genomas</option>
+                                <option value="dna_features">🧬 DNA Features Viewer - Visualización de Características de DNA/RNA</option>
                             </select>
                         </div>
                     </div>
@@ -466,13 +467,140 @@
                         <!-- Contenedor para gráficos -->
                         <div id="checkmGraphsContainer" class="mt-6"></div>
                     </div>
+
+                    <!-- Visualizador DNA Features -->
+                    <div id="dna_featuresVisualizerSection" class="bg-white p-8 rounded-xl shadow-lg mb-8 border border-gray-200" style="display: none;">
+                        <div class="border-l-4 border-purple-500 pl-6 mb-6">
+                            <h3 class="text-2xl font-semibold mb-2 flex items-center text-gray-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                </svg>
+                                DNA Features Viewer
+                            </h3>
+                            <p class="text-gray-600 text-sm">Visualización avanzada de características de DNA/RNA: GenBank, GFF, FASTA con detección automática de ORFs</p>
+                        </div>
+
+                        <!-- Información de formatos soportados -->
+                        <div class="mb-6 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-200">
+                            <h4 class="font-semibold text-purple-800 mb-2">🧬 Formatos Soportados</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-purple-700">
+                                <div>
+                                    <p class="font-medium">📄 GenBank</p>
+                                    <p class="text-xs">.gb, .gbk, .genbank</p>
+                                </div>
+                                <div>
+                                    <p class="font-medium">📋 GFF/GFF3</p>
+                                    <p class="text-xs">.gff, .gff3</p>
+                                </div>
+                                <div>
+                                    <p class="font-medium">🧬 FASTA</p>
+                                    <p class="text-xs">.fna, .faa, .fasta, .fa, .fas</p>
+                                </div>
+                            </div>
+                            <div class="mt-3 text-xs text-purple-600">
+                                <p><strong>Características automáticas:</strong> Detección de ORFs, análisis GC, visualización circular/lineal, traducciones</p>
+                            </div>
+                        </div>
+
+                        <!-- Configuraciones de visualización -->
+                        <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <h4 class="font-semibold text-gray-800 mb-3">⚙️ Configuraciones de Visualización</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Visualización</label>
+                                    <select id="dnaVisualizationType" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                                        <option value="all">Todas las visualizaciones</option>
+                                        <option value="linear">Solo vista lineal</option>
+                                        <option value="circular">Solo vista circular</option>
+                                        <option value="sequence">Con secuencia detallada</option>
+                                        <option value="gc_analysis">Con análisis GC</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Tema de Colores</label>
+                                    <select id="dnaTheme" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                                        <option value="default">Predeterminado</option>
+                                        <option value="colorblind_friendly">Amigable para daltónicos</option>
+                                        <option value="monochrome">Monocromático</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Zona de drop para archivos -->
+                        <div id="dnaFeaturesDropZone" class="drop-zone mb-6 cursor-pointer">
+                            <div class="text-center py-8">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                <p class="text-lg font-medium text-gray-700 mb-2">Arrastra archivos DNA/RNA aquí</p>
+                                <p class="text-sm text-gray-500 mb-4">o haz clic para seleccionar archivos</p>
+                                <div class="text-xs text-gray-400 space-y-1">
+                                    <p><strong>Ejemplos de archivos:</strong></p>
+                                    <p>• GenBank: secuencia.gb, genome.gbk</p>
+                                    <p>• GFF: annotations.gff, features.gff3</p>
+                                    <p>• FASTA: genome.fna, proteins.faa</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Input oculto para archivos -->
+                        <input type="file" id="dnaFeaturesFileInput" accept=".gb,.gbk,.genbank,.gff,.gff3,.fna,.faa,.fasta,.fa,.fas" style="display: none;">
+
+                        <!-- Información del archivo seleccionado -->
+                        <div id="selectedDnaFeaturesFileInfo" class="bg-purple-50 p-4 rounded-lg border border-purple-200 mb-6" style="display: none;">
+                            <h4 class="font-semibold text-purple-800 mb-2">🧬 Archivo DNA/RNA seleccionado:</h4>
+                            <p id="selectedDnaFeaturesFileName" class="text-purple-700 text-sm font-medium"></p>
+                            <p id="selectedDnaFeaturesFilePath" class="text-purple-600 text-xs mt-1"></p>
+                            <p id="selectedDnaFeaturesFileType" class="text-purple-600 text-xs mt-1 font-medium"></p>
+                        </div>
+
+                        <!-- Botón de procesar -->
+                        <div class="mb-6">
+                            <button id="processDnaFeaturesBtn" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105" disabled>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                </svg>
+                                Procesar con DNA Features Viewer
+                            </button>
+                        </div>
+
+                        <!-- Estado del procesamiento -->
+                        <div id="dnaFeaturesStatus" class="mb-6 text-sm text-gray-600"></div>
+
+                        <!-- Estadísticas del análisis -->
+                        <div id="dnaFeaturesStatsPanel" class="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-lg border border-purple-200 mb-6" style="display: none;">
+                            <h4 class="text-lg font-semibold mb-4 text-gray-800">📊 Estadísticas del Análisis DNA</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-purple-600" id="dnaSequenceLength">0</div>
+                                    <div class="text-sm text-gray-600">Longitud (bp)</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-indigo-600" id="dnaFeaturesCount">0</div>
+                                    <div class="text-sm text-gray-600">Características</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-green-600" id="dnaGcContent">0%</div>
+                                    <div class="text-sm text-gray-600">Contenido GC</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-orange-600" id="dnaOrfsDetected">0</div>
+                                    <div class="text-sm text-gray-600">ORFs detectados</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contenedor para gráficos -->
+                        <div id="dnaFeaturesGraphsContainer" class="mt-6"></div>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
 
     <%- include('partials/footer') %>
-    <%- include('partials/drfungito-chat') %>
+    <!-- Dr. Fungito chat ya incluido en footer.ejs -->
 
     <script>
         // Variables globales
@@ -482,11 +610,31 @@
 
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎯 [DEBUG] Visualizer DOMContentLoaded - Starting initialization...');
+            console.log('🎯 [DEBUG] window.sendImageToDrFungito available:', !!window.sendImageToDrFungito);
+            console.log('🎯 [DEBUG] Dr. Fungito button exists:', !!document.getElementById('drFungitoButton'));
+            console.log('🎯 [DEBUG] Dr. Fungito panel exists:', !!document.getElementById('drFungitoPanel'));
+            
             setupVisualizerSelector();
             setupBindashDragDrop();
             setupEggnogDragDrop();
             setupCheckmDragDrop();
+            setupDnaFeaturesDragDrop();
             setupFileExplorerIntegration();
+            
+            // Verificar Dr. Fungito después de un delay
+            setTimeout(() => {
+                console.log('🎯 [DEBUG] After 2s delay:');
+                console.log('🎯 [DEBUG] window.sendImageToDrFungito available:', !!window.sendImageToDrFungito);
+                console.log('🎯 [DEBUG] Dr. Fungito button exists:', !!document.getElementById('drFungitoButton'));
+                console.log('🎯 [DEBUG] Dr. Fungito panel exists:', !!document.getElementById('drFungitoPanel'));
+                
+                if (window.sendImageToDrFungito) {
+                    console.log('🎯 [SUCCESS] Dr. Fungito functions are ready!');
+                } else {
+                    console.error('🎯 [ERROR] Dr. Fungito functions are NOT ready!');
+                }
+            }, 2000);
         });
 
         // Configurar selector de visualizadores
@@ -863,7 +1011,32 @@
             
             // Dr. Fungito análisis
             drFungitoBtn.addEventListener('click', function() {
-                showNotification('Dr. Fungito', 'Función de análisis con Dr. Fungito en desarrollo', 'info');
+                console.log('🍄 [DEBUG] Dr. Fungito button clicked!');
+                console.log('🍄 [DEBUG] window.sendImageToDrFungito exists:', !!window.sendImageToDrFungito);
+                console.log('🍄 [DEBUG] currentImage:', currentImage);
+                console.log('🍄 [DEBUG] currentImage.src:', currentImage ? currentImage.src : 'No image');
+                
+                if (window.sendImageToDrFungito) {
+                    const imageUrl = currentImage.src;
+                    const graphTitle = getGraphTitle(imageUrl);
+                    console.log('🍄 [DEBUG] Sending to Dr. Fungito - URL:', imageUrl, 'Title:', graphTitle);
+                    window.sendImageToDrFungito(imageUrl, 'bindash', graphTitle);
+                } else {
+                    console.log('🍄 [DEBUG] window.sendImageToDrFungito not available, waiting...');
+                    showNotification('Dr. Fungito', 'Cargando Dr. Fungito...', 'info');
+                    setTimeout(() => {
+                        console.log('🍄 [DEBUG] Retry - window.sendImageToDrFungito exists:', !!window.sendImageToDrFungito);
+                        if (window.sendImageToDrFungito) {
+                            const imageUrl = currentImage.src;
+                            const graphTitle = getGraphTitle(imageUrl);
+                            console.log('🍄 [DEBUG] Retry sending to Dr. Fungito - URL:', imageUrl, 'Title:', graphTitle);
+                            window.sendImageToDrFungito(imageUrl, 'bindash', graphTitle);
+                        } else {
+                            console.error('🍄 [ERROR] window.sendImageToDrFungito still not available after 1 second');
+                            showNotification('Error', 'Dr. Fungito no está disponible. Verifica que el chat esté cargado.', 'error');
+                        }
+                    }, 1000);
+                }
             });
             
             // Drag para mover imagen
@@ -1295,26 +1468,20 @@
             
             // Dr. Fungito análisis
             drFungitoBtn.addEventListener('click', function() {
-                // Activar el chat de Dr. Fungito si no está visible
-                const drFungitoPanel = document.getElementById('drFungitoPanel');
-                if (drFungitoPanel && drFungitoPanel.classList.contains('hidden')) {
-                    document.getElementById('drFungitoButton').click();
+                if (window.sendImageToDrFungito) {
+                    const imageUrl = currentImage.src;
+                    const graphTitle = getEggnogGraphTitle(imageUrl);
+                    window.sendImageToDrFungito(imageUrl, 'eggnog', graphTitle);
+                } else {
+                    showNotification('Dr. Fungito', 'Cargando Dr. Fungito...', 'info');
+                    setTimeout(() => {
+                        if (window.sendImageToDrFungito) {
+                            const imageUrl = currentImage.src;
+                            const graphTitle = getEggnogGraphTitle(imageUrl);
+                            window.sendImageToDrFungito(imageUrl, 'eggnog', graphTitle);
+                        }
+                    }, 1000);
                 }
-                
-                // Enviar mensaje automático para análisis
-                const userInput = document.getElementById('userInput');
-                if (userInput) {
-                    const analysisPrompt = `Analiza este gráfico de EggNOG: ${getEggnogGraphTitle(currentImage.src)}. Proporciona una interpretación detallada de los resultados de análisis funcional.`;
-                    userInput.value = analysisPrompt;
-                    
-                    // Simular envío del mensaje
-                    const sendButton = document.getElementById('sendButton');
-                    if (sendButton) {
-                        sendButton.click();
-                    }
-                }
-                
-                showNotification('Dr. Fungito', 'Análisis del gráfico EggNOG enviado a Dr. Fungito IA', 'info');
             });
             
             // Drag para mover imagen
@@ -1621,6 +1788,434 @@
             }
         }
 
+        // ===== FUNCIONES PARA VISUALIZADOR DNA FEATURES =====
+
+        // Configurar drag and drop para DNA Features
+        function setupDnaFeaturesDragDrop() {
+            const dropZone = document.getElementById('dnaFeaturesDropZone');
+            const fileInput = document.getElementById('dnaFeaturesFileInput');
+            const processBtn = document.getElementById('processDnaFeaturesBtn');
+
+            if (!dropZone || !fileInput || !processBtn) return;
+
+            // Eventos del drop zone
+            dropZone.addEventListener('click', () => fileInput.click());
+            dropZone.addEventListener('dragover', handleDnaFeaturesDragOver);
+            dropZone.addEventListener('drop', handleDnaFeaturesDrop);
+            dropZone.addEventListener('dragleave', handleDnaFeaturesDragLeave);
+
+            // Evento del input de archivo
+            fileInput.addEventListener('change', handleDnaFeaturesFileSelect);
+
+            // Evento del botón de procesar
+            processBtn.addEventListener('click', processDnaFeaturesFile);
+        }
+
+        // Verificar si un archivo es compatible para DNA Features
+        function isDnaFeaturesFile(fileName) {
+            const lowerName = fileName.toLowerCase();
+            return lowerName.endsWith('.gb') || 
+                   lowerName.endsWith('.gbk') ||
+                   lowerName.endsWith('.genbank') ||
+                   lowerName.endsWith('.gff') ||
+                   lowerName.endsWith('.gff3') ||
+                   lowerName.endsWith('.fna') ||
+                   lowerName.endsWith('.faa') ||
+                   lowerName.endsWith('.fasta') ||
+                   lowerName.endsWith('.fa') ||
+                   lowerName.endsWith('.fas');
+        }
+        
+        // Detectar tipo específico de archivo DNA Features
+        function getDnaFeaturesFileType(fileName) {
+            const lowerName = fileName.toLowerCase();
+            
+            if (lowerName.endsWith('.gb') || lowerName.endsWith('.gbk') || lowerName.endsWith('.genbank')) {
+                return 'GenBank - Secuencia completa con anotaciones';
+            } else if (lowerName.endsWith('.gff') || lowerName.endsWith('.gff3')) {
+                return 'GFF/GFF3 - Archivo de características genómicas';
+            } else if (lowerName.endsWith('.fna')) {
+                return 'FASTA Nucleotides - Secuencias de DNA/RNA';
+            } else if (lowerName.endsWith('.faa')) {
+                return 'FASTA Amino Acids - Secuencias de proteínas';
+            } else if (lowerName.endsWith('.fasta') || lowerName.endsWith('.fa') || lowerName.endsWith('.fas')) {
+                return 'FASTA - Secuencias biológicas';
+            }
+            
+            return 'Archivo de secuencia genómica';
+        }
+
+        // Manejar drag over para DNA Features
+        function handleDnaFeaturesDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        // Manejar drag leave para DNA Features
+        function handleDnaFeaturesDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        // Manejar drop para DNA Features
+        function handleDnaFeaturesDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            
+            // Intentar obtener datos del file explorer
+            try {
+                const dragData = e.dataTransfer.getData('text/plain');
+                if (dragData) {
+                    const fileData = JSON.parse(dragData);
+                    if (fileData.fileName && fileData.filePath && !fileData.isDirectory) {
+                        if (isDnaFeaturesFile(fileData.fileName)) {
+                            // Descargar archivo del file manager y luego procesarlo
+                            downloadAndProcessFile(fileData.fileName, fileData.filePath, 'dna_features');
+                        } else {
+                            showNotification('Archivo no compatible', 
+                                `El archivo ${fileData.fileName} no es compatible con DNA Features Viewer. Formatos soportados: .gb, .gbk, .gff, .gff3, .fna, .faa, .fasta`, 'warning');
+                        }
+                        return;
+                    } else if (fileData.isDirectory) {
+                        console.log('Carpeta arrastrada a DNA Features, ignorando');
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.log('No hay datos del file explorer, intentando con archivos locales');
+            }
+            
+            // Si no hay datos del file explorer, usar archivos locales
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (isDnaFeaturesFile(file.name)) {
+                    handleDnaFeaturesFileSelect({ target: { files: files } });
+                } else {
+                    showNotification('Archivo no compatible', 
+                        `El archivo ${file.name} no es compatible con DNA Features Viewer. Formatos soportados: .gb, .gbk, .gff, .gff3, .fna, .faa, .fasta`, 'warning');
+                }
+            }
+        }
+
+        // Seleccionar archivo DNA Features desde el explorador
+        function selectDnaFeaturesFileFromExplorer(fileName, filePath) {
+            currentSelectedFile = { name: fileName };
+            currentSelectedFilePath = filePath;
+            
+            const fileType = getDnaFeaturesFileType(fileName);
+            
+            // Mostrar información del archivo
+            document.getElementById('selectedDnaFeaturesFileName').textContent = fileName;
+            document.getElementById('selectedDnaFeaturesFilePath').textContent = filePath;
+            document.getElementById('selectedDnaFeaturesFileType').textContent = `🧬 Tipo: ${fileType}`;
+            document.getElementById('selectedDnaFeaturesFileInfo').style.display = 'block';
+            
+            // Habilitar botón de procesar
+            document.getElementById('processDnaFeaturesBtn').disabled = false;
+            
+            // Cambiar al visualizador DNA Features si no está seleccionado
+            const selector = document.getElementById('visualizerSelector');
+            if (selector.value !== 'dna_features') {
+                selector.value = 'dna_features';
+                selector.dispatchEvent(new Event('change'));
+            }
+
+            showNotification('Archivo DNA Features seleccionado', 
+                `Se ha seleccionado el archivo: ${fileName} (${fileType})`, 'success');
+        }
+
+        // Manejar selección de archivo DNA Features
+        function handleDnaFeaturesFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                currentSelectedFile = file;
+                currentSelectedFilePath = null;
+                
+                const fileType = getDnaFeaturesFileType(file.name);
+                
+                document.getElementById('selectedDnaFeaturesFileName').textContent = file.name;
+                document.getElementById('selectedDnaFeaturesFilePath').textContent = 'Archivo local';
+                document.getElementById('selectedDnaFeaturesFileType').textContent = `🧬 Tipo: ${fileType}`;
+                document.getElementById('selectedDnaFeaturesFileInfo').style.display = 'block';
+                
+                document.getElementById('processDnaFeaturesBtn').disabled = false;
+
+                showNotification('Archivo DNA Features cargado', 
+                    `Se ha cargado el archivo: ${file.name} (${fileType})`, 'success');
+            }
+        }
+
+        // Procesar archivo DNA Features
+        async function processDnaFeaturesFile() {
+            const statusElement = document.getElementById('dnaFeaturesStatus');
+            const graphsContainer = document.getElementById('dnaFeaturesGraphsContainer');
+            const statsPanel = document.getElementById('dnaFeaturesStatsPanel');
+            
+            const fileName = currentSelectedFile?.name || currentSelectedFilePath?.split('/').pop() || '';
+            const fileType = getDnaFeaturesFileType(fileName);
+            
+            // Limpiar contenido anterior
+            graphsContainer.innerHTML = '';
+            statsPanel.style.display = 'none';
+            
+            statusElement.innerHTML = `<div class="loading-spinner"></div> Procesando archivo DNA Features (${fileType})...`;
+            statusElement.className = 'mb-6 text-sm text-purple-600';
+            
+            try {
+                const formData = new FormData();
+                
+                if (currentSelectedFilePath) {
+                    // Archivo del servidor
+                    formData.append('filePath', currentSelectedFilePath);
+                } else if (currentSelectedFile) {
+                    // Archivo local
+                    formData.append('file', currentSelectedFile);
+                } else {
+                    throw new Error('No hay archivo seleccionado');
+                }
+                
+                // Agregar configuraciones de visualización
+                const visualizationType = document.getElementById('dnaVisualizationType')?.value || 'all';
+                const theme = document.getElementById('dnaTheme')?.value || 'default';
+                
+                formData.append('visualization_type', visualizationType);
+                formData.append('theme', theme);
+                
+                const response = await fetch(`${bindashVisualizerUrl}/process-dna-features`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Resultado DNA Features:', data);
+                statusElement.textContent = `✅ Archivo procesado exitosamente (${data.graphs?.length || 0} visualizaciones generadas)`;
+                statusElement.className = 'mb-6 text-sm text-green-600';
+                
+                // Mostrar estadísticas
+                if (data.stats) {
+                    displayDnaFeaturesStats(data.stats, fileType);
+                }
+                
+                // Mostrar gráficos
+                if (data.graphs && data.graphs.length > 0) {
+                    displayDnaFeaturesGraphs(data.graphs);
+                }
+
+                showNotification('Procesamiento completado', 
+                    `El archivo DNA Features (${fileType}) ha sido procesado exitosamente`, 'success');
+                
+            } catch (error) {
+                console.error('Error procesando archivo DNA Features:', error);
+                statusElement.textContent = `❌ Error: ${error.message}`;
+                statusElement.className = 'mb-6 text-sm text-red-600';
+                showNotification('Error de procesamiento', error.message, 'error');
+            }
+        }
+
+        // Mostrar estadísticas DNA Features
+        function displayDnaFeaturesStats(stats, fileType) {
+            const statsPanel = document.getElementById('dnaFeaturesStatsPanel');
+            
+            // Estadísticas de DNA Features
+            document.getElementById('dnaSequenceLength').textContent = formatLength(stats.sequence_length) || '0';
+            document.getElementById('dnaFeaturesCount').textContent = stats.features_count || '0';
+            document.getElementById('dnaGcContent').textContent = stats.gc_content ? `${stats.gc_content}%` : '0%';
+            document.getElementById('dnaOrfsDetected').textContent = stats.orfs_detected || '0';
+            
+            statsPanel.style.display = 'block';
+        }
+
+        // Mostrar gráficos DNA Features
+        function displayDnaFeaturesGraphs(graphs) {
+            const container = document.getElementById('dnaFeaturesGraphsContainer');
+            
+            // Corregir URLs
+            const correctedGraphs = graphs.map(graphUrl => {
+                if (graphUrl.startsWith('/graphs/')) {
+                    return `${bindashVisualizerUrl}${graphUrl}`;
+                }
+                return graphUrl.replace('http://localhost:4005', bindashVisualizerUrl);
+            });
+
+            const selectorHTML = `
+                <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <label class="font-medium text-gray-700">Seleccionar Visualización:</label>
+                        <select id="dnaFeaturesGraphSelector" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                            ${correctedGraphs.map((graph, index) => 
+                                `<option value="${index}" ${index === 0 ? 'selected' : ''}>${getDnaFeaturesGraphTitle(graph)}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    
+                    <div class="relative bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg border-2 border-purple-200">
+                        <div class="absolute top-3 right-3 z-10 flex space-x-2">
+                            <button id="dnaFeaturesDrFungitoAnalyzeBtn" class="bg-purple-500 bg-opacity-80 hover:bg-opacity-100 text-white p-2 rounded hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-400" title="Analizar con Dr. Fungito IA">
+                                <i class="fas fa-search text-sm"></i>
+                            </button>
+                            <button id="dnaFeaturesZoomInBtn" class="bg-gray-800 bg-opacity-75 text-white p-2 rounded hover:bg-opacity-100 transition-all" title="Zoom In">
+                                <i class="fas fa-search-plus text-sm"></i>
+                            </button>
+                            <button id="dnaFeaturesZoomOutBtn" class="bg-gray-800 bg-opacity-75 text-white p-2 rounded hover:bg-opacity-100 transition-all" title="Zoom Out">
+                                <i class="fas fa-search-minus text-sm"></i>
+                            </button>
+                            <button id="dnaFeaturesFullscreenBtn" class="bg-gray-800 bg-opacity-75 text-white p-2 rounded hover:bg-opacity-100 transition-all" title="Pantalla completa">
+                                <i class="fas fa-expand text-sm"></i>
+                            </button>
+                            <button id="dnaFeaturesDownloadBtn" class="bg-gray-800 bg-opacity-75 text-white p-2 rounded hover:bg-opacity-100 transition-all" title="Descargar">
+                                <i class="fas fa-download text-sm"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="absolute top-3 left-3 z-10">
+                            <h5 id="dnaFeaturesGraphTitle" class="bg-white bg-opacity-90 px-3 py-1 rounded-md text-sm font-semibold text-gray-800 shadow-sm">
+                                ${getDnaFeaturesGraphTitle(correctedGraphs[0])}
+                            </h5>
+                        </div>
+                        
+                        <div class="p-6 min-h-[500px] flex items-center justify-center">
+                            <img id="currentDnaFeaturesGraphImage" 
+                                 src="${correctedGraphs[0]}" 
+                                 alt="Visualización DNA Features" 
+                                 class="max-w-full max-h-[500px] object-contain rounded-lg shadow-lg transition-transform duration-200"
+                                 style="cursor: grab;"
+                                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzljYTNhZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkVycm9yIGNhcmdhbmRvIGltYWdlbjwvdGV4dD48L3N2Zz4='; this.alt='Error cargando imagen';" />
+                        </div>
+                    </div>
+                </div>
+            `;
+                
+            container.innerHTML = selectorHTML;
+            setupDnaFeaturesGraphControls(correctedGraphs);
+        }
+
+        // Obtener título del gráfico DNA Features
+        function getDnaFeaturesGraphTitle(graphUrl) {
+            const fileName = graphUrl.split('/').pop().replace('.png', '');
+            
+            const titleMap = {
+                'dna_linear': '🧬 Vista Lineal',
+                'dna_circular': '⭕ Vista Circular',
+                'dna_sequence': '📝 Secuencia Detallada',
+                'dna_gc_content': '📊 Análisis GC',
+                'dna_fasta_analysis': '🔬 Análisis FASTA',
+                'dna_fasta_circular': '⭕ FASTA Circular',
+                'dna_custom_theme': '🎨 Tema Personalizado'
+            };
+            
+            for (const [key, title] of Object.entries(titleMap)) {
+                if (fileName.includes(key)) {
+                    return title;
+                }
+            }
+            
+            return '🧬 Visualización DNA';
+        }
+
+        // Configurar controles de gráficos DNA Features
+        function setupDnaFeaturesGraphControls(graphs) {
+            const selector = document.getElementById('dnaFeaturesGraphSelector');
+            const currentImage = document.getElementById('currentDnaFeaturesGraphImage');
+            const graphTitle = document.getElementById('dnaFeaturesGraphTitle');
+            const drFungitoBtn = document.getElementById('dnaFeaturesDrFungitoAnalyzeBtn');
+            const zoomInBtn = document.getElementById('dnaFeaturesZoomInBtn');
+            const zoomOutBtn = document.getElementById('dnaFeaturesZoomOutBtn');
+            const fullscreenBtn = document.getElementById('dnaFeaturesFullscreenBtn');
+            const downloadBtn = document.getElementById('dnaFeaturesDownloadBtn');
+            
+            let currentScale = 1;
+            let isDragging = false;
+            let dragStartX, dragStartY, initialTransformX = 0, initialTransformY = 0;
+            
+            // Cambiar gráfico
+            selector.addEventListener('change', function() {
+                const selectedIndex = parseInt(this.value);
+                const selectedGraph = graphs[selectedIndex];
+                currentImage.src = selectedGraph;
+                graphTitle.textContent = getDnaFeaturesGraphTitle(selectedGraph);
+                currentScale = 1;
+                initialTransformX = 0;
+                initialTransformY = 0;
+                currentImage.style.transform = 'scale(1) translate(0px, 0px)';
+            });
+            
+            // Análisis con Dr. Fungito
+            drFungitoBtn.addEventListener('click', function() {
+                if (window.sendImageToDrFungito) {
+                    const imageUrl = currentImage.src;
+                    const graphTitle = getDnaFeaturesGraphTitle(imageUrl);
+                    window.sendImageToDrFungito(imageUrl, 'dna_features', graphTitle);
+                } else {
+                    showNotification('Dr. Fungito', 'Cargando Dr. Fungito...', 'info');
+                    setTimeout(() => {
+                        if (window.sendImageToDrFungito) {
+                            const imageUrl = currentImage.src;
+                            const graphTitle = getDnaFeaturesGraphTitle(imageUrl);
+                            window.sendImageToDrFungito(imageUrl, 'dna_features', graphTitle);
+                        }
+                    }, 1000);
+                }
+            });
+            
+            // Zoom in
+            zoomInBtn.addEventListener('click', function() {
+                currentScale = Math.min(currentScale * 1.2, 3);
+                currentImage.style.transform = `scale(${currentScale}) translate(${initialTransformX}px, ${initialTransformY}px)`;
+            });
+            
+            // Zoom out
+            zoomOutBtn.addEventListener('click', function() {
+                currentScale = Math.max(currentScale / 1.2, 0.5);
+                currentImage.style.transform = `scale(${currentScale}) translate(${initialTransformX}px, ${initialTransformY}px)`;
+            });
+            
+            // Pantalla completa
+            fullscreenBtn.addEventListener('click', function() {
+                if (currentImage.requestFullscreen) {
+                    currentImage.requestFullscreen();
+                }
+            });
+            
+            // Descargar
+            downloadBtn.addEventListener('click', function() {
+                const link = document.createElement('a');
+                link.href = currentImage.src;
+                link.download = getDnaFeaturesGraphTitle(currentImage.src).replace(/[🧬⭕📝📊🔬🎨]/g, '').trim() + '.png';
+                link.click();
+            });
+            
+            // Drag para mover imagen
+            currentImage.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                dragStartX = e.clientX;
+                dragStartY = e.clientY;
+                currentImage.style.cursor = 'grabbing';
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (isDragging) {
+                    const deltaX = (e.clientX - dragStartX) / currentScale;
+                    const deltaY = (e.clientY - dragStartY) / currentScale;
+                    initialTransformX += deltaX;
+                    initialTransformY += deltaY;
+                    currentImage.style.transform = `scale(${currentScale}) translate(${initialTransformX}px, ${initialTransformY}px)`;
+                    dragStartX = e.clientX;
+                    dragStartY = e.clientY;
+                }
+            });
+            
+            document.addEventListener('mouseup', function() {
+                if (isDragging) {
+                    isDragging = false;
+                    currentImage.style.cursor = 'grab';
+                }
+            });
+        }
+
         // Procesar archivo CheckM
         async function processCheckmFile() {
             const statusElement = document.getElementById('checkmStatus');
@@ -1860,26 +2455,20 @@
             
             // Dr. Fungito análisis
             drFungitoBtn.addEventListener('click', function() {
-                // Activar el chat de Dr. Fungito si no está visible
-                const drFungitoPanel = document.getElementById('drFungitoPanel');
-                if (drFungitoPanel && drFungitoPanel.classList.contains('hidden')) {
-                    document.getElementById('drFungitoButton').click();
+                if (window.sendImageToDrFungito) {
+                    const imageUrl = currentImage.src;
+                    const graphTitle = getCheckmGraphTitle(imageUrl);
+                    window.sendImageToDrFungito(imageUrl, 'checkm', graphTitle);
+                } else {
+                    showNotification('Dr. Fungito', 'Cargando Dr. Fungito...', 'info');
+                    setTimeout(() => {
+                        if (window.sendImageToDrFungito) {
+                            const imageUrl = currentImage.src;
+                            const graphTitle = getCheckmGraphTitle(imageUrl);
+                            window.sendImageToDrFungito(imageUrl, 'checkm', graphTitle);
+                        }
+                    }, 1000);
                 }
-                
-                // Enviar mensaje automático para análisis
-                const userInput = document.getElementById('userInput');
-                if (userInput) {
-                    const analysisPrompt = `Analiza este gráfico de CheckM: ${getCheckmGraphTitle(currentImage.src)}. Proporciona una interpretación detallada de los resultados de control de calidad genómica.`;
-                    userInput.value = analysisPrompt;
-                    
-                    // Simular envío del mensaje
-                    const sendButton = document.getElementById('sendButton');
-                    if (sendButton) {
-                        sendButton.click();
-                    }
-                }
-                
-                showNotification('Dr. Fungito', 'Análisis del gráfico CheckM enviado a Dr. Fungito IA', 'info');
             });
             
             // Drag para mover imagen
@@ -2102,6 +2691,26 @@
                     
                     console.log(`✅ Archivo CheckM preparado: ${fileName}`);
                     showNotification('Archivo preparado', `${fileName} listo para procesar con CheckM`, 'success');
+                } else if (visualizerType === 'dna_features') {
+                    currentSelectedFile = file;
+                    currentSelectedFilePath = null;
+                    
+                    const fileType = getDnaFeaturesFileType(fileName);
+                    
+                    document.getElementById('selectedDnaFeaturesFileName').textContent = fileName;
+                    document.getElementById('selectedDnaFeaturesFilePath').textContent = 'Archivo del explorador';
+                    document.getElementById('selectedDnaFeaturesFileType').textContent = `🧬 Tipo: ${fileType}`;
+                    document.getElementById('selectedDnaFeaturesFileInfo').style.display = 'block';
+                    document.getElementById('processDnaFeaturesBtn').disabled = false;
+                    
+                    const selector = document.getElementById('visualizerSelector');
+                    if (selector.value !== 'dna_features') {
+                        selector.value = 'dna_features';
+                        selector.dispatchEvent(new Event('change'));
+                    }
+                    
+                    console.log(`✅ Archivo DNA Features preparado: ${fileName}`);
+                    showNotification('Archivo preparado', `${fileName} listo para procesar con DNA Features Viewer`, 'success');
                 }
                 
             } catch (error) {

@@ -1,13 +1,31 @@
 FROM node:18-alpine
 
-# Instalar dependencias del sistema para Sharp y otras herramientas de imagen
+# Instalar dependencias del sistema para Sharp, Puppeteer, Chromium y Canvas
 RUN apk add --no-cache \
     vips-dev \
     python3 \
     make \
     g++ \
     curl \
-    bash
+    bash \
+    chromium \
+    nss \
+    freetype \
+    freetype-dev \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont \
+    font-noto-emoji \
+    cairo-dev \
+    pango-dev \
+    libjpeg-turbo-dev \
+    giflib-dev \
+    librsvg-dev \
+    pixman-dev
+
+# Configurar variables de entorno para Puppeteer
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 # Crear directorio de trabajo
 WORKDIR /app

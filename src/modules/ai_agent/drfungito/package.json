@@ -33,7 +33,16 @@
     "helmet": "^7.0.0",
     "rate-limiter-flexible": "^3.0.1",
     "compression": "^1.7.4",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "langchain": "^0.0.206",
+    "@langchain/core": "^0.1.5",
+    "puppeteer": "^19.7.2",
+    "html-pdf": "^3.0.1",
+    "pdf-lib": "^1.17.1",
+    "canvas": "^2.11.2",
+    "chartjs-to-image": "^1.0.0",
+    "markdown-it": "^14.0.0",
+    "moment": "^2.29.4"
   },
   "devDependencies": {
     "nodemon": "^3.0.1",

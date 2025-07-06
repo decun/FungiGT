@@ -1087,23 +1087,33 @@ document.addEventListener('DOMContentLoaded', function() {
         getFileIconColor: function(filename) {
             const extension = filename.split('.').pop().toLowerCase();
             const colorMap = {
+                // Archivos de secuencias FASTA
                 'fna': 'text-green-600',
                 'faa': 'text-green-600',
+                'fasta': 'text-green-600',
+                'fa': 'text-green-600',
                 'fastq': 'text-purple-600',
+                // Archivos GenBank
+                'gb': 'text-blue-600',
                 'gbk': 'text-blue-600',
                 'gbff': 'text-blue-600',
+                // Archivos GFF
                 'gff': 'text-orange-600',
                 'gff3': 'text-orange-600',
+                // Otros formatos genómicos
                 'bam': 'text-blue-600',
                 'sam': 'text-blue-600',
                 'vcf': 'text-red-600',
+                // Archivos de datos
                 'txt': 'text-gray-600',
                 'csv': 'text-blue-600',
                 'tsv': 'text-blue-600',
+                // Imágenes
                 'png': 'text-purple-600',
                 'jpg': 'text-purple-600',
                 'jpeg': 'text-purple-600',
-                'zip': 'text-yellow-600'  // Destacar archivos ZIP
+                // Archivos comprimidos
+                'zip': 'text-yellow-600'
             };
             return colorMap[extension] || 'text-gray-600';
         },
@@ -1132,7 +1142,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // Archivos de secuencias y árboles
             const isSequenceOrTree = ['fna', 'fasta', 'fa', 'tree', 'nwk', 'analyze'].includes(extension);
             
-            return basicExtensions.includes(extension) || isEggNOG || isCheckM || isSequenceOrTree;
+            // Archivos DNA Features Viewer (GenBank, GFF, FASTA)
+            const isDNAFeatures = ['gb', 'gbk', 'gbff', 'gff', 'gff3', 'fna', 'faa', 'fasta', 'fa'].includes(extension);
+            
+            return basicExtensions.includes(extension) || isEggNOG || isCheckM || isSequenceOrTree || isDNAFeatures;
         },
         
         escapeHtml: function(text) {

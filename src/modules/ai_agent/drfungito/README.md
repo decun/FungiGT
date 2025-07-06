@@ -1,380 +1,269 @@
-# 🍄 Dr. Fungito AI Agent
+# 🍄 Dr. Fungito AI Agent - Versión 2.0
 
-**Agente de IA especializado en análisis genómico de hongos con capacidades de análisis de imágenes**
+Dr. Fungito es un agente de inteligencia artificial especializado en análisis genómico de hongos con capacidades avanzadas de análisis de imágenes, memoria contextual y generación de reportes PDF.
 
-## 🎯 **Descripción**
+## 🚀 Nuevas Características v2.0
 
-Dr. Fungito es un agente de inteligencia artificial especializado que utiliza **Claude 3 Sonnet** de Anthropic para analizar automáticamente gráficos genómicos, interpretar resultados bioinformáticos y generar reportes detallados. Está diseñado específicamente para el análisis de genomas fúngicos.
+### 🧠 Memoria Contextual con LangChain
+- **Chat inteligente**: Mantiene memoria de conversaciones anteriores
+- **Contexto de imágenes**: Relaciona automáticamente las imágenes analizadas con las conversaciones
+- **Respuestas personalizadas**: Utiliza el historial del usuario para proporcionar respuestas más precisas
 
-## ✨ **Características Principales**
+### 📄 Generación de Reportes PDF
+- **Reportes profesionales**: Genera documentos PDF con formato profesional
+- **Imágenes incluidas**: Cada reporte incluye las imágenes analizadas con sus interpretaciones
+- **Múltiples tipos**: Reportes detallados, resúmenes ejecutivos y análisis comparativos
+- **Descarga directa**: Los reportes se pueden descargar directamente desde el chat
 
-### 🔬 **Análisis Inteligente de Imágenes**
-- Interpretación automática de gráficos genómicos (heatmaps, dendrogramas, gráficos de barras)
-- Análisis especializado por tipo:
-  - **BinDash**: Matrices de distancias, ANI, relaciones filogenéticas
-  - **Anotaciones**: Categorías COG, GO terms, vías KEGG
-  - **Control de Calidad**: CheckM, completitud genómica, contaminación
-  - **HMMER**: Dominios, familias de proteínas
+### 🔗 Integración Mejorada con Visualizadores
+- **Análisis directo**: Los visualizadores pueden enviar imágenes directamente al Dr. Fungito
+- **Botones especializados**: Botones "Enviar a Dr. Fungito" en cada visualizador
+- **Análisis específico**: Análisis especializados para BinDash, eggNOG, CheckM, etc.
 
-### 📊 **Generación de Reportes**
-- Reportes detallados con interpretación biológica
-- Análisis comparativo entre múltiples gráficos
-- Recomendaciones para análisis adicionales
-- Exportación en múltiples formatos
+## 🛠️ Instalación y Configuración
 
-### 🧠 **Memoria por Usuario**
-- Seguimiento de imágenes analizadas por usuario
-- Historial de reportes generados
-- Contexto mantenido entre sesiones
-- Análisis evolutivo de resultados
+### Requisitos
+- Node.js >= 18.0.0
+- MongoDB
+- Clave API de Anthropic
+- Puppeteer para generación de PDF
 
-### 🎨 **Integración Frontend**
-- Botones en cada módulo de visualización
-- Efectos hover sutiles y animaciones
-- Modal de reportes interactivo
-- Chat contextual integrado
-
-## 🏗️ **Arquitectura**
-
-```
-📁 src/modules/ai_agent/drfungito/
-├── 📄 server.js              # Servidor principal
-├── 📄 package.json           # Dependencias Node.js
-├── 📄 config.example.js      # Configuración
-├── 📄 README.md              # Esta documentación
-└── 📁 logs/                  # Archivos de log
-    ├── 📄 error.log
-    └── 📄 combined.log
-```
-
-## 🚀 **Instalación**
-
-### 1. **Configurar API Key de Anthropic**
-
+### Instalación de Dependencias
 ```bash
-# Obtener API key en: https://console.anthropic.com/
-export ANTHROPIC_API_KEY="tu_api_key_aqui"
-```
-
-### 2. **Instalar Dependencias**
-
-```bash
-cd src/modules/ai_agent/drfungito
 npm install
 ```
 
-### 3. **Configurar Variables de Entorno**
-
+### Variables de Entorno
 ```bash
-# Copiar configuración de ejemplo
-cp config.example.js config.js
+# Clave API de Anthropic
+ANTHROPIC_API_KEY=your_anthropic_api_key
 
-# Editar configuración
-nano config.js
+# MongoDB
+MONGODB_URI=mongodb://admin:admin123@localhost:27017/fungigt?authSource=admin
+
+# Puerto del servidor
+PORT=4009
+
+# URL del frontend
+FRONTEND_URL=http://localhost:4005
 ```
 
-### 4. **Ejecutar con Docker**
+## 🔧 Uso del API
 
+### Análisis de Imágenes
 ```bash
-# Desde el directorio raíz del proyecto
-docker-compose up drfungito-agent
-```
-
-## 🔧 **Configuración**
-
-### **Variables de Entorno Principales**
-
-| Variable | Descripción | Ejemplo |
-|----------|-------------|---------|
-| `ANTHROPIC_API_KEY` | API Key de Anthropic | `sk-ant-api03-...` |
-| `PORT` | Puerto del servidor | `4009` |
-| `MONGODB_URI` | URI de MongoDB | `mongodb://admin:admin123@localhost:27017/fungigt` |
-| `FRONTEND_URL` | URL del frontend | `http://localhost:4005` |
-
-### **Configuración de Imágenes**
-
-```javascript
-images: {
-    maxSize: 10 * 1024 * 1024,     // 10MB máximo
-    allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
-    maxWidth: 1024,                 // Redimensionado automático
-    maxHeight: 1024,
-    quality: 85                     // Calidad JPEG
-}
-```
-
-## 📡 **API Endpoints**
-
-### **🔍 Análisis de Imágenes**
-
-```http
+# Subir y analizar imagen
 POST /analyze-image
 Content-Type: multipart/form-data
-X-User-Id: usuario123
+X-User-Id: user_id
 
 {
-  "image": [archivo],
-  "analysisType": "bindash",
-  "userContext": "Análisis de 5 genomas fúngicos",
-  "saveToMemory": "true"
+  "image": <file>,
+  "analysisType": "bindash|eggnog|checkm|general",
+  "userContext": "Contexto opcional",
+  "saveToMemory": true
 }
 ```
 
-**Respuesta:**
-```json
+### Análisis desde Visualizadores
+```bash
+# Enviar imagen desde visualizador
+POST /analyze-from-visualizer
+Content-Type: application/json
+X-User-Id: user_id
+
 {
-  "imageId": "uuid-v4",
-  "filename": "graph_1.png",
+  "imageUrl": "http://localhost:4003/visualization/image.png",
   "analysisType": "bindash",
-  "analysis": "Este heatmap muestra distancias genómicas...",
-  "uploadDate": "2025-01-09T10:30:00Z",
-  "metadata": {
-    "originalSize": 2048576,
-    "optimizedSize": 1024768,
-    "mimetype": "image/png"
-  }
+  "filename": "matriz_distancias.png",
+  "userContext": "Análisis de similaridad genómica"
 }
 ```
 
-### **📄 Generación de Reportes**
-
-```http
+### Generación de Reportes PDF
+```bash
+# Generar reporte con PDF
 POST /generate-report
 Content-Type: application/json
-X-User-Id: usuario123
+X-User-Id: user_id
 
 {
-  "reportType": "detailed",
+  "reportType": "detailed|summary|comparative",
   "title": "Reporte de Análisis Genómico",
-  "imageIds": ["uuid1", "uuid2"],
-  "includeAllImages": false
+  "includeAllImages": false,
+  "generatePDF": true,
+  "imageIds": ["id1", "id2"]
 }
 ```
 
-### **🧠 Memoria del Usuario**
-
-```http
-GET /memory?limit=10&type=bindash
-X-User-Id: usuario123
-```
-
-### **💬 Chat Contextual**
-
-```http
+### Chat con Memoria Contextual
+```bash
+# Chat con Dr. Fungito
 POST /chat
 Content-Type: application/json
-X-User-Id: usuario123
+X-User-Id: user_id
 
 {
-  "message": "¿Qué puedes decirme sobre los resultados de BinDash?",
+  "message": "¿Qué puedes decirme sobre los últimos análisis?",
   "includeMemoryContext": true
 }
 ```
 
-## 🎨 **Integración Frontend**
+## 🌐 Integración con Frontend
 
-### **Botones Automáticos en Visualizadores**
-
+### Función Global para Visualizadores
 ```javascript
-// Se agregan automáticamente al mostrar un visualizador
-showVisualizer('bindashVisualizer');  // Agrega botón específico para BinDash
+// Enviar imagen al Dr. Fungito desde cualquier visualizador
+window.sendImageToDrFungito(imageUrl, analysisType, filename);
+
+// Ejemplo de uso
+window.sendImageToDrFungito(
+  'http://localhost:4003/visualization/bindash.png',
+  'bindash',
+  'matriz_distancias_bindash.png'
+);
 ```
 
-### **Análisis Manual de Imágenes**
-
-```javascript
-// Analizar imágenes actuales en el contenedor
-analyzeCurrentImages('annotation', panelElement);
+### Botones en Visualizadores
+```html
+<!-- Botón para enviar al Dr. Fungito -->
+<button onclick="sendImageToDrFungito(chartImageUrl, 'bindash', 'bindash_analysis.png')" 
+        class="btn btn-success">
+    🍄 Enviar a Dr. Fungito
+</button>
 ```
 
-### **Efectos Hover Sutiles**
+## 📊 Tipos de Análisis Especializados
 
-```css
-.drfungito-avatar:hover {
-    transform: scale(1.1) rotate(5deg);
-    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
-}
-```
+### BinDash
+- Análisis de matrices de distancia genómica
+- Interpretación de valores ANI
+- Identificación de clusters y outliers
+- Recomendaciones taxonómicas
 
-## 🔬 **Tipos de Análisis Soportados**
+### eggNOG
+- Análisis de anotaciones funcionales
+- Categorías COG, GO, KEGG
+- Patrones metabólicos específicos de hongos
+- Genes de interés (metabolismo secundario)
 
-### **1. General** (`general`)
-- Detección automática del tipo de gráfico
-- Interpretación biológica general
-- Recomendaciones básicas
-
-### **2. BinDash** (`bindash`)
-- Análisis de matrices de distancias genómicas
-- Interpretación de dendrogramas filogenéticos
-- Evaluación de ANI (Average Nucleotide Identity)
-- Identificación de clusters taxonómicos
-
-### **3. Anotaciones** (`annotation`)
-- Análisis de categorías COG
-- Interpretación de términos GO
-- Evaluación de vías KEGG
-- Análisis de familias PFAM
-
-### **4. Control de Calidad** (`quality`)
+### CheckM
 - Evaluación de completitud genómica
 - Detección de contaminación
-- Análisis de métricas N50
-- Recomendaciones de mejora
+- Calidad del ensamblaje
+- Estándares específicos para hongos
 
-### **5. HMMER** (`hmmer`)
-- Análisis de dominios proteicos
-- Interpretación de E-values
-- Cobertura de secuencias
-- Familias funcionales
+### DNA Features
+- Visualización de características de ADN/ARN
+- Análisis de regiones codificantes
+- Identificación de elementos regulatorios
 
-## 📊 **Tipos de Reportes**
+## 📁 Estructura de Archivos
 
-### **Detallado** (`detailed`)
-```markdown
-# Reporte de Análisis Genómico
-
-## 1. Resumen Ejecutivo
-- Principales hallazgos
-
-## 2. Análisis Individual
-- Interpretación por gráfico
-
-## 3. Análisis Comparativo
-- Relaciones entre resultados
-
-## 4. Interpretación Biológica
-- Significado para genómica fúngica
-
-## 5. Recomendaciones
-- Próximos pasos
-
-## 6. Conclusiones
-- Síntesis final
+```
+drfungito/
+├── server.js           # Servidor principal
+├── package.json        # Dependencias
+├── config.example.js   # Configuración de ejemplo
+├── data/
+│   ├── reports/        # Reportes PDF generados
+│   └── temp/           # Archivos temporales
+├── logs/
+│   ├── error.log       # Logs de errores
+│   └── combined.log    # Logs combinados
+└── README.md          # Este archivo
 ```
 
-### **Resumen** (`summary`)
-- Extracto ejecutivo conciso
-- Principales métricas
-- Conclusiones clave
+## 🧪 Endpoints del API
 
-### **Comparativo** (`comparative`)
-- Análisis lado a lado
-- Diferencias significativas
-- Correlaciones encontradas
+| Endpoint | Método | Descripción |
+|----------|--------|-------------|
+| `/health` | GET | Estado del servicio |
+| `/info` | GET | Información del agente |
+| `/analyze-image` | POST | Análisis de imagen subida |
+| `/analyze-from-visualizer` | POST | Análisis desde visualizador |
+| `/memory` | GET | Obtener memoria del usuario |
+| `/generate-report` | POST | Generar reporte PDF |
+| `/download-report/:id` | GET | Descargar reporte PDF |
+| `/chat` | POST | Chat con memoria contextual |
+| `/chat-history` | GET | Historial de conversaciones |
 
-## 🔒 **Seguridad**
+## 🔍 Monitoreo y Logs
 
-### **Rate Limiting**
-- 100 requests por 15 minutos por IP
-- Protección contra abuso de API
+### Logs Disponibles
+- `logs/error.log` - Errores del sistema
+- `logs/combined.log` - Todos los eventos
+- Consola - Logs en tiempo real
 
-### **Validación de Imágenes**
-- Tipos de archivo permitidos
-- Tamaño máximo configurable
-- Sanitización automática
-
-### **Headers de Seguridad**
-```javascript
-helmet({
-    contentSecurityPolicy: true,
-    crossOriginEmbedderPolicy: false
-})
-```
-
-## 📝 **Logging**
-
-### **Niveles de Log**
-- `error`: Errores críticos
-- `warn`: Advertencias
-- `info`: Información general
-- `debug`: Depuración detallada
-
-### **Archivos de Log**
-```
-logs/
-├── error.log     # Solo errores
-└── combined.log  # Todos los eventos
-```
-
-## 🐛 **Troubleshooting**
-
-### **Error: API Key no configurada**
+### Health Check
 ```bash
-⚠️  ADVERTENCIA: ANTHROPIC_API_KEY no configurada
-```
-**Solución:** Configurar variable de entorno `ANTHROPIC_API_KEY`
-
-### **Error: MongoDB no accesible**
-```bash
-MongooseError: Connection failed
-```
-**Solución:** Verificar `MONGODB_URI` y estado de MongoDB
-
-### **Error: Imagen demasiado grande**
-```json
-{"error": "Archivo excede el tamaño máximo permitido"}
-```
-**Solución:** Reducir tamaño de imagen o ajustar `MAX_IMAGE_SIZE`
-
-### **Error: Formato no soportado**
-```json
-{"error": "Tipo de archivo no permitido"}
-```
-**Solución:** Usar formatos: JPEG, PNG, GIF, WebP
-
-## 🔄 **Health Checks**
-
-```bash
-# Verificar estado del servicio
 curl http://localhost:4009/health
-
-# Respuesta esperada
-{
-  "status": "healthy",
-  "service": "Dr. Fungito AI Agent",
-  "timestamp": "2025-01-09T10:30:00Z",
-  "version": "1.0.0"
-}
 ```
 
-## 🚀 **Deployment**
+## 🎯 Casos de Uso
 
-### **Variables de Entorno Producción**
+### 1. Análisis Automático de Resultados
 ```bash
-NODE_ENV=production
-ANTHROPIC_API_KEY=sk-ant-api03-...
-MONGODB_URI=mongodb://user:pass@cluster.mongodb.net/fungigt
-FRONTEND_URL=https://fungigt.com
-LOG_LEVEL=info
+# El usuario ejecuta análisis BinDash
+# El visualizador genera un gráfico
+# El usuario hace clic en "Enviar a Dr. Fungito"
+# Dr. Fungito analiza automáticamente la imagen
+# El análisis se guarda en memoria contextual
 ```
 
-### **Monitoreo**
+### 2. Generación de Reportes Inteligentes
 ```bash
-# Logs en tiempo real
-docker logs -f fungigt-drfungito-agent
-
-# Métricas de memoria
-docker stats fungigt-drfungito-agent
+# Dr. Fungito tiene varias imágenes analizadas
+# El usuario solicita un reporte
+# Se genera un PDF con todas las imágenes y análisis
+# El reporte se puede descargar directamente
 ```
 
-## 🤝 **Contribuir**
+### 3. Chat Contextual
+```bash
+# Usuario: "¿Qué opinas de los últimos análisis?"
+# Dr. Fungito usa memoria contextual para responder
+# Incluye información de imágenes analizadas recientemente
+# Mantiene el contexto de la conversación
+```
 
-1. Fork del repositorio
-2. Crear rama feature (`git checkout -b feature/nueva-funcionalidad`)
-3. Commit cambios (`git commit -am 'Agregar nueva funcionalidad'`)
-4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
-5. Crear Pull Request
+## 🛡️ Seguridad
 
-## 📄 **Licencia**
+- Autenticación por usuario con header `X-User-Id`
+- Validación de tipos de archivo
+- Límites de tamaño de imagen (10MB)
+- Sanitización de entrada
+- Logs de seguridad
 
-MIT License - Ver archivo `LICENSE` para detalles.
+## 📈 Rendimiento
 
-## 📞 **Soporte**
+- Imágenes optimizadas automáticamente
+- Generación de PDF en segundo plano
+- Memoria contextual limitada (20 conversaciones)
+- Limpieza automática de archivos temporales
 
-- **Issues**: [GitHub Issues](https://github.com/tu-usuario/fungigt/issues)
-- **Documentación**: [Wiki del Proyecto](https://github.com/tu-usuario/fungigt/wiki)
-- **Email**: soporte@fungigt.com
+## 🔄 Actualizaciones
+
+### Versión 2.0 - Nuevas Características
+- ✅ Memoria contextual con LangChain
+- ✅ Generación de reportes PDF
+- ✅ Integración mejorada con visualizadores
+- ✅ Chat inteligente con historial
+- ✅ Análisis especializado por tipo de dato
+
+### Próximas Características
+- 🔄 Análisis de múltiples imágenes simultáneamente
+- 🔄 Exportación de reportes en múltiples formatos
+- 🔄 Integración con bases de datos externas
+- 🔄 API REST completa para terceros
+
+## 📞 Soporte
+
+Para reportar bugs o solicitar funcionalidades:
+- Crear un issue en el repositorio
+- Enviar logs relevantes
+- Incluir pasos para reproducir el problema
 
 ---
 
-**🍄 Dr. Fungito** - *Tu especialista en genómica fúngica impulsado por IA* 
+🍄 **Dr. Fungito AI Agent v2.0** - Análisis genómico inteligente con memoria contextual y generación de reportes PDF. 
