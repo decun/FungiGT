@@ -4,7 +4,7 @@ const session = require('express-session');
 const path = require('path');
 const mongoose = require('./config/database');
 const cors = require('cors');
-const frontRoutes = require('./routes/index');
+// Línea eliminada - no se usa
 const authRoutes = require('./routes/authRoutes');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');

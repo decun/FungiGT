@@ -3,114 +3,747 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FungiGT</title>
+    <title>FungiGT - Análisis Genómico de Hongos</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/css/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #0a2e0a 0%, #1a4d2e 25%, #2d5a4a 50%, #3d6b56 75%, #4a7c59 100%);
+            min-height: 100vh;
+        }
+        
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+            opacity: 0.4;
+        }
+        
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(1px);
+        }
+        
+
+        
+        .floating {
+            animation: float 8s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-10px) rotate(1deg); }
+            50% { transform: translateY(-20px) rotate(0deg); }
+            75% { transform: translateY(-10px) rotate(-1deg); }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 1.2s ease-out forwards;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        }
+        
+        .glass-header {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(25px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .spore-glow {
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3), 0 0 40px rgba(16, 185, 129, 0.1);
+            animation: pulse-glow 4s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3), 0 0 40px rgba(16, 185, 129, 0.1); }
+            50% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.5), 0 0 60px rgba(16, 185, 129, 0.2); }
+        }
+        
+        .hero-title {
+            background: linear-gradient(45deg, #10b981, #34d399, #6ee7b7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
+            line-height: 1.3;
+            padding: 0.25rem 0;
+        }
+        
+        .text-shadow-soft {
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-400 { animation-delay: 0.4s; }
+        .delay-600 { animation-delay: 0.6s; }
+        .delay-800 { animation-delay: 0.8s; }
+        
+        /* Fix text clipping issues */
+        h1, h2, h3, h4, h5, h6 {
+            line-height: 1.3;
+            padding: 0.25rem 0;
+            overflow: visible;
+        }
+        
+        p {
+            line-height: 1.6;
+            padding: 0.1rem 0;
+        }
+        
+        .glass-card h3 {
+            line-height: 1.4;
+            padding: 0.3rem 0;
+        }
+        
+        .glass-card p {
+            line-height: 1.5;
+            padding: 0.2rem 0;
+        }
+        
+        /* Ensure no overflow hidden on text containers */
+        .max-w-6xl, .max-w-7xl, .max-w-4xl, .max-w-3xl, .max-w-2xl {
+            overflow: visible;
+        }
+        
+        section {
+            overflow: visible;
+        }
+        
+        /* Fix specific size classes that might cause clipping */
+        .text-6xl, .text-7xl, .text-8xl {
+            line-height: 1.2;
+            padding: 0.5rem 0;
+        }
+        
+        .text-4xl, .text-5xl {
+            line-height: 1.25;
+            padding: 0.4rem 0;
+        }
+        
+        .text-2xl, .text-3xl {
+            line-height: 1.3;
+            padding: 0.3rem 0;
+        }
+        
+        .text-xl {
+            line-height: 1.4;
+            padding: 0.2rem 0;
+        }
+    </style>
 </head>
 <body>
-
-<body class="bg-gradient-to-b from-green-200 to-green-400 min-h-screen text-gray-800">
-    <header class="py-6 px-4 sm:px-6 lg:px-8">
-        <nav class="flex justify-between items-center">
-            <div class="flex items-center">
-                <img src="/logo1.png" alt="Logo" class="h-10 w-10 mr-2">
-                <span class="text-2xl font-bold">FungiGT</span>
-            </div>
-            <div class="space-x-4">
-                <a href="#features" class="hover:text-green-800 transition duration-300">Características</a>
-                <a href="#about" class="hover:text-green-800 transition duration-300">Acerca de</a>
-                <a href="#contact" class="hover:text-green-800 transition duration-300">Contacto</a>
-                <a href="auth/login" class="inline-block bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition duration-300">
+    <!-- Canvas Container for Three.js -->
+    <div id="canvas-container"></div>
+    
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <!-- Header with Glass Effect -->
+        <header class="glass-header py-6 px-4 sm:px-6 lg:px-8 fixed w-full top-0 z-50">
+            <nav class="flex justify-between items-center max-w-7xl mx-auto">
+                <div class="flex items-center fade-in-up">
+                    <img src="/logo1.png" alt="FungiGT Logo" class="h-12 w-12 mr-3">
+                    <span class="text-2xl font-bold text-white">FungiGT</span>
+                </div>
+                <div class="hidden md:flex space-x-6 fade-in-up delay-200">
+                    <a href="#features" class="text-white hover:text-green-300 transition duration-500 text-shadow-soft">Características</a>
+                    <a href="#about" class="text-white hover:text-green-300 transition duration-500 text-shadow-soft">Acerca de</a>
+                    <a href="#contact" class="text-white hover:text-green-300 transition duration-500 text-shadow-soft">Contacto</a>
+                </div>
+                <a href="auth/login" class="inline-block bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-full hover:from-green-600 hover:to-green-700 transition duration-500 transform hover:scale-105 spore-glow fade-in-up delay-400">
+                    <i class="fas fa-sign-in-alt mr-2"></i>
                     Iniciar sesión
                 </a>
-            </div>
-        </nav>
-    </header>
+            </nav>
+        </header>
 
-    <main class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <section class="text-center py-20">
-            <h1 class="text-5xl sm:text-6xl font-bold mb-6 animate-fade-in-down text-gray-800">
-                Análisis Genómico Simplificado
-            </h1>
-            <p class="text-xl mb-8 animate-fade-in-up text-gray-700">
-                Descarga, analiza y visualiza datos genómicos con nuestra plataforma integral
-            </p>
-            <button class="bg-green-600 text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-green-700 transition duration-300 transform hover:scale-105">
-                Comenzar
-            </button>
-        </section>
-
-        <section id="features" class="py-20">
-            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Características Clave</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="bg-white bg-opacity-50 p-6 rounded-lg hover:bg-opacity-70 transition duration-300 transform hover:-translate-y-1">
-                    <i class="material-icons text-4xl mb-4 text-green-600">cloud_download</i>
-                    <h3 class="text-xl font-semibold mb-2">Descarga de Genomas</h3>
-                    <p>Acceso directo a bases de datos NCBI y otras fuentes para la descarga de genomas</p>
-                </div>
-                <div class="bg-white bg-opacity-50 p-6 rounded-lg hover:bg-opacity-70 transition duration-300 transform hover:-translate-y-1">
-                    <i class="material-icons text-4xl mb-4 text-green-600">science</i>
-                    <h3 class="text-xl font-semibold mb-2">Análisis Completo</h3>
-                    <p>Análisis filogenético y funcional con control de calidad integrado</p>
-                </div>
-                <div class="bg-white bg-opacity-50 p-6 rounded-lg hover:bg-opacity-70 transition duration-300 transform hover:-translate-y-1">
-                    <i class="material-icons text-4xl mb-4 text-green-600">bar_chart</i>
-                    <h3 class="text-xl font-semibold mb-2">Visualización Avanzada</h3>
-                    <p>Herramientas interactivas para visualizar resultados de análisis genómicos</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="about" class="py-20">
-            <div class="flex flex-col md:flex-row items-center">
-                <div class="md:w-1/2 mb-8 md:mb-0">
-                    <img src="/land.jpeg" alt="Acerca de" class="rounded-lg shadow-xl animate-float">
-                </div>
-                <div class="md:w-1/2 md:pl-12">
-                    <h2 class="text-3xl font-bold mb-6 text-gray-800">Acerca de FungiGT</h2>
-                    <p class="text-lg mb-6 text-gray-700">
-                        FungiGT es una plataforma integral diseñada para investigadores y científicos que trabajan con datos genómicos. Desde la descarga de datos de NCBI hasta la anotación genómica, control de calidad, análisis filogenético y funcional, proporcionamos todas las herramientas necesarias en una única plataforma intuitiva.
+        <!-- Main Content -->
+        <main class="pt-24">
+            <!-- Hero Section -->
+            <section class="text-center py-32 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-6xl mx-auto">
+                    <h1 class="text-6xl sm:text-7xl lg:text-8xl font-bold mb-8 hero-title fade-in-up">
+                        FungiGT
+                    </h1>
+                    <p class="text-2xl sm:text-3xl mb-6 text-green-100 text-shadow-soft fade-in-up delay-200">
+                        Análisis Genómico de Hongos
                     </p>
-                    <button class="bg-green-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-700 transition duration-300">
-                        Más Información
-                    </button>
+                    <p class="text-lg sm:text-xl mb-12 text-green-200 max-w-3xl mx-auto leading-relaxed fade-in-up delay-400">
+                        Descarga, analiza y visualiza datos genómicos con nuestra plataforma integral. 
+                        Desde NCBI hasta visualización avanzada, todo en un ecosistema integrado.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center fade-in-up delay-600">
+                        <a href="auth/login" class="inline-block bg-gradient-to-r from-green-400 to-green-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-green-500 hover:to-green-700 transition duration-500 transform hover:scale-105 spore-glow">
+                            <i class="fas fa-rocket mr-2"></i>
+                            Comenzar Análisis
+                        </a>
+                        <a href="#features" class="inline-block glass-card text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-white hover:bg-opacity-20 transition duration-500 transform hover:scale-105">
+                            <i class="fas fa-microscope mr-2"></i>
+                            Explorar Funciones
+                        </a>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <section id="contact" class="py-20">
-            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Ponte en Contacto</h2>
-            <form class="max-w-lg mx-auto">
-                <div class="mb-6">
-                    <input type="text" placeholder="Tu Nombre" class="w-full px-4 py-2 rounded-lg bg-white bg-opacity-70 focus:bg-opacity-90 focus:outline-none transition duration-300 text-gray-800">
+            <!-- Features Section -->
+            <section id="features" class="py-24 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-7xl mx-auto">
+                    <h2 class="text-4xl sm:text-5xl font-bold text-center mb-4 text-white hero-title">
+                        Herramientas Especializadas
+                    </h2>
+                    <p class="text-xl text-center mb-16 text-green-200 max-w-3xl mx-auto">
+                        Un ecosistema completo para el análisis genómico de hongos con tecnología de vanguardia
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <div class="glass-card p-8 rounded-2xl hover:bg-white hover:bg-opacity-20 transition duration-500 transform hover:-translate-y-2 floating fade-in-up">
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6 spore-glow">
+                                    <i class="fas fa-database text-2xl text-white"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold mb-4 text-white">Adquisición NCBI</h3>
+                                <p class="text-green-200">Descarga automática de genomas desde bases de datos públicas</p>
+                            </div>
+                        </div>
+                        
+                        <div class="glass-card p-8 rounded-2xl hover:bg-white hover:bg-opacity-20 transition duration-500 transform hover:-translate-y-2 floating fade-in-up delay-200">
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 spore-glow">
+                                    <i class="fas fa-dna text-2xl text-white"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold mb-4 text-white">Anotación BRAKER3</h3>
+                                <p class="text-green-200">Predicción de genes y anotación automática de alta precisión</p>
+                            </div>
+                        </div>
+                        
+                        <div class="glass-card p-8 rounded-2xl hover:bg-white hover:bg-opacity-20 transition duration-500 transform hover:-translate-y-2 floating fade-in-up delay-400">
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-gradient-to-r from-purple-400 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 spore-glow">
+                                    <i class="fas fa-chart-line text-2xl text-white"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold mb-4 text-white">Análisis Comparativo</h3>
+                                <p class="text-green-200">BinDash y herramientas filogenéticas avanzadas</p>
+                            </div>
+                        </div>
+                        
+                        <div class="glass-card p-8 rounded-2xl hover:bg-white hover:bg-opacity-20 transition duration-500 transform hover:-translate-y-2 floating fade-in-up delay-600">
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-6 spore-glow">
+                                    <i class="fas fa-eye text-2xl text-white"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold mb-4 text-white">Visualización</h3>
+                                <p class="text-green-200">Gráficos interactivos y visualización genómica inmersiva</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="mb-6">
-                    <input type="email" placeholder="Tu Correo" class="w-full px-4 py-2 rounded-lg bg-white bg-opacity-70 focus:bg-opacity-90 focus:outline-none transition duration-300 text-gray-800">
-                </div>
-                <div class="mb-6">
-                    <textarea placeholder="Tu Mensaje" rows="4" class="w-full px-4 py-2 rounded-lg bg-white bg-opacity-70 focus:bg-opacity-90 focus:outline-none transition duration-300 text-gray-800"></textarea>
-                </div>
-                <button type="submit" class="w-full bg-green-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-green-700 transition duration-300">
-                    Enviar Mensaje
-                </button>
-            </form>
-        </section>
-    </main>
+            </section>
 
-    <footer class="bg-green-600 text-white py-8 px-4 sm:px-6 lg:px-8">
-        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
-            <div class="mb-4 md:mb-0">
-                <img src="/logo1.png" alt="Logo" class="h-8 w-8 inline-block mr-2">
-                <span class="text-xl font-bold">FungiGT</span>
+            <!-- About Section -->
+            <section id="about" class="py-24 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-7xl mx-auto">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                        <div class="fade-in-up">
+                            <h2 class="text-4xl sm:text-5xl font-bold mb-8 text-white hero-title">
+                                Ciencia de Vanguardia
+                            </h2>
+                            <p class="text-lg mb-8 text-green-200 leading-relaxed">
+                                FungiGT representa la evolución en el análisis genómico de hongos. Nuestra plataforma integra 
+                                herramientas de clase mundial en un flujo de trabajo unificado, desde la adquisición de datos 
+                                hasta la interpretación de resultados.
+                            </p>
+                            <div class="space-y-4 mb-8">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-2 h-2 bg-green-400 rounded-full spore-glow"></div>
+                                    <span class="text-green-200">Pipeline automatizado completo</span>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-2 h-2 bg-green-400 rounded-full spore-glow"></div>
+                                    <span class="text-green-200">IA integrada con Dr. Fungito</span>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-2 h-2 bg-green-400 rounded-full spore-glow"></div>
+                                    <span class="text-green-200">Control de calidad avanzado</span>
+                                </div>
+                            </div>
+                            <a href="auth/register" class="inline-block glass-card text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-white hover:bg-opacity-20 transition duration-500 transform hover:scale-105">
+                                <i class="fas fa-flask mr-2"></i>
+                                Explorar la Plataforma
+                            </a>
+                        </div>
+                        <div class="relative fade-in-up delay-400">
+                            <div class="glass-card p-8 rounded-3xl floating">
+                                <div class="text-center">
+                                    <div class="w-32 h-32 bg-gradient-to-r from-green-400 via-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-8 spore-glow">
+                                        <i class="fas fa-microscope text-4xl text-white"></i>
+                                    </div>
+                                    <h3 class="text-2xl font-bold mb-4 text-white">14 Microservicios</h3>
+                                    <p class="text-green-200 mb-6">Arquitectura escalable y modular para análisis de alto rendimiento</p>
+                                    <div class="grid grid-cols-2 gap-4 text-sm">
+                                        <div class="glass-card p-3 rounded-lg">
+                                            <div class="text-green-400 font-semibold">127+</div>
+                                            <div class="text-green-200">Análisis Ejecutados</div>
+                                        </div>
+                                        <div class="glass-card p-3 rounded-lg">
+                                            <div class="text-blue-400 font-semibold">43</div>
+                                            <div class="text-green-200">Genomas Procesados</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact Section -->
+            <section id="contact" class="py-24 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-4xl mx-auto text-center">
+                    <h2 class="text-4xl sm:text-5xl font-bold mb-8 text-white hero-title">
+                        Conecta con Nosotros
+                    </h2>
+                    <p class="text-xl mb-12 text-green-200">
+                        ¿Listo para revolucionar tu investigación genómica?
+                    </p>
+                    <div class="glass-card p-8 rounded-3xl max-w-2xl mx-auto fade-in-up">
+                        <form class="space-y-6">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <input type="text" placeholder="Tu Nombre" class="w-full px-6 py-4 rounded-xl glass-card text-white placeholder-green-300 focus:bg-white focus:bg-opacity-20 focus:outline-none transition duration-300">
+                                <input type="email" placeholder="Tu Correo" class="w-full px-6 py-4 rounded-xl glass-card text-white placeholder-green-300 focus:bg-white focus:bg-opacity-20 focus:outline-none transition duration-300">
+                            </div>
+                            <textarea placeholder="Tu Mensaje" rows="4" class="w-full px-6 py-4 rounded-xl glass-card text-white placeholder-green-300 focus:bg-white focus:bg-opacity-20 focus:outline-none transition duration-300"></textarea>
+                            <button type="submit" class="w-full bg-gradient-to-r from-green-400 to-green-600 text-white px-8 py-4 rounded-xl font-semibold hover:from-green-500 hover:to-green-700 transition duration-500 transform hover:scale-105 spore-glow">
+                                <i class="fas fa-paper-plane mr-2"></i>
+                                Enviar Mensaje
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="glass-header py-12 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="mb-6 md:mb-0 text-center md:text-left">
+                        <div class="flex items-center justify-center md:justify-start mb-2">
+                            <img src="/logo1.png" alt="FungiGT Logo" class="h-10 w-10 mr-3">
+                            <span class="text-2xl font-bold text-white">FungiGT</span>
+                        </div>
+                        <p class="text-green-200">Análisis genómico de hongos de nueva generación</p>
+                    </div>
+                    <div class="flex flex-wrap justify-center space-x-8 text-sm">
+                        <a href="#" class="text-green-200 hover:text-white transition duration-300">Política de Privacidad</a>
+                        <a href="#" class="text-green-200 hover:text-white transition duration-300">Términos de Servicio</a>
+                        <a href="#" class="text-green-200 hover:text-white transition duration-300">Documentación</a>
+                        <a href="#" class="text-green-200 hover:text-white transition duration-300">Soporte</a>
+                    </div>
+                </div>
+                <div class="mt-8 pt-8 border-t border-white border-opacity-20 text-center">
+                    <p class="text-green-300">&copy; 2025 FungiGT. Todos los derechos reservados.</p>
+                </div>
             </div>
-            <div class="flex space-x-4">
-                <a href="#" class="hover:text-green-200 transition duration-300">Política de Privacidad</a>
-                <a href="#" class="hover:text-green-200 transition duration-300">Términos de Servicio</a>
-                <a href="#" class="hover:text-green-200 transition duration-300">Contacto</a>
-            </div>
-        </div>
-    </footer>
+        </footer>
+    </div>
+
+    <!-- Three.js Professional DNA Helix Animation Script -->
+    <script>
+        // Three.js Scene Setup - Professional implementation
+        let scene, camera, renderer, dnaHelix, postEffect;
+        let renderTarget, scenePE, cameraPE;
+        let clock, resolution;
+
+        // Math utility functions
+        const MathEx = {
+            radians: (degrees) => degrees * Math.PI / 180,
+            degrees: (radians) => radians * 180 / Math.PI
+        };
+
+        // Debounce function
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // DNA Helix Class - Based on original implementation
+        class DnaHelix extends THREE.Points {
+            constructor() {
+                // Define Geometry
+                const geometry = new THREE.BufferGeometry();
+
+                // Define attributes - exact same as original
+                const numHelix = 6000;
+                const numLineSpace = 60;
+                const numLine = 100;
+                const numAmount = numHelix + numLineSpace * numLine;
+                const baPositions = new THREE.BufferAttribute(new Float32Array(numAmount * 3), 3);
+                const baRadians = new THREE.BufferAttribute(new Float32Array(numAmount), 1);
+                const baRadiuses = new THREE.BufferAttribute(new Float32Array(numAmount), 1);
+                const baDelays = new THREE.BufferAttribute(new Float32Array(numAmount), 1);
+
+                // Create helix particles
+                for (var i = 0; i < numHelix; i++) {
+                    const random = Math.random();
+                    const diff = {
+                        x: (Math.random() * 2 - 1) * random * 6,
+                        y: (Math.random() * 2 - 1) * random * 6,
+                        z: (Math.random() * 2 - 1) * random * 6,
+                    };
+                    baPositions.setXYZ(
+                        i,
+                        ((i / numHelix) * 2 - 1) * 150 + diff.x,
+                        diff.y,
+                        diff.z
+                    );
+                    baRadians.setX(i, MathEx.radians(i / numHelix * 900 + i % 2 * 180));
+                    baRadiuses.setX(i, 18);
+                    baDelays.setX(i, MathEx.radians(Math.random() * 360));
+                }
+
+                // Create connecting lines
+                for (var j = 0; j < numLineSpace; j++) {
+                    const radians = MathEx.radians(j / numLineSpace * 900);
+                    for (var k = 0; k < numLine; k++) {
+                        const index = j * numLine + k + numHelix;
+                        const random = Math.random();
+                        const diff = {
+                            x: (Math.random() * 2 - 1) * random * 1,
+                            y: (Math.random() * 2 - 1) * random * 1,
+                            z: (Math.random() * 2 - 1) * random * 1,
+                        };
+                        baPositions.setXYZ(
+                            index,
+                            ((j / numLineSpace) * 2 - 1) * 150 + diff.x,
+                            diff.y,
+                            diff.z
+                        );
+                        baRadians.setX(index, radians);
+                        baRadiuses.setX(index, (k / numLine * 2 - 1) * 18);
+                        baDelays.setX(index, MathEx.radians(Math.random() * 360));
+                    }
+                }
+
+                geometry.setAttribute('position', baPositions);
+                geometry.setAttribute('radian', baRadians);
+                geometry.setAttribute('radius', baRadiuses);
+                geometry.setAttribute('delay', baDelays);
+
+                // Define Material with original shaders
+                const material = new THREE.RawShaderMaterial({
+                    uniforms: {
+                        time: { type: 'f', value: 0 },
+                        projectionMatrix: { value: new THREE.Matrix4() },
+                        viewMatrix: { value: new THREE.Matrix4() },
+                        modelMatrix: { value: new THREE.Matrix4() }
+                    },
+                    vertexShader: `
+                        attribute vec3 position;
+                        attribute float radian;
+                        attribute float radius;
+                        attribute float delay;
+
+                        uniform mat4 projectionMatrix;
+                        uniform mat4 viewMatrix;
+                        uniform mat4 modelMatrix;
+                        uniform float time;
+
+                        varying vec3 vColor;
+
+                        void main() {
+                            // coordinate transformation - exact original formula
+                            vec3 updatePosition = position
+                                + vec3(
+                                    sin(time * 4.0 + delay),
+                                    sin(radian + time * 0.4) * (radius + sin(time * 4.0 + delay)),
+                                    cos(radian + time * 0.4) * (radius + sin(time * 4.0 + delay))
+                                );
+                            vec4 mvPosition = viewMatrix * modelMatrix * vec4(updatePosition, 1.0);
+                            float distanceFromCamera = length(mvPosition.xyz);
+                            float pointSize = 1000.0 / distanceFromCamera * 1.6;
+
+                            // Elegant color palette for genomic theme
+                            float variation = sin(delay * 2.5 + time * 0.3) * 0.5 + 0.5;
+                            float helixPos = sin(radian + time * 0.2) * 0.5 + 0.5;
+                            
+                            vec3 color1 = vec3(0.2, 0.5, 0.9);  // Scientific blue
+                            vec3 color2 = vec3(0.1, 0.7, 0.4);  // Genomic green  
+                            vec3 color3 = vec3(0.6, 0.3, 0.8);  // Biotech purple
+                            
+                            vColor = mix(
+                                mix(color1, color2, variation),
+                                color3,
+                                helixPos * 0.3
+                            );
+                            vColor *= 0.5; // Subtle intensity for readability
+
+                            gl_Position = projectionMatrix * mvPosition;
+                            gl_PointSize = pointSize;
+                        }
+                    `,
+                    fragmentShader: `
+                        precision highp float;
+                        varying vec3 vColor;
+
+                        void main() {
+                            // Convert PointCoord to the other vec2 has a range from -1.0 to 1.0.
+                            vec2 p = gl_PointCoord * 2.0 - 1.0;
+
+                            // Draw circle - exact original formula
+                            float radius = length(p);
+                            float opacity1 = (1.0 - smoothstep(0.5, 0.7, radius));
+                            float opacity2 = smoothstep(0.8, 1.0, radius) * (1.0 - smoothstep(1.0, 1.2, radius));
+
+                            // Reduce opacity for better text readability
+                            float finalOpacity = (opacity1 + opacity2) * 0.25;
+                            gl_FragColor = vec4(vColor, finalOpacity);
+                        }
+                    `,
+                    transparent: true,
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false,
+                });
+
+                super(geometry, material);
+                this.name = 'DNA Helix';
+            }
+
+            render(time) {
+                this.material.uniforms.time.value += time;
+                this.material.uniforms.projectionMatrix.value.copy(camera.projectionMatrix);
+                this.material.uniforms.viewMatrix.value.copy(camera.matrixWorldInverse);
+                this.material.uniforms.modelMatrix.value.copy(this.matrixWorld);
+            }
+        }
+
+        // PostEffect Class - Based on original implementation
+        class PostEffect {
+            constructor(texture) {
+                this.uniforms = {
+                    time: { type: 'f', value: 0 },
+                    texture: { type: 't', value: texture },
+                    resolution: { type: 'v2', value: new THREE.Vector2() }
+                };
+                this.obj = null;
+            }
+
+            createObj() {
+                const geometry = new THREE.PlaneGeometry(2, 2);
+                const material = new THREE.RawShaderMaterial({
+                    uniforms: this.uniforms,
+                    vertexShader: `
+                        attribute vec3 position;
+                        attribute vec2 uv;
+                        varying vec2 vUv;
+
+                        void main() {
+                            vUv = uv;
+                            gl_Position = vec4(position, 1.0);
+                        }
+                    `,
+                    fragmentShader: `
+                        precision highp float;
+                        uniform float time;
+                        uniform sampler2D texture;
+                        uniform vec2 resolution;
+                        varying vec2 vUv;
+
+                        float random2(vec2 c){
+                            return fract(sin(dot(c.xy ,vec2(12.9898,78.233))) * 43758.5453);
+                        }
+                        float randomNoise(vec2 p) {
+                            return (random2(p - vec2(sin(time))) * 2.0 - 1.0) * 0.015;
+                        }
+
+                        void main() {
+                            // Convert uv to the other vec2 has a range from -1.0 to 1.0.
+                            vec2 p = vUv * 2.0 - 1.0;
+                            vec2 ratio = 1.0 / resolution;
+
+                            // Random Noise
+                            float rNoise = randomNoise(vUv);
+
+                            // Subtle RGB Shift for better readability
+                            float shift = 0.5; // Reduced shift intensity
+                            float texColorR = texture2D(texture, vUv - vec2((shift * abs(p.x) + 0.5) * ratio.x, 0.0)).r;
+                            float texColorG = texture2D(texture, vUv + vec2((shift * abs(p.x) + 0.5) * ratio.x, 0.0)).g;
+                            float texColorB = texture2D(texture, vUv).b;
+
+                            // Sum total of colors.
+                            vec3 color = vec3(texColorR, texColorG, texColorB) + rNoise;
+
+                            gl_FragColor = vec4(vec3(texColorR, texColorG, texColorB) + rNoise, 1.0);
+                        }
+                    `
+                });
+
+                this.obj = new THREE.Mesh(geometry, material);
+                this.obj.name = 'PostEffect';
+            }
+
+            resize(x, y) {
+                this.uniforms.resolution.value.set(x, y);
+            }
+
+            render(time) {
+                this.uniforms.time.value += time;
+            }
+        }
+
+        function init() {
+            // Create resolution vector
+            resolution = new THREE.Vector2();
+            
+            // Create main scene
+            scene = new THREE.Scene();
+            
+            // Create camera with exact original settings
+            camera = new THREE.PerspectiveCamera();
+            camera.aspect = 3 / 2;
+            camera.far = 1000;
+            camera.position.set(-110, -75, 45);
+            camera.lookAt(new THREE.Vector3(0, 0, 0));
+            
+            // Create renderer
+            renderer = new THREE.WebGL1Renderer({ 
+                alpha: true, 
+                antialias: true 
+            });
+            renderer.setClearColor(0x000000, 0.3);
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+            
+            // Create clock
+            clock = new THREE.Clock({ autoStart: false });
+            
+            // Setup post-processing
+            renderTarget = new THREE.WebGLRenderTarget();
+            scenePE = new THREE.Scene();
+            cameraPE = new THREE.OrthographicCamera(-1, 1, 1, -1, 1, 2);
+            
+            // Create DNA helix
+            dnaHelix = new DnaHelix();
+            scene.add(dnaHelix);
+            
+            // Create post effect
+            postEffect = new PostEffect(renderTarget.texture);
+            postEffect.createObj();
+            scenePE.add(postEffect.obj);
+            
+            // Add event listeners
+            setupEventListeners();
+            
+            // Initialize and start
+            resizeWindow();
+            clock.start();
+            renderLoop();
+        }
+
+
+
+        function resizeCamera() {
+            camera.setFocalLength(50);
+            camera.setViewOffset(
+                1200,
+                800,
+                (resolution.x - 1200) / -2,
+                (resolution.y - 800) / -2,
+                resolution.x,
+                resolution.y
+            );
+            camera.updateProjectionMatrix();
+        }
+
+        function resizeWindow() {
+            resolution.set(window.innerWidth, window.innerHeight);
+            renderer.domElement.width = resolution.x;
+            renderer.domElement.height = resolution.y;
+            resizeCamera();
+            renderer.setSize(resolution.x, resolution.y);
+            renderTarget.setSize(resolution.x, resolution.y);
+            postEffect.resize(resolution.x, resolution.y);
+        }
+
+        function setupEventListeners() {
+            // Window focus/blur for performance
+            window.addEventListener('blur', () => {
+                clock.stop();
+            });
+            window.addEventListener('focus', () => {
+                clock.start();
+            });
+            
+            // Window resize with debounce
+            window.addEventListener('resize', debounce(resizeWindow, 1000));
+        }
+
+        function render() {
+            const time = clock.getDelta();
+            
+            // Update DNA helix - exact original method
+            dnaHelix.render(time);
+            
+            // Render main scene to frame buffer
+            renderer.setRenderTarget(renderTarget);
+            renderer.render(scene, camera);
+            
+            // Render post effect
+            postEffect.render(time);
+            renderer.setRenderTarget(null);
+            renderer.render(scenePE, cameraPE);
+        }
+
+        function renderLoop() {
+            render();
+            requestAnimationFrame(renderLoop);
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', init);
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
 </body>
-
-<%- include('partials/footer') %>
+</html>

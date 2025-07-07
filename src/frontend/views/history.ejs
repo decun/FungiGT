@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .glass-effect {
+            background: rgba(167, 243, 208, 0.2);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .history-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .activity-item {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02));
+            border: 1px solid rgba(16, 185, 129, 0.1);
+        }
+        .status-success { background: #10b981; }
+        .status-error { background: #ef4444; }
+        .status-warning { background: #f59e0b; }
+        .status-info { background: #3b82f6; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-blue-50 min-h-screen">
+    <!-- Header -->
+    <%- include('partials/header') %>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                <i class="fas fa-history text-green-600 mr-3"></i>
+                Historial de Uso
+            </h1>
+            <p class="text-gray-600">Registro completo de tus actividades y análisis en FungiGT</p>
+        </div>
+
+        <!-- Filtros y Estadísticas -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="activity-item rounded-lg p-4 text-center">
+                <div class="text-2xl font-bold text-green-600">127</div>
+                <div class="text-sm text-gray-600">Total Análisis</div>
+            </div>
+            <div class="activity-item rounded-lg p-4 text-center">
+                <div class="text-2xl font-bold text-blue-600">43</div>
+                <div class="text-sm text-gray-600">Genomas Procesados</div>
+            </div>
+            <div class="activity-item rounded-lg p-4 text-center">
+                <div class="text-2xl font-bold text-purple-600">86h</div>
+                <div class="text-sm text-gray-600">Tiempo Total</div>
+            </div>
+            <div class="activity-item rounded-lg p-4 text-center">
+                <div class="text-2xl font-bold text-orange-600">23</div>
+                <div class="text-sm text-gray-600">Últimos 30 días</div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="history-card rounded-xl shadow-lg p-6 mb-8">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-filter text-green-600 mr-2"></i>
+                Filtros
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Período</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                        <option>Último mes</option>
+                        <option>Últimos 7 días</option>
+                        <option>Últimos 3 meses</option>
+                        <option>Todo el tiempo</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Análisis</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                        <option>Todos</option>
+                        <option>BRAKER3</option>
+                        <option>BinDash</option>
+                        <option>eggNOG</option>
+                        <option>CheckM</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                        <option>Todos</option>
+                        <option>Completado</option>
+                        <option>Error</option>
+                        <option>En progreso</option>
+                        <option>Cancelado</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                        <i class="fas fa-search mr-2"></i>
+                        Filtrar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historial de Actividades -->
+        <div class="history-card rounded-xl shadow-lg p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-6">
+                <i class="fas fa-clock text-green-600 mr-2"></i>
+                Actividades Recientes
+            </h2>
+            
+            <div class="space-y-4">
+                <!-- Actividad 1 -->
+                <div class="activity-item rounded-lg p-4 transition-all duration-200 hover:shadow-md">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-dna text-green-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-gray-900">Análisis BRAKER3 - Aspergillus fumigatus</h3>
+                                <p class="text-sm text-gray-600">Anotación genómica completada exitosamente</p>
+                                <div class="flex items-center space-x-4 mt-2">
+                                    <span class="text-xs text-gray-500">
+                                        <i class="fas fa-calendar-alt mr-1"></i>
+                                        15 Dic 2024, 14:30
+                                    </span>
+                                    <span class="text-xs text-gray-500">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        2h 45m
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full status-success"></span>
+                            <span class="text-sm text-green-600 font-medium">Completado</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actividad 2 -->
+                <div class="activity-item rounded-lg p-4 transition-all duration-200 hover:shadow-md">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-chart-line text-blue-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-gray-900">Visualización BinDash - Análisis de Similitud</h3>
+                                <p class="text-sm text-gray-600">Comparación de 15 genomas fúngicos</p>
+                                <div class="flex items-center space-x-4 mt-2">
+                                    <span class="text-xs text-gray-500">
+                                        <i class="fas fa-calendar-alt mr-1"></i>
+                                        15 Dic 2024, 09:15
+                                    </span>
+                                    <span class="text-xs text-gray-500">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        23m
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full status-success"></span>
+                            <span class="text-sm text-green-600 font-medium">Completado</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actividad 3 -->
+                <div class="activity-item rounded-lg p-4 transition-all duration-200 hover:shadow-md">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-download text-purple-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-gray-900">Descarga NCBI - Candida albicans</h3>
+                                <p class="text-sm text-gray-600">Genoma descargado desde NCBI</p>
+                                <div class="flex items-center space-x-4 mt-2">
+                                    <span class="text-xs text-gray-500">
+                                        <i class="fas fa-calendar-alt mr-1"></i>
+                                        14 Dic 2024, 16:45
+                                    </span>
+                                    <span class="text-xs text-gray-500">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        8m
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full status-success"></span>
+                            <span class="text-sm text-green-600 font-medium">Completado</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actividad 4 -->
+                <div class="activity-item rounded-lg p-4 transition-all duration-200 hover:shadow-md">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-microscope text-orange-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-gray-900">Análisis eggNOG - Anotación Funcional</h3>
+                                <p class="text-sm text-gray-600">Análisis funcional de proteínas</p>
+                                <div class="flex items-center space-x-4 mt-2">
+                                    <span class="text-xs text-gray-500">
+                                        <i class="fas fa-calendar-alt mr-1"></i>
+                                        14 Dic 2024, 11:20
+                                    </span>
+                                    <span class="text-xs text-gray-500">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        1h 12m
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full status-warning"></span>
+                            <span class="text-sm text-yellow-600 font-medium">Advertencia</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actividad 5 -->
+                <div class="activity-item rounded-lg p-4 transition-all duration-200 hover:shadow-md">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-exclamation-triangle text-red-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-gray-900">Control de Calidad CheckM</h3>
+                                <p class="text-sm text-gray-600">Error en validación de genoma</p>
+                                <div class="flex items-center space-x-4 mt-2">
+                                    <span class="text-xs text-gray-500">
+                                        <i class="fas fa-calendar-alt mr-1"></i>
+                                        13 Dic 2024, 15:30
+                                    </span>
+                                    <span class="text-xs text-gray-500">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        5m
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full status-error"></span>
+                            <span class="text-sm text-red-600 font-medium">Error</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actividad 6 -->
+                <div class="activity-item rounded-lg p-4 transition-all duration-200 hover:shadow-md">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user-edit text-gray-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-gray-900">Actualización de Perfil</h3>
+                                <p class="text-sm text-gray-600">Información personal actualizada</p>
+                                <div class="flex items-center space-x-4 mt-2">
+                                    <span class="text-xs text-gray-500">
+                                        <i class="fas fa-calendar-alt mr-1"></i>
+                                        13 Dic 2024, 09:00
+                                    </span>
+                                    <span class="text-xs text-gray-500">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        2m
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full status-info"></span>
+                            <span class="text-sm text-blue-600 font-medium">Info</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paginación -->
+            <div class="flex justify-between items-center mt-8">
+                <div class="text-sm text-gray-600">
+                    Mostrando 6 de 127 actividades
+                </div>
+                <div class="flex space-x-2">
+                    <button class="px-3 py-1 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300 transition-colors duration-200">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="px-3 py-1 bg-green-600 text-white rounded-lg">1</button>
+                    <button class="px-3 py-1 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300 transition-colors duration-200">2</button>
+                    <button class="px-3 py-1 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300 transition-colors duration-200">3</button>
+                    <button class="px-3 py-1 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300 transition-colors duration-200">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Acciones Rápidas -->
+        <div class="mt-8 flex flex-wrap gap-4">
+            <button class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                <i class="fas fa-download mr-2"></i>
+                Exportar Historial
+            </button>
+            <button class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                <i class="fas fa-chart-bar mr-2"></i>
+                Ver Estadísticas
+            </button>
+            <button class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                <i class="fas fa-trash mr-2"></i>
+                Limpiar Historial
+            </button>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <%- include('partials/footer') %>
+
+    <script>
+        // Cerrar menú de perfil al hacer clic fuera
+        document.addEventListener('click', function(event) {
+            const profileMenu = document.getElementById('profileMenu');
+            const profileButton = profileMenu.previousElementSibling;
+            
+            if (!profileButton.contains(event.target) && !profileMenu.contains(event.target)) {
+                profileMenu.classList.add('hidden');
+            }
+        });
+
+        // Funcionalidad de filtros (dummy)
+        document.querySelectorAll('select').forEach(select => {
+            select.addEventListener('change', function() {
+                console.log('Filtro cambiado:', this.value);
+            });
+        });
+
+        // Funcionalidad de botones (dummy)
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', function() {
+                if (this.textContent.includes('Exportar')) {
+                    alert('Funcionalidad de exportar en desarrollo');
+                } else if (this.textContent.includes('Estadísticas')) {
+                    alert('Funcionalidad de estadísticas en desarrollo');
+                } else if (this.textContent.includes('Limpiar')) {
+                    if (confirm('¿Estás seguro de que quieres limpiar el historial?')) {
+                        alert('Funcionalidad de limpiar en desarrollo');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -688,12 +688,8 @@
                     const filePath = fileElement.dataset.filePath;
                     
                     if (fileName && filePath) {
-                        // Verificar si es un archivo compatible con BinDash
-                        if (fileName.match(/\.(txt|tsv|csv)$/i)) {
-                            selectFileFromExplorer(fileName, filePath);
-                        } else {
-                            showNotification('Archivo no compatible', 'El archivo seleccionado no es compatible con BinDash. Selecciona un archivo .txt, .tsv o .csv', 'warning');
-                        }
+                        // Procesar cualquier archivo sin validación de extensión
+                        selectFileFromExplorer(fileName, filePath);
                     }
                 }
             });
@@ -2758,16 +2754,9 @@
                     console.log('📄 Datos del archivo:', fileData);
                     
                     if (fileData.fileName && fileData.filePath && !fileData.isDirectory) {
-                        if (isVisualizableFile(fileData.fileName)) {
-                            console.log('✅ Archivo compatible, descargando...');
-                            // Descargar archivo del file manager y luego procesarlo
-                            downloadAndProcessFile(fileData.fileName, fileData.filePath, 'bindash');
-                        } else {
-                            console.log(`❌ Archivo no compatible con BinDash: ${fileData.fileName}`);
-                            showNotification('Archivo no compatible', 
-                                `El archivo "${fileData.fileName}" no es compatible con BinDash. Usa archivos .txt, .tsv, .csv`, 
-                                'warning');
-                        }
+                        console.log('✅ Procesando archivo:', fileData.fileName);
+                        // Descargar archivo del file manager y luego procesarlo
+                        downloadAndProcessFile(fileData.fileName, fileData.filePath, 'bindash');
                         return;
                     } else if (fileData.isDirectory) {
                         console.log('📁 Carpeta arrastrada a BinDash, ignorando');
@@ -2781,16 +2770,8 @@
             // Si no hay datos del file explorer, usar archivos locales
             const files = e.dataTransfer.files;
             if (files.length > 0) {
-                const file = files[0];
-                if (isVisualizableFile(file.name)) {
-                    console.log('📁 Usando archivo local:', file.name);
-                    handleBindashFileSelect({ target: { files: files } });
-                } else {
-                    console.log(`❌ Archivo local no compatible: ${file.name}`);
-                    showNotification('Archivo no compatible', 
-                        `El archivo "${file.name}" no es compatible con BinDash. Usa archivos .txt, .tsv, .csv`, 
-                        'warning');
-                }
+                console.log('📁 Usando archivo local:', files[0].name);
+                handleBindashFileSelect({ target: { files: files } });
             }
         }
 

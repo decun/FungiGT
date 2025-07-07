@@ -302,15 +302,7 @@
     </div>
 </div>
 
-<!-- Notificación de copiado -->
-<div id="copyNotification" class="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50">
-    <div class="flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-        </svg>
-        <span id="copyNotificationText">Copiado al portapapeles</span>
-    </div>
-</div>
+
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -536,15 +528,8 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         
         showCopyNotification: function(message) {
-            const notification = document.getElementById('copyNotification');
-            const text = document.getElementById('copyNotificationText');
-            
-            text.textContent = message;
-            notification.classList.remove('translate-x-full');
-            
-            setTimeout(() => {
-                notification.classList.add('translate-x-full');
-            }, 2000);
+            // Notificación eliminada - solo log en consola
+            console.log('Notificación:', message);
         },
         
         selectFileByName: function(fileName) {
@@ -1183,19 +1168,37 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         
         extractZip: function() {
-            const option = document.querySelector('input[name="extractOption"]:checked').value;
+            console.log('🔍 DEBUG - extractZip Modal llamado');
+            const option = document.querySelector('input[name="extractOption"]:checked')?.value;
+            console.log('  - Opción seleccionada:', option);
+            
             if (option === 'same') {
+                console.log('  - Llamando extractZipSameFolder()');
                 this.extractZipSameFolder();
             } else if (option === 'folder') {
+                console.log('  - Llamando extractZipNewFolder()');
                 this.extractZipNewFolder();
+            } else {
+                console.error('  - No hay opción seleccionada');
+                alert('Por favor selecciona una opción de extracción');
             }
         },
         
         extractZipSameFolder: function() {
             const file = this.selectedFile || this.contextMenuFile;
-            if (!file) return;
+            if (!file) {
+                console.error('No hay archivo seleccionado para extraer');
+                return;
+            }
             
+            // Construir ruta del archivo correctamente
             const filePath = [...this.currentPath, file.name].join('/');
+            
+            console.log('🔍 DEBUG - Extrayendo ZIP en misma carpeta:');
+            console.log('  - Archivo:', file.name);
+            console.log('  - currentPath:', this.currentPath);
+            console.log('  - filePath construida:', filePath);
+            console.log('  - apiUrl:', this.apiUrl);
             
             // Mostrar indicador de carga
             const confirmBtn = document.getElementById('confirmExtractBtn');
@@ -1209,26 +1212,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 Extrayendo...
             `;
             
+            const requestData = {
+                path: filePath,
+                extractToFolder: false
+            };
+            
+            console.log('📤 Enviando petición:', requestData);
+            
             fetch(`${this.apiUrl}/extract-zip`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    path: filePath,
-                    extractToFolder: false
-                })
+                body: JSON.stringify(requestData)
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('📨 Respuesta status:', response.status);
+                return response.json();
+            })
             .then(data => {
+                console.log('📄 Respuesta data:', data);
                 if (data.success) {
                     this.hideExtractZipModal();
                     this.loadFiles();
                     this.showCopyNotification(`✅ ZIP extraído: ${data.extractedCount} archivos`);
                 } else {
                     console.error('Error al extraer ZIP:', data.error);
+                    alert('Error al extraer ZIP: ' + data.error);
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
+                console.error('💥 Error en petición:', error);
                 alert('Error de conexión: ' + error.message);
             })
             .finally(() => {
@@ -1240,9 +1252,19 @@ document.addEventListener('DOMContentLoaded', function() {
         
         extractZipNewFolder: function() {
             const file = this.selectedFile || this.contextMenuFile;
-            if (!file) return;
+            if (!file) {
+                console.error('No hay archivo seleccionado para extraer');
+                return;
+            }
             
+            // Construir ruta del archivo correctamente
             const filePath = [...this.currentPath, file.name].join('/');
+            
+            console.log('🔍 DEBUG - Extrayendo ZIP en carpeta nueva:');
+            console.log('  - Archivo:', file.name);
+            console.log('  - currentPath:', this.currentPath);
+            console.log('  - filePath construida:', filePath);
+            console.log('  - apiUrl:', this.apiUrl);
             
             // Mostrar indicador de carga
             const confirmBtn = document.getElementById('confirmExtractBtn');
@@ -1256,26 +1278,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 Extrayendo...
             `;
             
+            const requestData = {
+                path: filePath,
+                extractToFolder: true
+            };
+            
+            console.log('📤 Enviando petición:', requestData);
+            
             fetch(`${this.apiUrl}/extract-zip`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    path: filePath,
-                    extractToFolder: true
-                })
+                body: JSON.stringify(requestData)
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('📨 Respuesta status:', response.status);
+                return response.json();
+            })
             .then(data => {
+                console.log('📄 Respuesta data:', data);
                 if (data.success) {
                     this.hideExtractZipModal();
                     this.loadFiles();
                     this.showCopyNotification(`✅ ZIP extraído en carpeta: ${data.extractedCount} archivos`);
                 } else {
                     console.error('Error al extraer ZIP:', data.error);
+                    alert('Error al extraer ZIP: ' + data.error);
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
+                console.error('💥 Error en petición:', error);
                 alert('Error de conexión: ' + error.message);
             })
             .finally(() => {
@@ -1292,31 +1323,39 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            this.extractZip(file.name, this.currentPath.join('/'));
+            this.extractZipDirect(file.name, this.currentPath.join('/'));
         },
         
-        extractZip: function(fileName, currentPath) {
+        extractZipDirect: function(fileName, currentPath) {
             const filePath = currentPath ? `${currentPath}/${fileName}` : fileName;
+            
+            console.log('🔍 DEBUG - extractZipDirect llamado:');
+            console.log('  - fileName:', fileName);
+            console.log('  - currentPath:', currentPath);
+            console.log('  - filePath construida:', filePath);
             
             fetch(`${this.apiUrl}/extract-zip`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    filePath: filePath,
-                    extractPath: currentPath || ''
+                    path: filePath,
+                    extractToFolder: false
                 })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     this.loadFiles();
+                    this.showCopyNotification(`✅ ZIP extraído: ${data.extractedCount} archivos`);
                     console.log('ZIP extraído exitosamente');
                 } else {
                     console.error('Error al extraer ZIP:', data.error);
+                    alert('Error al extraer ZIP: ' + data.error);
                 }
             })
             .catch(error => {
-                console.error('Error de conexión:', error.message);
+                console.error('Error al extraer ZIP:', error.message);
+                alert('Error de conexión: ' + error.message);
             });
         },
         
@@ -1342,17 +1381,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // Luego extraer
-                            this.extractZip(file.name, pathStr);
+                            // Luego extraer usando la función corregida
+                            this.extractZipDirect(file.name, pathStr);
                         } else {
-                            console.error('Error al extraer ZIP:', data.error);
+                            console.error('Error al subir archivo ZIP:', data.error);
+                            alert('Error al subir archivo ZIP: ' + data.error);
                         }
                     })
                     .catch(error => {
-                        console.error('Error de conexión:', error.message);
+                        console.error('Error de conexión al subir:', error.message);
+                        alert('Error de conexión: ' + error.message);
                     });
                 } else {
                     console.log('Solo se pueden extraer archivos ZIP');
+                    alert('Solo se pueden extraer archivos ZIP');
                 }
             }
         }

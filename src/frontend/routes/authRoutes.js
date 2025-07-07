@@ -103,11 +103,7 @@ router.post('/register', async (req, res) => {
 router.get('/logout', (req, res) => {
     res.clearCookie('token');
     res.clearCookie('refreshToken');
-    res.render('auth/logout', {
-        title: 'Cerrar sesión | FungiGT',
-        description: 'Cerrando sesión en FungiGT',
-        currentPage: 'logout'
-    });
+    res.redirect('/');
 });
 
 // Ruta para la página de recuperación de contraseña
