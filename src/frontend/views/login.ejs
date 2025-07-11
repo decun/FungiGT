@@ -6,8 +6,9 @@
     <title>FungiGT - Iniciar Sesión</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/styles.css">
+    <script src="/js/theme-manager.js"></script>
 </head>
-<body class="min-h-screen bg-gray-100">
+<body class="theme-bg-primary theme-text-primary min-h-screen">
     <!-- Fondo con patrón -->
     <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative">
         <!-- Patrón de fondo -->
@@ -28,12 +29,12 @@
         <!-- Contenedor principal -->
         <div class="max-w-md w-full space-y-8 relative z-10">
             <!-- Tarjeta de login -->
-            <div class="bg-white rounded-2xl shadow-2xl p-8 border border-gray-200">
+            <div class="theme-bg-primary rounded-2xl theme-shadow-light-2xl p-8 border theme-border">
                 <!-- Header con logo -->
                 <div class="text-center mb-8">
                     <div class="flex justify-center mb-6">
                         <div class="relative">
-                            <div class="w-20 h-20 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
+                            <div class="w-20 h-20 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center theme-shadow-light-lg">
                                 <img class="w-12 h-12 object-contain filter brightness-0 invert" src="/logo1.png" alt="FungiGT Logo">
                             </div>
                             <!-- Decoración -->
@@ -41,10 +42,10 @@
                             <div class="absolute -bottom-1 -left-1 w-4 h-4 bg-green-300 rounded-full"></div>
                         </div>
                     </div>
-                    <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                    <h1 class="text-3xl font-bold theme-text-primary mb-2">
                         Bienvenido a FungiGT
                     </h1>
-                    <p class="text-gray-600 text-sm">
+                    <p class="theme-text-secondary text-sm">
                         Plataforma de análisis genómico de hongos
                     </p>
                 </div>
@@ -53,7 +54,7 @@
                 <form class="space-y-6" id="loginForm" action="#" method="POST">
                     <!-- Campo de email -->
                     <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="email" class="block text-sm font-medium theme-text-secondary mb-2">
                             Correo electrónico
                         </label>
                         <div class="relative">
@@ -68,7 +69,7 @@
                                 type="email" 
                                 autocomplete="email" 
                                 required 
-                                class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors sm:text-sm" 
+                                class="block w-full pl-10 pr-3 py-3 border theme-border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors sm:text-sm theme-input" 
                                 placeholder="tu@email.com"
                             >
                         </div>
@@ -76,7 +77,7 @@
 
                     <!-- Campo de contraseña -->
                     <div>
-                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="password" class="block text-sm font-medium theme-text-secondary mb-2">
                             Contraseña
                         </label>
                         <div class="relative">
@@ -91,7 +92,7 @@
                                 type="password" 
                                 autocomplete="current-password" 
                                 required 
-                                class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors sm:text-sm" 
+                                class="block w-full pl-10 pr-12 py-3 border theme-border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors sm:text-sm theme-input" 
                                 placeholder="••••••••"
                             >
                             <button 
@@ -99,7 +100,7 @@
                                 onclick="togglePasswordVisibility()" 
                                 class="absolute inset-y-0 right-0 pr-3 flex items-center"
                             >
-                                <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 hover:theme-text-secondary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
@@ -114,9 +115,9 @@
                                 id="rememberMe" 
                                 name="rememberMe" 
                                 type="checkbox" 
-                                class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                                class="h-4 w-4 text-green-600 focus:ring-green-500 theme-border rounded theme-input"
                             >
-                            <label for="rememberMe" class="ml-2 block text-sm text-gray-700">
+                            <label for="rememberMe" class="ml-2 block text-sm theme-text-secondary">
                                 Recordarme
                             </label>
                         </div>
@@ -132,7 +133,7 @@
                         <button 
                             type="submit" 
                             id="loginButton" 
-                            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 shadow-lg hover:shadow-xl"
+                            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 theme-shadow-light-lg hover:theme-shadow-light-xl"
                         >
                             <span id="loginButtonText" class="flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -176,17 +177,17 @@
                 <div class="mt-8">
                     <div class="relative">
                         <div class="absolute inset-0 flex items-center">
-                            <div class="w-full border-t border-gray-300"></div>
+                            <div class="w-full border-t theme-border"></div>
                         </div>
                         <div class="relative flex justify-center text-sm">
-                            <span class="px-2 bg-white text-gray-500">O continúa con</span>
+                            <span class="px-2 theme-bg-primary theme-text-muted">O continúa con</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Botones de OAuth -->
                 <div class="mt-6 grid grid-cols-2 gap-3">
-                    <button class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
+                    <button class="w-full inline-flex justify-center py-2 px-4 border theme-border rounded-lg theme-theme-shadow-light-light theme-bg-primary text-sm font-medium theme-text-muted hover:theme-bg-secondary transition-colors">
                         <svg class="w-5 h-5" viewBox="0 0 24 24">
                             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -196,7 +197,7 @@
                         <span class="ml-2">Google</span>
                     </button>
 
-                    <button class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
+                    <button class="w-full inline-flex justify-center py-2 px-4 border theme-border rounded-lg theme-theme-shadow-light-light theme-bg-primary text-sm font-medium theme-text-muted hover:theme-bg-secondary transition-colors">
                         <svg class="w-5 h-5" fill="#00BCF2" viewBox="0 0 24 24">
                             <path d="M11.4 24H0V12.6h11.4V24zM24 24H12.6V12.6H24V24zM11.4 11.4H0V0h11.4v11.4zm12.6 0H12.6V0H24v11.4z"/>
                         </svg>
@@ -206,7 +207,7 @@
 
                 <!-- Información adicional -->
                 <div class="mt-8 text-center">
-                    <p class="text-xs text-gray-500">
+                    <p class="text-xs theme-text-muted">
                         Al iniciar sesión, aceptas nuestros 
                         <a href="#" class="text-green-600 hover:text-green-500">Términos de Servicio</a> 
                         y 
@@ -217,7 +218,7 @@
 
             <!-- Footer -->
             <div class="text-center">
-                <p class="text-sm text-gray-600">
+                <p class="text-sm theme-text-secondary">
                     ¿No tienes una cuenta? 
                     <a href="#" class="font-medium text-green-600 hover:text-green-500 transition-colors">
                         Regístrate aquí
@@ -307,7 +308,7 @@
 
         // Animación de entrada
         document.addEventListener('DOMContentLoaded', function() {
-            const card = document.querySelector('.bg-white.rounded-2xl');
+            const card = document.querySelector('.theme-bg-primary.rounded-2xl');
             card.style.opacity = '0';
             card.style.transform = 'translateY(20px)';
             

@@ -7,26 +7,26 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/igv@2.15.11/dist/igv.min.css">
     <script src="https://cdn.jsdelivr.net/npm/igv@2.15.11/dist/igv.min.js"></script>
     <style>
-        .glass-effect {
+        .theme-glass-effect {
             background: rgba(167, 243, 208, 0.2);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
         }
         
-        .nav-item-hover:hover {
+        .theme-nav-hover:hover {
             background: rgba(167, 243, 208, 0.3);
             transform: translateY(-2px);
         }
         
         /* Estilo para los contenedores de visualizadores */
-        .visualizer .bg-white {
+        .visualizer .theme-bg-primary {
             background: rgba(255, 255, 255, 0.9);
             border: 1px solid rgba(167, 243, 208, 0.3);
         }
         
         /* Estilo para los botones secundarios */
         .secondary-btn {
-            @apply flex items-center space-x-2 px-4 py-2 rounded-lg glass-effect nav-item-hover transition-all duration-300 text-gray-800 font-medium;
+            @apply flex items-center space-x-2 px-4 py-2 rounded-lg theme-glass-effect theme-nav-hover transition-all duration-300 theme-text-primary font-medium;
         }
         
         /* Estilo para los inputs y selects */
@@ -77,7 +77,7 @@
             background-color: #e6f7ff !important;
             border: 2px dashed #1890ff !important;
             transform: scale(1.02);
-            box-shadow: 0 8px 25px rgba(24, 144, 255, 0.15);
+            box-theme-shadow-light: 0 8px 25px rgba(24, 144, 255, 0.15);
         }
 
         .dragging {
@@ -98,7 +98,7 @@
             border-color: #1890ff;
             background-color: #e6f7ff;
             transform: scale(1.02);
-            box-shadow: 0 8px 25px rgba(24, 144, 255, 0.15);
+            box-theme-shadow-light: 0 8px 25px rgba(24, 144, 255, 0.15);
         }
 
         .drop-zone.drag-over::after {
@@ -126,9 +126,10 @@
             background-color: #f0f8ff;
         }
     </style>
+    <script src="/js/theme-manager.js"></script>
 </head>
 
-<body class="bg-gray-100 min-h-screen flex flex-col">
+<body class="theme-bg-primary theme-text-primary min-h-screen flex flex-col">
     <main class="flex-grow p-6">
         <div class="max-w-7xl mx-auto">
             <div class="flex flex-col md:flex-row gap-6">
@@ -139,7 +140,7 @@
                 
                 <!-- Panel principal -->
                 <div class="w-full md:w-2/3 lg:w-3/4">
-                    <h2 class="text-3xl font-bold mb-8 flex items-center text-gray-800">
+                    <h2 class="text-3xl font-bold mb-8 flex items-center theme-text-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
@@ -147,18 +148,18 @@
                     </h2>
 
                     <!-- Selector para elegir visualizador -->
-                    <div class="bg-white p-6 rounded-xl shadow-lg mb-8 border border-gray-200">
-                        <h3 class="text-xl font-semibold mb-4 flex items-center text-gray-800">
+                    <div class="theme-bg-primary p-6 rounded-xl theme-shadow-light-lg mb-8 border theme-border">
+                        <h3 class="text-xl font-semibold mb-4 flex items-center theme-text-primary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
                             </svg>
                             Seleccionar Tipo de Visualización
                         </h3>
                         <div class="mt-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                            <label class="block text-sm font-medium theme-text-secondary mb-3">
                                 Elige el tipo de visualización que deseas utilizar:
                             </label>
-                            <select id="visualizerSelector" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                            <select id="visualizerSelector" class="form-select w-full">
                                 <option value="">Seleccione un visualizador</option>
                                 <option value="bindash">BinDash - Análisis de Similitud Genómica</option>
                                 <option value="eggnog">🧬 EggNOG - Annotations, Seed Orthologs, Hits</option>
@@ -169,15 +170,15 @@
                     </div>
 
                     <!-- Visualizador BinDash (principal) -->
-                    <div id="bindashVisualizerSection" class="bg-white p-8 rounded-xl shadow-lg mb-8 border border-gray-200" style="display: none;">
+                    <div id="bindashVisualizerSection" class="theme-bg-primary p-8 rounded-xl theme-shadow-light-lg mb-8 border theme-border" style="display: none;">
                         <div class="border-l-4 border-green-500 pl-6 mb-6">
-                            <h3 class="text-2xl font-semibold mb-2 flex items-center text-gray-800">
+                            <h3 class="text-2xl font-semibold mb-2 flex items-center theme-text-primary">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                                 </svg>
                                 Visualizador BinDash
                             </h3>
-                            <p class="text-gray-600 text-sm">Arrastra archivos desde el explorador de archivos o sube un archivo para visualizar análisis de similitud genómica</p>
+                            <p class="theme-text-secondary text-sm">Arrastra archivos desde el explorador de archivos o sube un archivo para visualizar análisis de similitud genómica</p>
                         </div>
 
                         <!-- Zona de drop para archivos -->
@@ -186,8 +187,8 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                 </svg>
-                                <p class="text-lg font-medium text-gray-700 mb-2">Arrastra archivos aquí</p>
-                                <p class="text-sm text-gray-500 mb-4">o haz clic para seleccionar archivos</p>
+                                <p class="text-lg font-medium theme-text-secondary mb-2">Arrastra archivos aquí</p>
+                                <p class="text-sm theme-text-muted mb-4">o haz clic para seleccionar archivos</p>
                                 <p class="text-xs text-gray-400">Archivos soportados: .txt, .tsv, .csv</p>
                             </div>
                         </div>
@@ -196,7 +197,7 @@
                         <input type="file" id="bindashFileInput" accept=".txt,.tsv,.csv" style="display: none;">
 
                         <!-- Información del archivo seleccionado -->
-                        <div id="selectedFileInfo" class="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-6" style="display: none;">
+                        <div id="selectedFileInfo" class="tool-card-blue mb-6" style="display: none;">
                             <h4 class="font-semibold text-blue-800 mb-2">📁 Archivo seleccionado:</h4>
                             <p id="selectedFileName" class="text-blue-700 text-sm font-medium"></p>
                             <p id="selectedFilePath" class="text-blue-600 text-xs mt-1"></p>
@@ -204,7 +205,7 @@
 
                         <!-- Botón de procesar -->
                         <div class="mb-6">
-                            <button id="processBindashBtn" class="w-full bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            <button id="processBindashBtn" class="w-full btn-soft-green disabled:opacity-50 disabled:cursor-not-allowed" disabled>
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                                 </svg>
@@ -213,27 +214,27 @@
                         </div>
 
                         <!-- Estado del procesamiento -->
-                        <div id="bindashStatus" class="mb-6 text-sm text-gray-600"></div>
+                        <div id="bindashStatus" class="mb-6 text-sm theme-text-secondary"></div>
 
                         <!-- Estadísticas del análisis -->
-                        <div id="bindashStatsPanel" class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg border border-blue-200 mb-6" style="display: none;">
-                            <h4 class="text-lg font-semibold mb-4 text-gray-800">📊 Estadísticas del Análisis</h4>
+                        <div id="bindashStatsPanel" class="tool-card-blue mb-6" style="display: none;">
+                            <h4 class="text-lg font-semibold mb-4 tool-text-blue">📊 Estadísticas del Análisis</h4>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <div class="text-center">
                                     <div class="text-2xl font-bold text-blue-600" id="totalComparisons">0</div>
-                                    <div class="text-sm text-gray-600">Comparaciones</div>
+                                    <div class="text-sm theme-text-secondary">Comparaciones</div>
                                 </div>
                                 <div class="text-center">
                                     <div class="text-2xl font-bold text-green-600" id="uniqueGenomes">0</div>
-                                    <div class="text-sm text-gray-600">Genomas únicos</div>
+                                    <div class="text-sm theme-text-secondary">Genomas únicos</div>
                                 </div>
                                 <div class="text-center">
                                     <div class="text-2xl font-bold text-purple-600" id="meanANI">0</div>
-                                    <div class="text-sm text-gray-600">Jaccard promedio</div>
+                                    <div class="text-sm theme-text-secondary">Jaccard promedio</div>
                                 </div>
                                 <div class="text-center">
                                     <div class="text-2xl font-bold text-orange-600" id="meanDistance">0</div>
-                                    <div class="text-sm text-gray-600">Distancia promedio</div>
+                                    <div class="text-sm theme-text-secondary">Distancia promedio</div>
                                 </div>
                             </div>
                         </div>
@@ -245,15 +246,15 @@
 
 
                     <!-- Visualizador EggNOG -->
-                    <div id="eggnogVisualizerSection" class="bg-white p-8 rounded-xl shadow-lg mb-8 border border-gray-200" style="display: none;">
+                    <div id="eggnogVisualizerSection" class="theme-bg-primary p-8 rounded-xl theme-shadow-light-lg mb-8 border theme-border" style="display: none;">
                         <div class="border-l-4 border-orange-500 pl-6 mb-6">
-                            <h3 class="text-2xl font-semibold mb-2 flex items-center text-gray-800">
+                            <h3 class="text-2xl font-semibold mb-2 flex items-center theme-text-primary">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                                 </svg>
                                 Visualizador EggNOG
                             </h3>
-                            <p class="text-gray-600 text-sm">Procesamiento de archivos EggNOG-mapper: Annotations, Seed Orthologs y Hits</p>
+                            <p class="theme-text-secondary text-sm">Procesamiento de archivos EggNOG-mapper: Annotations, Seed Orthologs y Hits</p>
                         </div>
 
                         <!-- Zona de drop para archivos -->
@@ -262,8 +263,8 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                 </svg>
-                                <p class="text-lg font-medium text-gray-700 mb-2">Arrastra archivos EggNOG aquí</p>
-                                <p class="text-sm text-gray-500 mb-4">o haz clic para seleccionar archivos</p>
+                                <p class="text-lg font-medium theme-text-secondary mb-2">Arrastra archivos EggNOG aquí</p>
+                                <p class="text-sm theme-text-muted mb-4">o haz clic para seleccionar archivos</p>
                                 <p class="text-xs text-gray-400">Archivos soportados: .emapper.annotations, .emapper.seed_orthologs, .emapper.hits</p>
                             </div>
                         </div>
@@ -272,16 +273,16 @@
                         <input type="file" id="eggnogFileInput" accept=".annotations,.emapper.annotations,.seed_orthologs,.emapper.seed_orthologs,.hits,.emapper.hits,.tsv,.txt" style="display: none;">
 
                         <!-- Información del archivo seleccionado -->
-                        <div id="selectedEggnogFileInfo" class="bg-orange-50 p-4 rounded-lg border border-orange-200 mb-6" style="display: none;">
-                            <h4 class="font-semibold text-orange-800 mb-2">📁 Archivo EggNOG seleccionado:</h4>
-                            <p id="selectedEggnogFileName" class="text-orange-700 text-sm font-medium"></p>
-                            <p id="selectedEggnogFilePath" class="text-orange-600 text-xs mt-1"></p>
-                            <p id="selectedEggnogFileType" class="text-orange-600 text-xs mt-1 font-medium"></p>
+                        <div id="selectedEggnogFileInfo" class="tool-card-yellow mb-6" style="display: none;">
+                            <h4 class="font-semibold tool-text-yellow mb-2">📁 Archivo EggNOG seleccionado:</h4>
+                            <p id="selectedEggnogFileName" class="tool-text-yellow text-sm font-medium"></p>
+                            <p id="selectedEggnogFilePath" class="tool-text-yellow text-xs mt-1"></p>
+                            <p id="selectedEggnogFileType" class="tool-text-yellow text-xs mt-1 font-medium"></p>
                         </div>
 
                         <!-- Botón de procesar -->
                         <div class="mb-6">
-                            <button id="processEggnogBtn" class="w-full bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            <button id="processEggnogBtn" class="w-full btn-soft-green disabled:opacity-50 disabled:cursor-not-allowed" disabled>
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                                 </svg>
@@ -290,27 +291,27 @@
                         </div>
                         
                         <!-- Estado del procesamiento -->
-                        <div id="eggnogStatus" class="mb-6 text-sm text-gray-600"></div>
+                        <div id="eggnogStatus" class="mb-6 text-sm theme-text-secondary"></div>
 
                         <!-- Estadísticas del análisis -->
-                        <div id="eggnogStatsPanel" class="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-lg border border-orange-200 mb-6" style="display: none;">
-                            <h4 class="text-lg font-semibold mb-4 text-gray-800">📊 Estadísticas EggNOG</h4>
+                        <div id="eggnogStatsPanel" class="tool-card-yellow mb-6" style="display: none;">
+                            <h4 class="text-lg font-semibold mb-4 tool-text-yellow">📊 Estadísticas EggNOG</h4>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <div class="text-center">
                                     <div class="text-2xl font-bold text-blue-600" id="totalEggnogRecords">0</div>
-                                    <div class="text-sm text-gray-600">Total registros</div>
+                                    <div class="text-sm theme-text-secondary">Total registros</div>
                                 </div>
                                 <div class="text-center">
                                     <div class="text-2xl font-bold text-green-600" id="uniqueEggnogQueries">0</div>
-                                    <div class="text-sm text-gray-600">Queries únicas</div>
+                                    <div class="text-sm theme-text-secondary">Queries únicas</div>
                                 </div>
                                 <div class="text-center">
                                     <div class="text-2xl font-bold text-purple-600" id="eggnogFileTypeDisplay">-</div>
-                                    <div class="text-sm text-gray-600">Tipo de archivo</div>
+                                    <div class="text-sm theme-text-secondary">Tipo de archivo</div>
                                 </div>
                                 <div class="text-center">
                                     <div class="text-2xl font-bold text-orange-600" id="eggnogCoverage">0%</div>
-                                    <div class="text-sm text-gray-600">Cobertura</div>
+                                    <div class="text-sm theme-text-secondary">Cobertura</div>
                                 </div>
                             </div>
                         </div>
@@ -320,22 +321,22 @@
                     </div>
 
                     <!-- Visualizador CheckM -->
-                    <div id="checkmVisualizerSection" class="bg-white p-8 rounded-xl shadow-lg mb-8 border border-gray-200" style="display: none;">
+                    <div id="checkmVisualizerSection" class="theme-bg-primary p-8 rounded-xl theme-shadow-light-lg mb-8 border theme-border" style="display: none;">
                         <div class="border-l-4 border-blue-500 pl-6 mb-6">
-                            <h3 class="text-2xl font-semibold mb-2 flex items-center text-gray-800">
+                            <h3 class="text-2xl font-semibold mb-2 flex items-center theme-text-primary">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                 </svg>
                                 Visualizador CheckM
                             </h3>
-                            <p class="text-gray-600 text-sm">Análisis de control de calidad de genomas: lineage, bins stats, archivos .fna y más</p>
+                            <p class="theme-text-secondary text-sm">Análisis de control de calidad de genomas: lineage, bins stats, archivos .fna y más</p>
                         </div>
 
                         <!-- Información de detección automática -->
-                        <div class="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
-                            <h4 class="font-semibold text-green-800 mb-2">🤖 Detección Automática</h4>
-                            <p class="text-sm text-green-700">El tipo de análisis se detecta automáticamente basado en el nombre y contenido del archivo.</p>
-                            <div class="mt-3 text-xs text-green-600">
+                        <div class="mb-6 tool-card-green">
+                            <h4 class="font-semibold tool-text-green mb-2">🤖 Detección Automática</h4>
+                            <p class="text-sm tool-text-green">El tipo de análisis se detecta automáticamente basado en el nombre y contenido del archivo.</p>
+                            <div class="mt-3 text-xs tool-text-green">
                                 <p><strong>Formatos soportados:</strong></p>
                                 <p>• CheckM: lineage_ms, bins_stats, qa_results</p>
                                 <p>• HMMER: .analyze, .tree (hmmer.analyze, hmmer.tree)</p>
@@ -350,8 +351,8 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                 </svg>
-                                <p class="text-lg font-medium text-gray-700 mb-2">Arrastra archivos CheckM aquí</p>
-                                <p class="text-sm text-gray-500 mb-4">o haz clic para seleccionar archivos</p>
+                                <p class="text-lg font-medium theme-text-secondary mb-2">Arrastra archivos CheckM aquí</p>
+                                <p class="text-sm theme-text-muted mb-4">o haz clic para seleccionar archivos</p>
                                 <div class="text-xs text-gray-400 space-y-1">
                                     <p><strong>Formatos soportados:</strong></p>
                                     <p>• .tsv, .txt (lineage_ms, bins_stats, qa_results)</p>
@@ -366,40 +367,40 @@
                         <input type="file" id="checkmFileInput" accept=".tsv,.txt,.fna,.fasta,.fa,.tree,.nwk,.csv" style="display: none;">
 
                         <!-- Información del archivo seleccionado -->
-                        <div id="selectedCheckmFileInfo" class="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-6" style="display: none;">
-                            <h4 class="font-semibold text-blue-800 mb-2">📁 Archivo CheckM seleccionado:</h4>
-                            <p id="selectedCheckmFileName" class="text-blue-700 text-sm font-medium"></p>
-                            <p id="selectedCheckmFilePath" class="text-blue-600 text-xs mt-1"></p>
-                            <p id="selectedCheckmFileType" class="text-green-700 text-xs mt-1 font-medium">🤖 Tipo detectado automáticamente</p>
-                            <p id="selectedCheckmAnalysisInfo" class="text-blue-600 text-xs mt-1"></p>
+                        <div id="selectedCheckmFileInfo" class="tool-card-blue mb-6" style="display: none;">
+                            <h4 class="font-semibold tool-text-blue mb-2">📁 Archivo CheckM seleccionado:</h4>
+                            <p id="selectedCheckmFileName" class="tool-text-blue text-sm font-medium"></p>
+                            <p id="selectedCheckmFilePath" class="tool-text-blue text-xs mt-1"></p>
+                            <p id="selectedCheckmFileType" class="tool-text-green text-xs mt-1 font-medium">🤖 Tipo detectado automáticamente</p>
+                            <p id="selectedCheckmAnalysisInfo" class="tool-text-blue text-xs mt-1"></p>
                         </div>
 
                         <!-- Opciones adicionales para análisis FNA -->
-                        <div id="fnaAnalysisOptions" class="bg-green-50 p-4 rounded-lg border border-green-200 mb-6" style="display: none;">
-                            <h4 class="font-semibold text-green-800 mb-3">🧬 Opciones de Análisis BioPython</h4>
+                        <div id="fnaAnalysisOptions" class="tool-card-green mb-6" style="display: none;">
+                            <h4 class="font-semibold tool-text-green mb-3">🧬 Opciones de Análisis BioPython</h4>
                             <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                                 <label class="flex items-center space-x-2">
-                                    <input type="checkbox" id="basicStats" checked class="text-green-600">
+                                    <input type="checkbox" id="basicStats" checked class="text-green-600 theme-input">
                                     <span class="text-sm">Estadísticas básicas</span>
                                 </label>
                                 <label class="flex items-center space-x-2">
-                                    <input type="checkbox" id="gcContent" checked class="text-green-600">
+                                    <input type="checkbox" id="gcContent" checked class="text-green-600 theme-input">
                                     <span class="text-sm">Contenido GC</span>
                                 </label>
                                 <label class="flex items-center space-x-2">
-                                    <input type="checkbox" id="n50Stats" checked class="text-green-600">
+                                    <input type="checkbox" id="n50Stats" checked class="text-green-600 theme-input">
                                     <span class="text-sm">N50/N90</span>
                                 </label>
                                 <label class="flex items-center space-x-2">
-                                    <input type="checkbox" id="lengthDistribution" checked class="text-green-600">
+                                    <input type="checkbox" id="lengthDistribution" checked class="text-green-600 theme-input">
                                     <span class="text-sm">Distribución de longitudes</span>
                                 </label>
                                 <label class="flex items-center space-x-2">
-                                    <input type="checkbox" id="codonUsage" class="text-green-600">
+                                    <input type="checkbox" id="codonUsage" class="text-green-600 theme-input">
                                     <span class="text-sm">Uso de codones</span>
                                 </label>
                                 <label class="flex items-center space-x-2">
-                                    <input type="checkbox" id="orfPrediction" class="text-green-600">
+                                    <input type="checkbox" id="orfPrediction" class="text-green-600 theme-input">
                                     <span class="text-sm">Predicción ORF</span>
                                 </label>
                             </div>
@@ -416,49 +417,49 @@
                         </div>
                         
                         <!-- Estado del procesamiento -->
-                        <div id="checkmStatus" class="mb-6 text-sm text-gray-600"></div>
+                        <div id="checkmStatus" class="mb-6 text-sm theme-text-secondary"></div>
 
                         <!-- Estadísticas del análisis -->
                         <div id="checkmStatsPanel" class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-lg border border-blue-200 mb-6" style="display: none;">
-                            <h4 class="text-lg font-semibold mb-4 text-gray-800">📊 Estadísticas CheckM</h4>
+                            <h4 class="text-lg font-semibold mb-4 theme-text-primary">📊 Estadísticas CheckM</h4>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <div class="text-center">
                                     <div class="text-2xl font-bold text-blue-600" id="totalCheckmBins">0</div>
-                                    <div class="text-sm text-gray-600">Total bins/genomas</div>
+                                    <div class="text-sm theme-text-secondary">Total bins/genomas</div>
                                 </div>
                                 <div class="text-center">
                                     <div class="text-2xl font-bold text-green-600" id="highQualityBins">0</div>
-                                    <div class="text-sm text-gray-600">Alta calidad</div>
+                                    <div class="text-sm theme-text-secondary">Alta calidad</div>
                                 </div>
                                 <div class="text-center">
                                     <div class="text-2xl font-bold text-yellow-600" id="mediumQualityBins">0</div>
-                                    <div class="text-sm text-gray-600">Calidad media</div>
+                                    <div class="text-sm theme-text-secondary">Calidad media</div>
                                 </div>
                                 <div class="text-center">
                                     <div class="text-2xl font-bold text-red-600" id="lowQualityBins">0</div>
-                                    <div class="text-sm text-gray-600">Baja calidad</div>
+                                    <div class="text-sm theme-text-secondary">Baja calidad</div>
                                 </div>
                             </div>
                             
                             <!-- Estadísticas adicionales para FNA -->
                             <div id="fnaStatsSection" class="mt-6 pt-6 border-t border-blue-200" style="display: none;">
-                                <h5 class="text-md font-semibold mb-3 text-gray-800">🧬 Estadísticas de Secuencias</h5>
+                                <h5 class="text-md font-semibold mb-3 theme-text-primary">🧬 Estadísticas de Secuencias</h5>
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     <div class="text-center">
                                         <div class="text-xl font-bold text-purple-600" id="totalSequences">0</div>
-                                        <div class="text-sm text-gray-600">Total secuencias</div>
+                                        <div class="text-sm theme-text-secondary">Total secuencias</div>
                                     </div>
                                     <div class="text-center">
                                         <div class="text-xl font-bold text-indigo-600" id="totalLength">0</div>
-                                        <div class="text-sm text-gray-600">Longitud total</div>
+                                        <div class="text-sm theme-text-secondary">Longitud total</div>
                                     </div>
                                     <div class="text-center">
                                         <div class="text-xl font-bold text-teal-600" id="averageGC">0%</div>
-                                        <div class="text-sm text-gray-600">GC promedio</div>
+                                        <div class="text-sm theme-text-secondary">GC promedio</div>
                                     </div>
                                     <div class="text-center">
                                         <div class="text-xl font-bold text-cyan-600" id="n50Value">0</div>
-                                        <div class="text-sm text-gray-600">N50</div>
+                                        <div class="text-sm theme-text-secondary">N50</div>
                                     </div>
                                 </div>
                             </div>
@@ -469,15 +470,15 @@
                     </div>
 
                     <!-- Visualizador DNA Features -->
-                    <div id="dna_featuresVisualizerSection" class="bg-white p-8 rounded-xl shadow-lg mb-8 border border-gray-200" style="display: none;">
+                    <div id="dna_featuresVisualizerSection" class="theme-bg-primary p-8 rounded-xl theme-shadow-light-lg mb-8 border theme-border" style="display: none;">
                         <div class="border-l-4 border-purple-500 pl-6 mb-6">
-                            <h3 class="text-2xl font-semibold mb-2 flex items-center text-gray-800">
+                            <h3 class="text-2xl font-semibold mb-2 flex items-center theme-text-primary">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                                 </svg>
                                 DNA Features Viewer
                             </h3>
-                            <p class="text-gray-600 text-sm">Visualización avanzada de características de DNA/RNA: GenBank, GFF, FASTA con detección automática de ORFs</p>
+                            <p class="theme-text-secondary text-sm">Visualización avanzada de características de DNA/RNA: GenBank, GFF, FASTA con detección automática de ORFs</p>
                         </div>
 
                         <!-- Información de formatos soportados -->
@@ -503,12 +504,12 @@
                         </div>
 
                         <!-- Configuraciones de visualización -->
-                        <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                            <h4 class="font-semibold text-gray-800 mb-3">⚙️ Configuraciones de Visualización</h4>
+                        <div class="mb-6 p-4 theme-bg-secondary rounded-lg border theme-border">
+                            <h4 class="font-semibold theme-text-primary mb-3">⚙️ Configuraciones de Visualización</h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Visualización</label>
-                                    <select id="dnaVisualizationType" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                                    <label class="block text-sm font-medium theme-text-secondary mb-2">Tipo de Visualización</label>
+                                    <select id="dnaVisualizationType" class="w-full p-2 border theme-border rounded-lg focus:ring-2 focus:ring-purple-500">
                                         <option value="all">Todas las visualizaciones</option>
                                         <option value="linear">Solo vista lineal</option>
                                         <option value="circular">Solo vista circular</option>
@@ -517,8 +518,8 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Tema de Colores</label>
-                                    <select id="dnaTheme" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                                    <label class="block text-sm font-medium theme-text-secondary mb-2">Tema de Colores</label>
+                                    <select id="dnaTheme" class="w-full p-2 border theme-border rounded-lg focus:ring-2 focus:ring-purple-500">
                                         <option value="default">Predeterminado</option>
                                         <option value="colorblind_friendly">Amigable para daltónicos</option>
                                         <option value="monochrome">Monocromático</option>
@@ -533,8 +534,8 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                 </svg>
-                                <p class="text-lg font-medium text-gray-700 mb-2">Arrastra archivos DNA/RNA aquí</p>
-                                <p class="text-sm text-gray-500 mb-4">o haz clic para seleccionar archivos</p>
+                                <p class="text-lg font-medium theme-text-secondary mb-2">Arrastra archivos DNA/RNA aquí</p>
+                                <p class="text-sm theme-text-muted mb-4">o haz clic para seleccionar archivos</p>
                                 <div class="text-xs text-gray-400 space-y-1">
                                     <p><strong>Ejemplos de archivos:</strong></p>
                                     <p>• GenBank: secuencia.gb, genome.gbk</p>
@@ -566,27 +567,27 @@
                         </div>
 
                         <!-- Estado del procesamiento -->
-                        <div id="dnaFeaturesStatus" class="mb-6 text-sm text-gray-600"></div>
+                        <div id="dnaFeaturesStatus" class="mb-6 text-sm theme-text-secondary"></div>
 
                         <!-- Estadísticas del análisis -->
                         <div id="dnaFeaturesStatsPanel" class="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-lg border border-purple-200 mb-6" style="display: none;">
-                            <h4 class="text-lg font-semibold mb-4 text-gray-800">📊 Estadísticas del Análisis DNA</h4>
+                            <h4 class="text-lg font-semibold mb-4 theme-text-primary">📊 Estadísticas del Análisis DNA</h4>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <div class="text-center">
                                     <div class="text-2xl font-bold text-purple-600" id="dnaSequenceLength">0</div>
-                                    <div class="text-sm text-gray-600">Longitud (bp)</div>
+                                    <div class="text-sm theme-text-secondary">Longitud (bp)</div>
                                 </div>
                                 <div class="text-center">
                                     <div class="text-2xl font-bold text-indigo-600" id="dnaFeaturesCount">0</div>
-                                    <div class="text-sm text-gray-600">Características</div>
+                                    <div class="text-sm theme-text-secondary">Características</div>
                                 </div>
                                 <div class="text-center">
                                     <div class="text-2xl font-bold text-green-600" id="dnaGcContent">0%</div>
-                                    <div class="text-sm text-gray-600">Contenido GC</div>
+                                    <div class="text-sm theme-text-secondary">Contenido GC</div>
                                 </div>
                                 <div class="text-center">
                                     <div class="text-2xl font-bold text-orange-600" id="dnaOrfsDetected">0</div>
-                                    <div class="text-sm text-gray-600">ORFs detectados</div>
+                                    <div class="text-sm theme-text-secondary">ORFs detectados</div>
                                 </div>
                             </div>
                         </div>
@@ -893,10 +894,10 @@
             });
             
             const selectorHTML = `
-                <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                <div class="theme-bg-primary p-6 rounded-lg border theme-border theme-theme-shadow-light-light">
                     <div class="flex items-center justify-between mb-4">
-                        <label class="font-medium text-gray-700">Seleccionar Gráfico:</label>
-                        <select id="graphSelector" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                        <label class="font-medium theme-text-secondary">Seleccionar Gráfico:</label>
+                        <select id="graphSelector" class="graph-selector">
                             ${correctedGraphs.map((graphUrl, index) => {
                                 const title = getGraphTitle(graphUrl);
                                 return `<option value="${index}" ${index === 0 ? 'selected' : ''}>${title}</option>`;
@@ -904,7 +905,7 @@
                         </select>
                     </div>
                     
-                    <div class="relative bg-gray-50 rounded-lg border-2 border-gray-200">
+                    <div class="relative theme-bg-secondary rounded-lg border-2 theme-border">
                         <div class="absolute top-3 right-3 z-10 flex space-x-2">
                             <button id="drFungitoAnalyzeBtn" class="bg-green-500 bg-opacity-80 hover:bg-opacity-100 text-white p-2 rounded hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-400" title="Analizar con Dr. Fungito IA">
                                 <i class="fas fa-search text-sm"></i>
@@ -924,7 +925,7 @@
                         </div>
                         
                         <div class="absolute top-3 left-3 z-10">
-                            <h5 id="graphTitle" class="bg-white bg-opacity-90 px-3 py-1 rounded-md text-sm font-semibold text-gray-800 shadow-sm">
+                            <h5 id="graphTitle" class="theme-bg-primary bg-opacity-90 px-3 py-1 rounded-md text-sm font-semibold theme-text-primary theme-theme-shadow-light-light">
                                 ${getGraphTitle(correctedGraphs[0])}
                             </h5>
                         </div>
@@ -933,7 +934,7 @@
                             <img id="currentGraphImage" 
                                  src="${correctedGraphs[0]}" 
                                  alt="Gráfico BinDash" 
-                                 class="max-w-full max-h-[500px] object-contain rounded-lg shadow-lg transition-transform duration-200"
+                                 class="max-w-full max-h-[500px] object-contain rounded-lg theme-shadow-light-lg transition-transform duration-200"
                                  style="cursor: grab;"
                                  onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzljYTNhZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkVycm9yIGNhcmdhbmRvIGltYWdlbjwvdGV4dD48L3N2Zz4='; this.alt='Error cargando imagen';" />
                         </div>
@@ -1351,17 +1352,17 @@
             });
 
             const selectorHTML = `
-                <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                <div class="theme-bg-primary p-6 rounded-lg border theme-border theme-theme-shadow-light-light">
                     <div class="flex items-center justify-between mb-4">
-                        <label class="font-medium text-gray-700">Seleccionar Gráfico:</label>
-                        <select id="eggnogGraphSelector" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                        <label class="font-medium theme-text-secondary">Seleccionar Gráfico:</label>
+                        <select id="eggnogGraphSelector" class="graph-selector">
                             ${correctedGraphs.map((graph, index) => 
                                 `<option value="${index}" ${index === 0 ? 'selected' : ''}>${getEggnogGraphTitle(graph)}</option>`
                             ).join('')}
                         </select>
                     </div>
                     
-                    <div class="relative bg-gray-50 rounded-lg border-2 border-gray-200">
+                    <div class="relative theme-bg-secondary rounded-lg border-2 theme-border">
                         <div class="absolute top-3 right-3 z-10 flex space-x-2">
                             <button id="eggnogDrFungitoAnalyzeBtn" class="bg-green-500 bg-opacity-80 hover:bg-opacity-100 text-white p-2 rounded hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-400" title="Analizar con Dr. Fungito IA">
                                 <i class="fas fa-search text-sm"></i>
@@ -1381,7 +1382,7 @@
                         </div>
                         
                         <div class="absolute top-3 left-3 z-10">
-                            <h5 id="eggnogGraphTitle" class="bg-white bg-opacity-90 px-3 py-1 rounded-md text-sm font-semibold text-gray-800 shadow-sm">
+                            <h5 id="eggnogGraphTitle" class="theme-bg-primary bg-opacity-90 px-3 py-1 rounded-md text-sm font-semibold theme-text-primary theme-theme-shadow-light-light">
                                 ${getEggnogGraphTitle(correctedGraphs[0])}
                             </h5>
                         </div>
@@ -1390,7 +1391,7 @@
                             <img id="currentEggnogGraphImage" 
                                  src="${correctedGraphs[0]}" 
                                  alt="Gráfico EggNOG" 
-                                 class="max-w-full max-h-[500px] object-contain rounded-lg shadow-lg transition-transform duration-200"
+                                 class="max-w-full max-h-[500px] object-contain rounded-lg theme-shadow-light-lg transition-transform duration-200"
                                  style="cursor: grab;"
                                  onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzljYTNhZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkVycm9yIGNhcmdhbmRvIGltYWdlbjwvdGV4dD48L3N2Zz4='; this.alt='Error cargando imagen';" />
                         </div>
@@ -2038,10 +2039,10 @@
             });
 
             const selectorHTML = `
-                <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                <div class="theme-bg-primary p-6 rounded-lg border theme-border theme-theme-shadow-light-light">
                     <div class="flex items-center justify-between mb-4">
-                        <label class="font-medium text-gray-700">Seleccionar Visualización:</label>
-                        <select id="dnaFeaturesGraphSelector" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                        <label class="font-medium theme-text-secondary">Seleccionar Visualización:</label>
+                        <select id="dnaFeaturesGraphSelector" class="graph-selector">
                             ${correctedGraphs.map((graph, index) => 
                                 `<option value="${index}" ${index === 0 ? 'selected' : ''}>${getDnaFeaturesGraphTitle(graph)}</option>`
                             ).join('')}
@@ -2068,7 +2069,7 @@
                         </div>
                         
                         <div class="absolute top-3 left-3 z-10">
-                            <h5 id="dnaFeaturesGraphTitle" class="bg-white bg-opacity-90 px-3 py-1 rounded-md text-sm font-semibold text-gray-800 shadow-sm">
+                            <h5 id="dnaFeaturesGraphTitle" class="theme-bg-primary bg-opacity-90 px-3 py-1 rounded-md text-sm font-semibold theme-text-primary theme-theme-shadow-light-light">
                                 ${getDnaFeaturesGraphTitle(correctedGraphs[0])}
                             </h5>
                         </div>
@@ -2077,7 +2078,7 @@
                             <img id="currentDnaFeaturesGraphImage" 
                                  src="${correctedGraphs[0]}" 
                                  alt="Visualización DNA Features" 
-                                 class="max-w-full max-h-[500px] object-contain rounded-lg shadow-lg transition-transform duration-200"
+                                 class="max-w-full max-h-[500px] object-contain rounded-lg theme-shadow-light-lg transition-transform duration-200"
                                  style="cursor: grab;"
                                  onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzljYTNhZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkVycm9yIGNhcmdhbmRvIGltYWdlbjwvdGV4dD48L3N2Zz4='; this.alt='Error cargando imagen';" />
                         </div>
@@ -2338,17 +2339,17 @@
             });
 
             const selectorHTML = `
-                <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                <div class="theme-bg-primary p-6 rounded-lg border theme-border theme-theme-shadow-light-light">
                     <div class="flex items-center justify-between mb-4">
-                        <label class="font-medium text-gray-700">Seleccionar Gráfico:</label>
-                        <select id="checkmGraphSelector" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <label class="font-medium theme-text-secondary">Seleccionar Gráfico:</label>
+                        <select id="checkmGraphSelector" class="graph-selector">
                             ${correctedGraphs.map((graph, index) => 
                                 `<option value="${index}" ${index === 0 ? 'selected' : ''}>${getCheckmGraphTitle(graph)}</option>`
                             ).join('')}
                         </select>
                     </div>
                     
-                    <div class="relative bg-gray-50 rounded-lg border-2 border-gray-200">
+                    <div class="relative theme-bg-secondary rounded-lg border-2 theme-border">
                         <div class="absolute top-3 right-3 z-10 flex space-x-2">
                             <button id="checkmDrFungitoAnalyzeBtn" class="bg-green-500 bg-opacity-80 hover:bg-opacity-100 text-white p-2 rounded hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-400" title="Analizar con Dr. Fungito IA">
                                 <i class="fas fa-search text-sm"></i>
@@ -2368,7 +2369,7 @@
                         </div>
                         
                         <div class="absolute top-3 left-3 z-10">
-                            <h5 id="checkmGraphTitle" class="bg-white bg-opacity-90 px-3 py-1 rounded-md text-sm font-semibold text-gray-800 shadow-sm">
+                            <h5 id="checkmGraphTitle" class="theme-bg-primary bg-opacity-90 px-3 py-1 rounded-md text-sm font-semibold theme-text-primary theme-theme-shadow-light-light">
                                 ${getCheckmGraphTitle(correctedGraphs[0])}
                             </h5>
                         </div>
@@ -2377,7 +2378,7 @@
                             <img id="currentCheckmGraphImage" 
                                  src="${correctedGraphs[0]}" 
                                  alt="Gráfico CheckM" 
-                                 class="max-w-full max-h-[500px] object-contain rounded-lg shadow-lg transition-transform duration-200"
+                                 class="max-w-full max-h-[500px] object-contain rounded-lg theme-shadow-light-lg transition-transform duration-200"
                                  style="cursor: grab;"
                                  onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzljYTNhZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkVycm9yIGNhcmdhbmRvIGltYWdlbjwvdGV4dD48L3N2Zz4='; this.alt='Error cargando imagen';" />
                         </div>

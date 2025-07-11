@@ -1,6 +1,6 @@
 <%- include('partials/header') %>
 
-<body class="bg-gray-100 min-h-screen flex flex-col">
+<body class="theme-bg-primary theme-text-primary min-h-screen flex flex-col">
     <main class="flex-grow p-6">
         <div class="max-w-7xl mx-auto">
             <div class="flex flex-col md:flex-row gap-6">
@@ -11,7 +11,7 @@
                 
                 <!-- Panel principal -->
                 <div class="w-full md:w-2/3 lg:w-3/4">
-                    <h2 class="text-3xl font-bold mb-8 flex items-center text-gray-800">
+                    <h2 class="text-3xl font-bold mb-8 flex items-center theme-text-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5h6m-6 4h6m-7 4h8m-8 4h8M7 5h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2z" />
                         </svg>
@@ -19,18 +19,18 @@
                     </h2>
 
                     <!-- Selector para elegir entre BRAKER3, CheckM, o ambas -->
-                    <div class="bg-white p-6 rounded-xl shadow-lg mb-8 border border-gray-200">
-                        <h3 class="text-xl font-semibold mb-4 flex items-center text-gray-800">
+                    <div class="theme-bg-primary p-6 rounded-xl theme-shadow-light-lg mb-8 border theme-border">
+                        <h3 class="text-xl font-semibold mb-4 flex items-center theme-text-primary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
                             </svg>
                             Seleccionar Herramienta
                         </h3>
                         <div class="mt-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                            <label class="block text-sm font-medium theme-text-secondary mb-3">
                                 Elige la herramienta que deseas utilizar:
                             </label>
-                            <select id="toolSelector" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                            <select id="toolSelector" class="form-select w-full">
                                 <option value="checkm">CheckM - Control de Calidad</option>
                                 <option value="braker3">BRAKER3 - Anotación de Genes</option>
                                 <option value="both">Ambas Herramientas</option>
@@ -39,57 +39,57 @@
                     </div>
 
                     <!-- Configuración de CheckM -->
-                    <div id="checkMConfig" class="bg-white p-8 rounded-xl shadow-lg mb-8 border border-gray-200" style="display:none;">
+                    <div id="checkMConfig" class="theme-bg-primary p-8 rounded-xl theme-shadow-light-lg mb-8 border theme-border" style="display:none;">
                         <div class="border-l-4 border-green-500 pl-6 mb-6">
-                            <h3 class="text-2xl font-semibold mb-2 flex items-center text-gray-800">
+                            <h3 class="text-2xl font-semibold mb-2 flex items-center theme-text-primary">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                                 Configuración de CheckM
                         </h3>
-                            <p class="text-gray-600 text-sm">Herramienta para evaluar la calidad y completitud de genomas</p>
+                            <p class="theme-text-secondary text-sm">Herramienta para evaluar la calidad y completitud de genomas</p>
                         </div>
                         
                         <form id="checkMForm" class="space-y-6">
                             <!-- Configuración Principal -->
-                            <div class="bg-gray-50 p-6 rounded-lg">
-                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Configuración Principal</h4>
+                            <div class="theme-bg-secondary p-6 rounded-lg">
+                                <h4 class="text-lg font-semibold mb-4 theme-text-primary">Configuración Principal</h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <label class="block text-sm font-medium theme-text-secondary mb-2">
                                         Tipo de Workflow
                                     </label>
-                                        <select id="workflowType" name="workflowType" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
+                                        <select id="workflowType" name="workflowType" class="form-select w-full">
                                         <option value="lineage_wf">Lineage Workflow</option>
                                         <option value="taxonomy_wf">Taxonomy Workflow</option>
                                         <option value="qa">Quality Assessment</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <label class="block text-sm font-medium theme-text-secondary mb-2">
                                         Número de Hilos (-t)
                                     </label>
                                         <input type="number" id="threadsCheckM" name="threads" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" 
+                                               class="form-input w-full" 
                                                min="1" max="32" value="8" required />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <label class="block text-sm font-medium theme-text-secondary mb-2">
                                         Extensión de Archivo (-x)
                                     </label>
                                         <input type="text" id="fileExtensionCheckM" name="fileExtension" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-600" 
+                                               class="w-full p-3 border theme-border rounded-lg theme-bg-tertiary theme-text-secondary theme-input" 
                                                value="fna" readonly />
                                 </div>
                                 </div>
                             </div>
 
                             <!-- Configuración de Rutas -->
-                            <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
-                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Configuración de Rutas</h4>
+                            <div class="tool-card-blue">
+                                <h4 class="text-lg font-semibold mb-4 tool-text-blue">Configuración de Rutas</h4>
                                 <div class="grid grid-cols-1 gap-6">
                                 <div>
-                                        <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                        <label class="flex items-center text-sm font-medium theme-text-secondary mb-2">
                                         Ruta de entrada (carpeta con genomas)
                                             <div class="relative ml-2 group">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -107,13 +107,13 @@
                                             </div>
                                     </label>
                                     <input type="text" id="checkMInputFolderPath" name="inputFolderPath" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                               class="form-input w-full" 
                                                value="C:\Memoriacosas\FungiGT\data\raw\genomes" 
                                                placeholder="Ej: C:\Memoriacosas\FungiGT\data\raw\genomes" />
-                                        <p class="text-xs text-gray-500 mt-1">Los genomas serán tomados de esta carpeta</p>
+                                        <p class="text-xs theme-text-muted mt-1">Los genomas serán tomados de esta carpeta</p>
                                 </div>
                                 <div>
-                                        <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                        <label class="flex items-center text-sm font-medium theme-text-secondary mb-2">
                                         Ruta de salida (resultados)
                                             <div class="relative ml-2 group">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -131,7 +131,7 @@
                                             </div>
                                     </label>
                                     <input type="text" id="checkMOutputFolderPath" name="outputFolderPath" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                               class="form-input w-full" 
                                                value="C:\Memoriacosas\FungiGT\data\results\quality_control" 
                                                placeholder="Ej: C:\Memoriacosas\FungiGT\data\results\quality_control" />
                                 </div>
@@ -139,40 +139,40 @@
                                     </div>
 
                             <!-- Flags Adicionales -->
-                            <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
-                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Opciones Avanzadas</h4>
+                            <div class="tool-card-yellow">
+                                <h4 class="text-lg font-semibold mb-4 tool-text-yellow">Opciones Avanzadas</h4>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                    <div class="flex items-center p-3 theme-bg-primary rounded-lg border theme-border">
                                         <input type="checkbox" id="flagReduce" name="flagsCheckM" value="--reduced_tree" 
-                                               class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
-                                        <label for="flagReduce" class="ml-3 text-sm text-gray-700 font-medium">--reduced_tree</label>
+                                               class="h-4 w-4 text-green-600 focus:ring-green-500 theme-border rounded theme-input">
+                                        <label for="flagReduce" class="ml-3 text-sm theme-text-secondary font-medium">--reduced_tree</label>
                                     </div>
-                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                    <div class="flex items-center p-3 theme-bg-primary rounded-lg border theme-border">
                                         <input type="checkbox" id="flagQuiet" name="flagsCheckM" value="--quiet" 
-                                               class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
-                                        <label for="flagQuiet" class="ml-3 text-sm text-gray-700 font-medium">--quiet</label>
+                                               class="h-4 w-4 text-green-600 focus:ring-green-500 theme-border rounded theme-input">
+                                        <label for="flagQuiet" class="ml-3 text-sm theme-text-secondary font-medium">--quiet</label>
                                     </div>
-                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                    <div class="flex items-center p-3 theme-bg-primary rounded-lg border theme-border">
                                         <input type="checkbox" id="flagTab" name="flagsCheckM" value="--tab_table" 
-                                               class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
-                                        <label for="flagTab" class="ml-3 text-sm text-gray-700 font-medium">--tab_table</label>
+                                               class="h-4 w-4 text-green-600 focus:ring-green-500 theme-border rounded theme-input">
+                                        <label for="flagTab" class="ml-3 text-sm theme-text-secondary font-medium">--tab_table</label>
                                 </div>
                             </div>
                             </div>
 
                             <!-- Subida de Archivos -->
-                            <div class="bg-green-50 p-6 rounded-lg border border-green-200">
-                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Subir Archivos</h4>
+                            <div class="tool-card-green">
+                                <h4 class="text-lg font-semibold mb-4 tool-text-green">Subir Archivos</h4>
                                 <div class="space-y-4">
                                     <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <label class="block text-sm font-medium theme-text-secondary mb-2">
                                     Subir archivos .fna a la carpeta de entrada
                                 </label>
                                         <input type="file" id="fnaFilesCheckM" name="fnaFiles" multiple accept=".fna" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100" />
+                                               class="w-full p-3 border theme-border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 theme-input" />
                                     </div>
                                     <button type="button" id="uploadCheckMButton" 
-                                            class="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                                            class="inline-flex items-center btn-soft-green">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                     </svg>
@@ -182,16 +182,16 @@
                                 </div>
 
                             <!-- Botones de Acción -->
-                            <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                            <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t theme-border">
                                 <button type="button" id="showCommandBtn" 
-                                        class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors font-medium">
+                                        class="flex-1 btn-soft-blue">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5-6h3" />
                                     </svg>
                                     Mostrar Comando
                                 </button>
                                 <button type="submit" 
-                                        class="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors font-medium">
+                                        class="flex-1 btn-soft-green">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m-9-4V8a2 2 0 012-2h8a2 2 0 012 2v2M7 16h10" />
                                     </svg>
@@ -199,81 +199,81 @@
                                 </button>
                             </div>
                             
-                            <div id="commandDisplay" class="mt-4 p-4 bg-gray-100 rounded-lg hidden">
-                                <h5 class="font-semibold text-gray-800 mb-2">Comando Docker:</h5>
-                                <pre id="dockerCommand" class="text-sm text-gray-800 whitespace-pre-wrap bg-white p-3 rounded border"></pre>
+                            <div id="commandDisplay" class="mt-4 p-4 theme-bg-tertiary rounded-lg hidden">
+                                <h5 class="font-semibold theme-text-primary mb-2">Comando Docker:</h5>
+                                <pre id="dockerCommand" class="text-sm theme-text-primary whitespace-pre-wrap theme-bg-primary p-3 rounded border"></pre>
                             </div>
                         </form>
                     </div>
 
                     <!-- Configuración de BRAKER3 -->
-                    <div id="braker3Config" class="bg-white p-8 rounded-xl shadow-lg mb-8 border border-gray-200" style="display:none;">
+                    <div id="braker3Config" class="theme-bg-primary p-8 rounded-xl theme-shadow-light-lg mb-8 border theme-border" style="display:none;">
                         <div class="border-l-4 border-purple-500 pl-6 mb-6">
-                            <h3 class="text-2xl font-semibold mb-2 flex items-center text-gray-800">
+                            <h3 class="text-2xl font-semibold mb-2 flex items-center theme-text-primary">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 7.172V5L8 4z" />
                             </svg>
                                 Configuración de BRAKER3
                         </h3>
-                            <p class="text-gray-600 text-sm">Herramienta para anotación automática de genes en genomas eucariotas</p>
+                            <p class="theme-text-secondary text-sm">Herramienta para anotación automática de genes en genomas eucariotas</p>
                         </div>
                         
                         <form id="braker3Form" class="space-y-6">
                             <!-- Configuración Principal -->
-                            <div class="bg-gray-50 p-6 rounded-lg">
-                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Configuración Principal</h4>
+                            <div class="theme-bg-secondary p-6 rounded-lg">
+                                <h4 class="text-lg font-semibold mb-4 theme-text-primary">Configuración Principal</h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <label class="block text-sm font-medium theme-text-secondary mb-2">
                                             Especie (--species) *
                                     </label>
                                         <input type="text" id="brakerSpecies" name="species" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                               class="form-input w-full" 
                                                placeholder="Ej: Aspergillus_fumigatus" required />
-                                        <p class="text-xs text-gray-500 mt-1">Nombre de la especie (sin espacios)</p>
+                                        <p class="text-xs theme-text-muted mt-1">Nombre de la especie (sin espacios)</p>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <label class="block text-sm font-medium theme-text-secondary mb-2">
                                             Archivo del Genoma (--genome) *
                                     </label>
                                         <input type="text" id="brakerGenomeFile" name="genome" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                               class="form-input w-full" 
                                                placeholder="Ej: genome.fna" required />
-                                        <p class="text-xs text-gray-500 mt-1">Nombre del archivo del genoma</p>
+                                        <p class="text-xs theme-text-muted mt-1">Nombre del archivo del genoma</p>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <label class="block text-sm font-medium theme-text-secondary mb-2">
                                             Archivo BAM (--bam) <span class="text-gray-400 italic">(Opcional)</span>
                                     </label>
                                         <input type="text" id="brakerBamFile" name="bam" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                               class="form-input w-full" 
                                                placeholder="Ej: sample.bam" />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <label class="block text-sm font-medium theme-text-secondary mb-2">
                                             Archivo de Proteínas (--prot_seq) <span class="text-gray-400 italic">(Opcional)</span>
                                     </label>
                                         <input type="text" id="brakerProtSeqFile" name="prot_seq" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                               class="form-input w-full" 
                                                placeholder="Ej: proteins.faa" />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <label class="block text-sm font-medium theme-text-secondary mb-2">
                                             Número de Hilos (--threads) *
                                     </label>
                                         <input type="number" id="brakerThreads" name="threads" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                               class="form-input w-full" 
                                                min="1" max="32" value="4" required />
                                 </div>
                                 </div>
                             </div>
 
                             <!-- Configuración de Rutas -->
-                            <div class="bg-purple-50 p-6 rounded-lg border border-purple-200">
-                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Configuración de Rutas</h4>
+                            <div class="tool-card-purple p-6 rounded-lg">
+                                <h4 class="text-lg font-semibold mb-4 theme-text-primary">Configuración de Rutas</h4>
                                 <div class="grid grid-cols-1 gap-6">
                                 <div>
-                                        <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                        <label class="flex items-center text-sm font-medium theme-text-secondary mb-2">
                                             Ruta Completa de la Carpeta de Entrada *
                                             <div class="relative ml-2 group">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -292,12 +292,12 @@
                                             </div>
                                     </label>
                                         <input type="text" id="braker3InputFolderPath" name="inputFolderPath" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                               class="form-input w-full" 
                                                placeholder="Ej: C:/Memoriacosas/FungiGT/data/raw/genomes" required />
-                                        <p class="text-xs text-gray-500 mt-1">Carpeta que contiene los archivos de entrada</p>
+                                        <p class="text-xs theme-text-muted mt-1">Carpeta que contiene los archivos de entrada</p>
                                 </div>
                                 <div>
-                                        <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                        <label class="flex items-center text-sm font-medium theme-text-secondary mb-2">
                                             Ruta Completa de la Carpeta de Salida *
                                             <div class="relative ml-2 group">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -315,62 +315,62 @@
                                             </div>
                                 </label>
                                         <input type="text" id="braker3OutputFolderPath" name="outputFolderPath" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                               class="form-input w-full" 
                                                placeholder="Ej: C:/Memoriacosas/FungiGT/data/results/annotation" required />
                                     </div>
                                     </div>
                                     </div>
 
                             <!-- Flags Adicionales -->
-                            <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
-                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Opciones Avanzadas</h4>
+                            <div class="tool-card-yellow p-6 rounded-lg">
+                                <h4 class="text-lg font-semibold mb-4 theme-text-primary">Opciones Avanzadas</h4>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                    <div class="flex items-center p-3 theme-bg-primary rounded-lg border theme-border">
                                         <input type="checkbox" id="brakerSoftmasking" name="flagsBRAKER3" value="--softmasking" 
-                                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
-                                        <label for="brakerSoftmasking" class="ml-3 text-sm text-gray-700 font-medium">--softmasking</label>
+                                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 theme-border rounded theme-input">
+                                        <label for="brakerSoftmasking" class="ml-3 text-sm theme-text-secondary font-medium">--softmasking</label>
                                     </div>
-                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                    <div class="flex items-center p-3 theme-bg-primary rounded-lg border theme-border">
                                         <input type="checkbox" id="brakerGff3" name="flagsBRAKER3" value="--gff3" 
-                                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
-                                        <label for="brakerGff3" class="ml-3 text-sm text-gray-700 font-medium">--gff3</label>
+                                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 theme-border rounded theme-input">
+                                        <label for="brakerGff3" class="ml-3 text-sm theme-text-secondary font-medium">--gff3</label>
                                     </div>
-                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                    <div class="flex items-center p-3 theme-bg-primary rounded-lg border theme-border">
                                         <input type="checkbox" id="brakerFungus" name="flagsBRAKER3" value="--fungus" 
-                                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
-                                        <label for="brakerFungus" class="ml-3 text-sm text-gray-700 font-medium">--fungus</label>
+                                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 theme-border rounded theme-input">
+                                        <label for="brakerFungus" class="ml-3 text-sm theme-text-secondary font-medium">--fungus</label>
                                     </div>
-                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                    <div class="flex items-center p-3 theme-bg-primary rounded-lg border theme-border">
                                         <input type="checkbox" id="brakerKeepCrf" name="flagsBRAKER3" value="--keepCrf" 
-                                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
-                                        <label for="brakerKeepCrf" class="ml-3 text-sm text-gray-700 font-medium">--keepCrf</label>
+                                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 theme-border rounded theme-input">
+                                        <label for="brakerKeepCrf" class="ml-3 text-sm theme-text-secondary font-medium">--keepCrf</label>
                                 </div>
-                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                    <div class="flex items-center p-3 theme-bg-primary rounded-lg border theme-border">
                                         <input type="checkbox" id="brakerMakehub" name="flagsBRAKER3" value="--makehub" 
-                                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
-                                        <label for="brakerMakehub" class="ml-3 text-sm text-gray-700 font-medium">--makehub</label>
+                                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 theme-border rounded theme-input">
+                                        <label for="brakerMakehub" class="ml-3 text-sm theme-text-secondary font-medium">--makehub</label>
                             </div>
-                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+                                    <div class="flex items-center p-3 theme-bg-primary rounded-lg border theme-border">
                                         <input type="checkbox" id="brakerUseExisting" name="flagsBRAKER3" value="--useexisting" 
-                                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
-                                        <label for="brakerUseExisting" class="ml-3 text-sm text-gray-700 font-medium">--useexisting</label>
+                                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 theme-border rounded theme-input">
+                                        <label for="brakerUseExisting" class="ml-3 text-sm theme-text-secondary font-medium">--useexisting</label>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Subida de Archivos -->
-                            <div class="bg-purple-50 p-6 rounded-lg border border-purple-200">
-                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Subir Archivos</h4>
+                            <div class="tool-card-purple p-6 rounded-lg">
+                                <h4 class="text-lg font-semibold mb-4 theme-text-primary">Subir Archivos</h4>
                                 <div class="space-y-4">
                                     <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <label class="block text-sm font-medium theme-text-secondary mb-2">
                                     Subir archivos a la carpeta de entrada
                                 </label>
                                         <input type="file" id="fnaFilesBRAKER3" name="fnaFiles" multiple accept=".fna,.faa,.bam" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100" />
+                                               class="w-full p-3 border theme-border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 theme-input" />
                                     </div>
                                     <button type="button" id="uploadBRAKER3Button" 
-                                            class="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors">
+                                            class="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg theme-theme-shadow-light-light text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                     </svg>
@@ -380,7 +380,7 @@
                                 </div>
 
                             <!-- Botones de Acción -->
-                            <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                            <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t theme-border">
                                 <button type="button" id="showBraker3CommandBtn" 
                                         class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors font-medium">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -397,17 +397,17 @@
                             </button>
                     </div>
 
-                            <div id="braker3CommandDisplay" class="mt-4 p-4 bg-gray-100 rounded-lg hidden">
-                                <h5 class="font-semibold text-gray-800 mb-2">Comando Docker:</h5>
-                                <pre id="braker3DockerCommand" class="text-sm text-gray-800 whitespace-pre-wrap bg-white p-3 rounded border"></pre>
+                            <div id="braker3CommandDisplay" class="mt-4 p-4 theme-bg-tertiary rounded-lg hidden">
+                                <h5 class="font-semibold theme-text-primary mb-2">Comando Docker:</h5>
+                                <pre id="braker3DockerCommand" class="text-sm theme-text-primary whitespace-pre-wrap theme-bg-primary p-3 rounded border"></pre>
                             </div>
                         </form>
                     </div>
 
 
                     <!-- Estado de Análisis -->
-                    <div class="bg-white p-6 rounded-xl shadow-lg mb-8 border border-gray-200">
-                        <h3 class="text-xl font-semibold mb-6 flex items-center text-gray-800">
+                    <div class="theme-bg-primary p-6 rounded-xl theme-shadow-light-lg mb-8 border theme-border">
+                        <h3 class="text-xl font-semibold mb-6 flex items-center theme-text-primary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                             </svg>
@@ -415,15 +415,15 @@
                         </h3>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
+                                <thead class="theme-bg-secondary">
                                     <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo de Análisis</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progreso</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium theme-text-muted uppercase tracking-wider">Tipo de Análisis</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium theme-text-muted uppercase tracking-wider">Estado</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium theme-text-muted uppercase tracking-wider">Progreso</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium theme-text-muted uppercase tracking-wider">Acciones</th>
                                     </tr>
                                 </thead>
-                                <tbody id="annotationsTable" class="bg-white divide-y divide-gray-200">
+                                <tbody id="annotationsTable" class="theme-bg-primary divide-y divide-gray-200">
                                     <!-- Anotaciones se añadirán dinámicamente aquí -->
                                 </tbody>
                             </table>
@@ -442,11 +442,11 @@
 
     <!-- Modal para nueva carpeta -->
     <div id="newFolderModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-        <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
+        <div class="theme-bg-primary p-6 rounded-lg theme-shadow-light-xl max-w-md w-full">
             <h3 class="text-lg font-semibold mb-4">Crear Nueva Carpeta</h3>
-            <input type="text" id="newFolderName" class="w-full p-2 border rounded-md mb-4" placeholder="Nombre de la carpeta">
+            <input type="text" id="newFolderName" class="w-full p-2 border rounded-md mb-4 theme-input" placeholder="Nombre de la carpeta">
             <div class="flex justify-end space-x-2">
-                <button id="cancelNewFolder" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400">
+                <button id="cancelNewFolder" class="bg-gray-300 theme-text-primary px-4 py-2 rounded hover:bg-gray-400">
                     Cancelar
                 </button>
                 <button id="createNewFolder" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
@@ -480,10 +480,10 @@
                     </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="w-full bg-gray-200 rounded-full h-4">
+                    <div class="w-full theme-bg-tertiary rounded-full h-4">
                         <div id="progressBar-${uniqueId}" class="bg-green-600 h-4 rounded-full" style="width: 0%;"></div>
                     </div>
-                    <span id="progressText-${uniqueId}" class="text-xs text-gray-700">${analysis.progress}</span>
+                    <span id="progressText-${uniqueId}" class="text-xs theme-text-secondary">${analysis.progress}</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap" id="actions-${uniqueId}"></td>
             `;
@@ -502,7 +502,7 @@
             
             // Elemento para logs
             const logsContainer = document.createElement('div');
-            logsContainer.classList.add('logs-container', 'mt-4', 'p-2', 'bg-gray-100', 'rounded', 'text-xs', 'font-mono', 'max-h-40', 'overflow-y-auto');
+            logsContainer.classList.add('logs-container', 'mt-4', 'p-2', 'theme-bg-tertiary', 'rounded', 'text-xs', 'font-mono', 'max-h-40', 'overflow-y-auto');
             document.getElementById(`progressText-${uniqueId}`).parentNode.appendChild(logsContainer);
             
             // Contador para limitar la cantidad de logs mostrados
@@ -562,10 +562,10 @@
                                 logElement.className = 'text-green-600 font-bold py-1';
                                 break;
                             case 'time':
-                                logElement.className = 'text-gray-500 italic text-xs py-1';
+                                logElement.className = 'theme-text-muted italic text-xs py-1';
                                 break;
                             default:
-                                logElement.className = 'text-gray-600 py-1';
+                                logElement.className = 'theme-text-secondary py-1';
                         }
                         
                         logElement.textContent = log.text;
@@ -630,7 +630,7 @@
             
             // Elemento para logs
             const logsContainer = document.createElement('div');
-            logsContainer.classList.add('logs-container', 'mt-4', 'p-2', 'bg-gray-100', 'rounded', 'text-xs', 'font-mono', 'max-h-40', 'overflow-y-auto');
+            logsContainer.classList.add('logs-container', 'mt-4', 'p-2', 'theme-bg-tertiary', 'rounded', 'text-xs', 'font-mono', 'max-h-40', 'overflow-y-auto');
             document.getElementById(`progressText-${uniqueId}`).parentNode.appendChild(logsContainer);
             
             // Manejar eventos recibidos
@@ -695,7 +695,7 @@
                                 logElement.className = 'text-yellow-600 py-1';
                                 break;
                             default:
-                                logElement.className = 'text-gray-600 py-1';
+                                logElement.className = 'theme-text-secondary py-1';
                         }
                         
                         logElement.textContent = log.text;
@@ -1176,7 +1176,7 @@
                 
                 loadFiles: function(type, category, subcategory) {
                     const filesContainer = document.getElementById(`${type}FilesList`);
-                    filesContainer.innerHTML = '<p class="text-gray-500 text-sm italic">Cargando archivos...</p>';
+                    filesContainer.innerHTML = '<p class="theme-text-muted text-sm italic">Cargando archivos...</p>';
                     
                     fetch(`${this.apiBaseUrl}/files/${category}/${subcategory}`)
                         .then(response => {
@@ -1220,7 +1220,7 @@
                     const filesContainer = document.getElementById(`${type}FilesList`);
                     
                     if (!files || files.length === 0) {
-                        filesContainer.innerHTML = '<p class="text-gray-500 text-sm italic">No hay archivos en esta carpeta</p>';
+                        filesContainer.innerHTML = '<p class="theme-text-muted text-sm italic">No hay archivos en esta carpeta</p>';
                         return;
                     }
                     
@@ -1235,7 +1235,7 @@
                     
                     sortedFiles.forEach(file => {
                         const fileItem = document.createElement('div');
-                        fileItem.className = 'file-item py-1 px-2 hover:bg-gray-200 rounded cursor-pointer flex items-center justify-between';
+                        fileItem.className = 'file-item py-1 px-2 hover:theme-bg-tertiary rounded cursor-pointer flex items-center justify-between';
                         fileItem.dataset.path = file.path;
                         fileItem.dataset.isDirectory = file.isDirectory;
                         
@@ -1306,14 +1306,14 @@
                         'bam': 'fas fa-align-left text-blue-600',
                         'sam': 'fas fa-align-left text-blue-600',
                         'vcf': 'fas fa-project-diagram text-red-600',
-                        'txt': 'fas fa-file-alt text-gray-600',
+                        'txt': 'fas fa-file-alt theme-text-secondary',
                         'tsv': 'fas fa-table text-blue-600',
                         'csv': 'fas fa-table text-blue-600',
                         'png': 'fas fa-file-image text-purple-600',
                         'jpg': 'fas fa-file-image text-purple-600'
                     };
                     
-                    return iconMap[extension] || 'fas fa-file text-gray-600';
+                    return iconMap[extension] || 'fas fa-file theme-text-secondary';
                 },
                 
                 // Gestionar la subida de archivos
@@ -1450,7 +1450,7 @@
                                 modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
                                 
                                 const modalContent = document.createElement('div');
-                                modalContent.className = 'bg-white p-6 rounded-lg shadow-xl max-w-4xl w-full max-h-[80vh] flex flex-col';
+                                modalContent.className = 'theme-bg-primary p-6 rounded-lg theme-shadow-light-xl max-w-4xl w-full max-h-[80vh] flex flex-col';
                                 
                                 const header = document.createElement('div');
                                 header.className = 'flex justify-between items-center mb-4';
@@ -1460,7 +1460,7 @@
                                 title.textContent = `Archivo: ${filePath.split('/').pop()}`;
                                 
                                 const closeBtn = document.createElement('button');
-                                closeBtn.className = 'text-gray-500 hover:text-gray-700';
+                                closeBtn.className = 'theme-text-muted hover:theme-text-secondary';
                                 closeBtn.innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
                                 closeBtn.onclick = () => document.body.removeChild(modal);
                                 
@@ -1468,7 +1468,7 @@
                                 header.appendChild(closeBtn);
                                 
                                 const contentArea = document.createElement('pre');
-                                contentArea.className = 'bg-gray-100 p-4 rounded-md overflow-auto flex-grow text-sm';
+                                contentArea.className = 'theme-bg-tertiary p-4 rounded-md overflow-auto flex-grow text-sm';
                                 contentArea.textContent = content;
                                 
                                 modalContent.appendChild(header);

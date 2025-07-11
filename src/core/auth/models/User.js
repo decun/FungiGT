@@ -50,6 +50,22 @@ const userSchema = new mongoose.Schema({
     profileImage: {
         type: String,
         default: null
+    },
+    preferences: {
+        theme: {
+            type: String,
+            enum: ['light', 'dark'],
+            default: 'light'
+        },
+        language: {
+            type: String,
+            enum: ['es', 'en'],
+            default: 'es'
+        },
+        notifications: {
+            type: Boolean,
+            default: true
+        }
     }
 }, {
     timestamps: true
@@ -86,6 +102,7 @@ userSchema.methods.toPublicJSON = function() {
         isActive: this.isActive,
         lastLogin: this.lastLogin,
         profileImage: this.profileImage,
+        preferences: this.preferences,
         createdAt: this.createdAt
     };
 };

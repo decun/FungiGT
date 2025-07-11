@@ -67,9 +67,13 @@ const databaseRoutes = require('./routes/database');
 const analyzerRoutes = require('./routes/analyzer');
 const visualizerRoutes = require('./routes/visualizer');
 
+// Middleware para proxy del servicio de autenticación
+const authProxyMiddleware = require('./middleware/authProxyMiddleware');
+
 app.use(requireAuth);
 app.use('/', indexRoutes);
 app.use('/auth', authRoutes);
+app.use('/api/auth', authProxyMiddleware); // Proxy para el servicio de autenticación
 app.use('/annotator', annotatorRoutes);
 app.use('/database', databaseRoutes);
 app.use('/analyzer', analyzerRoutes);

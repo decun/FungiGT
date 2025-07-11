@@ -19,11 +19,11 @@
 }
 </style>
 
-<div class="bg-white rounded-lg shadow-lg border max-w-full">
+<div class="theme-bg-primary rounded-lg theme-shadow-light-lg border max-w-full">
     <!-- Header -->
-    <div class="p-3 border-b bg-gray-50">
+    <div class="p-3 border-b theme-bg-secondary">
         <div class="flex justify-between items-center mb-2">
-            <h3 class="font-semibold text-base flex items-center text-gray-800">
+            <h3 class="font-semibold text-base flex items-center theme-text-primary">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                 </svg>
@@ -32,28 +32,28 @@
             <!-- Indicador de estado del servidor -->
             <div id="serverStatus" class="flex items-center text-xs">
                 <div class="w-2 h-2 rounded-full bg-gray-400 mr-1"></div>
-                <span class="text-gray-500">Conectando...</span>
+                <span class="theme-text-muted">Conectando...</span>
             </div>
         </div>
         
         <!-- Botones de acción -->
         <div class="flex justify-center space-x-2">
-            <button id="createFolderBtn" class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full transition-colors duration-200" title="Nueva Carpeta">
+            <button id="createFolderBtn" class="action-btn-blue p-2 rounded-full" title="Nueva Carpeta">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
             </button>
-            <button id="uploadFileBtn" class="bg-green-500 hover:bg-green-600 text-white p-2 rounded-full transition-colors duration-200" title="Subir Archivo">
+            <button id="uploadFileBtn" class="action-btn-green p-2 rounded-full" title="Subir Archivo">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
             </button>
-            <button id="refreshBtn" class="bg-gray-500 hover:bg-gray-600 text-white p-2 rounded-full transition-colors duration-200" title="Actualizar">
+            <button id="refreshBtn" class="action-btn-secondary p-2 rounded-full" title="Actualizar">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
             </button>
-            <button id="testConnectionBtn" class="bg-purple-500 hover:bg-purple-600 text-white p-2 rounded-full transition-colors duration-200" title="Probar Conexión">
+            <button id="testConnectionBtn" class="action-btn-purple p-2 rounded-full" title="Probar Conexión">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -62,22 +62,22 @@
     </div>
     
     <!-- Navegación de Ruta -->
-    <div class="px-3 py-2 border-b bg-gray-50">
+    <div class="px-3 py-2 border-b theme-bg-secondary">
         <div class="flex items-center space-x-2 text-xs">
-            <button id="homeBtn" class="text-blue-600 hover:text-blue-800 flex items-center transition-colors duration-200">
+            <button id="homeBtn" class="breadcrumb-item flex items-center transition-colors duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
                 data
             </button>
-            <span id="breadcrumb" class="text-gray-600 truncate"></span>
+            <span id="breadcrumb" class="breadcrumb-item truncate"></span>
         </div>
     </div>
     
     <!-- Lista de Archivos -->
     <div class="p-3">
-        <div id="filesList" class="min-h-[250px] max-h-[400px] overflow-y-auto border rounded text-xs relative">
-            <div class="p-6 text-center text-gray-500">
+        <div id="filesList" class="file-list-container min-h-[250px] max-h-[400px] overflow-y-auto border rounded text-xs relative">
+            <div class="p-6 text-center theme-text-muted">
                 <svg class="animate-spin h-6 w-6 mx-auto mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -87,7 +87,7 @@
         </div>
         
         <!-- Información del archivo seleccionado -->
-        <div class="mt-2 flex justify-between items-center text-xs text-gray-600">
+        <div class="mt-2 flex justify-between items-center text-xs file-info">
             <span id="fileCount">0 elementos</span>
             <div id="selectedFileInfo" class="hidden truncate">
                 <span id="selectedFileName" class="font-medium"></span>
@@ -98,23 +98,23 @@
         
         <!-- Botones de acción para archivos -->
         <div class="mt-2 flex justify-center space-x-2">
-            <button id="viewFileBtn" class="bg-blue-500 hover:bg-blue-600 text-white p-1.5 rounded-full text-xs disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200" disabled title="Ver archivo">
+            <button id="viewFileBtn" class="action-btn-blue p-1.5 rounded-full text-xs disabled:opacity-50 disabled:cursor-not-allowed" disabled title="Ver archivo">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
             </button>
-            <button id="downloadFileBtn" class="bg-green-500 hover:bg-green-600 text-white p-1.5 rounded-full text-xs disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200" disabled title="Descargar archivo">
+            <button id="downloadFileBtn" class="action-btn-green p-1.5 rounded-full text-xs disabled:opacity-50 disabled:cursor-not-allowed" disabled title="Descargar archivo">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
             </button>
-            <button id="extractZipBtn" class="bg-yellow-500 hover:bg-yellow-600 text-white p-1.5 rounded-full text-xs disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200" disabled title="Extraer ZIP">
+            <button id="extractZipBtn" class="action-btn-yellow p-1.5 rounded-full text-xs disabled:opacity-50 disabled:cursor-not-allowed" disabled title="Extraer ZIP">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 11l3 3m0 0l3-3m-3 3V9" />
                 </svg>
             </button>
-            <button id="deleteFileBtn" class="bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-full text-xs disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200" disabled title="Eliminar">
+            <button id="deleteFileBtn" class="action-btn-red p-1.5 rounded-full text-xs disabled:opacity-50 disabled:cursor-not-allowed" disabled title="Eliminar">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
@@ -124,26 +124,26 @@
 </div>
 
 <!-- Input para subir archivos (oculto) -->
-<input type="file" id="fileInput" class="hidden" multiple>
+<input type="file" id="fileInput" class="hidden form-input" multiple>
 
 <!-- Menú Contextual -->
-<div id="contextMenu" class="fixed bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50 hidden min-w-[180px]">
+<div id="contextMenu" class="fixed context-menu rounded-lg py-1 z-50 hidden min-w-[180px]">
     <!-- Opciones para archivos -->
     <div id="fileContextOptions" class="hidden">
-        <button class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center" id="contextView">
+        <button class="w-full text-left px-3 py-2 text-sm context-menu-item flex items-center" id="contextView">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
             </svg>
             Ver archivo
         </button>
-        <button class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center" id="contextDownload">
+        <button class="w-full text-left px-3 py-2 text-sm context-menu-item flex items-center" id="contextDownload">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             Descargar
         </button>
-        <button class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center" id="contextExtractZip" style="display: none;">
+        <button class="w-full text-left px-3 py-2 text-sm context-menu-item flex items-center" id="contextExtractZip" style="display: none;">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 11l3 3m0 0l3-3m-3 3V9" />
             </svg>
@@ -154,7 +154,7 @@
     
     <!-- Opciones para carpetas -->
     <div id="folderContextOptions" class="hidden">
-        <button class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center" id="contextOpen">
+        <button class="w-full text-left px-3 py-2 text-sm context-menu-item flex items-center" id="contextOpen">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
             </svg>
@@ -164,21 +164,21 @@
     </div>
     
     <!-- Opciones comunes -->
-    <button class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center" id="contextCopyPath">
+    <button class="w-full text-left px-3 py-2 text-sm context-menu-item flex items-center" id="contextCopyPath">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
         </svg>
         Copiar ruta
     </button>
     
-    <button class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center" id="contextCopyName">
+    <button class="w-full text-left px-3 py-2 text-sm context-menu-item flex items-center" id="contextCopyName">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
         </svg>
         Copiar nombre
     </button>
     
-    <button class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center" id="contextCopyFullPath">
+    <button class="w-full text-left px-3 py-2 text-sm context-menu-item flex items-center" id="contextCopyFullPath">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
         </svg>
@@ -187,7 +187,7 @@
     
     <hr class="my-1">
     
-    <button class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center" id="contextRename">
+    <button class="w-full text-left px-3 py-2 text-sm context-menu-item flex items-center" id="contextRename">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
         </svg>
@@ -204,19 +204,19 @@
     <!-- Opciones para área vacía -->
     <div id="emptyAreaContextOptions" class="hidden">
         <hr class="my-1">
-        <button class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center" id="contextNewFolder">
+        <button class="w-full text-left px-3 py-2 text-sm hover:theme-bg-tertiary flex items-center" id="contextNewFolder">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
             Nueva carpeta
         </button>
-        <button class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center" id="contextUpload">
+        <button class="w-full text-left px-3 py-2 text-sm hover:theme-bg-tertiary flex items-center" id="contextUpload">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
             </svg>
             Subir archivos
         </button>
-        <button class="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center" id="contextRefresh">
+        <button class="w-full text-left px-3 py-2 text-sm hover:theme-bg-tertiary flex items-center" id="contextRefresh">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
@@ -227,11 +227,11 @@
 
 <!-- Modal para nueva carpeta -->
 <div id="folderModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-    <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+    <div class="theme-bg-primary p-6 rounded-lg theme-shadow-light-xl max-w-md w-full mx-4">
         <h3 class="text-lg font-semibold mb-4">Crear Nueva Carpeta</h3>
-        <input type="text" id="folderNameInput" class="w-full p-3 border rounded-md mb-4" placeholder="Nombre de la carpeta" maxlength="50">
+        <input type="text" id="folderNameInput" class="w-full p-3 border rounded-md mb-4 theme-input" placeholder="Nombre de la carpeta" maxlength="50">
         <div class="flex justify-end space-x-2">
-            <button id="cancelFolderBtn" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition-colors duration-200">
+            <button id="cancelFolderBtn" class="bg-gray-300 theme-text-primary px-4 py-2 rounded hover:bg-gray-400 transition-colors duration-200">
                 Cancelar
             </button>
             <button id="createFolderConfirmBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-200">
@@ -243,11 +243,11 @@
 
 <!-- Modal para renombrar -->
 <div id="renameModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-    <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+    <div class="theme-bg-primary p-6 rounded-lg theme-shadow-light-xl max-w-md w-full mx-4">
         <h3 class="text-lg font-semibold mb-4">Renombrar</h3>
-        <input type="text" id="renameInput" class="w-full p-3 border rounded-md mb-4" placeholder="Nuevo nombre" maxlength="100">
+        <input type="text" id="renameInput" class="w-full p-3 border rounded-md mb-4 theme-input" placeholder="Nuevo nombre" maxlength="100">
         <div class="flex justify-end space-x-2">
-            <button id="cancelRenameBtn" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition-colors duration-200">
+            <button id="cancelRenameBtn" class="bg-gray-300 theme-text-primary px-4 py-2 rounded hover:bg-gray-400 transition-colors duration-200">
                 Cancelar
             </button>
             <button id="confirmRenameBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-200">
@@ -259,23 +259,23 @@
 
 <!-- Modal para extraer ZIP -->
 <div id="extractZipModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-    <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+    <div class="theme-bg-primary p-6 rounded-lg theme-shadow-light-xl max-w-md w-full mx-4">
         <h3 class="text-lg font-semibold mb-4">Extraer Archivo ZIP</h3>
         <div class="mb-4">
-            <p class="text-sm text-gray-600 mb-3">¿Cómo deseas extraer el archivo?</p>
+            <p class="text-sm theme-text-secondary mb-3">¿Cómo deseas extraer el archivo?</p>
             <div class="space-y-2">
                 <label class="flex items-center">
-                    <input type="radio" name="extractOption" value="same" class="mr-2" checked>
+                    <input type="radio" name="extractOption" value="same" class="mr-2 theme-input" checked>
                     <span class="text-sm">Extraer en la misma carpeta</span>
                 </label>
                 <label class="flex items-center">
-                    <input type="radio" name="extractOption" value="folder" class="mr-2">
+                    <input type="radio" name="extractOption" value="folder" class="mr-2 theme-input">
                     <span class="text-sm">Extraer en una nueva carpeta</span>
                 </label>
             </div>
         </div>
         <div class="flex justify-end space-x-2">
-            <button id="cancelExtractBtn" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition-colors duration-200">
+            <button id="cancelExtractBtn" class="bg-gray-300 theme-text-primary px-4 py-2 rounded hover:bg-gray-400 transition-colors duration-200">
                 Cancelar
             </button>
             <button id="confirmExtractBtn" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition-colors duration-200">
@@ -287,10 +287,10 @@
 
 <!-- Modal para vista previa -->
 <div id="previewModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-    <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] mx-4 flex flex-col">
+    <div class="theme-bg-primary rounded-lg theme-shadow-light-xl max-w-4xl w-full max-h-[90vh] mx-4 flex flex-col">
         <div class="flex justify-between items-center p-4 border-b">
             <h3 class="text-lg font-semibold truncate" id="previewTitle">Vista previa</h3>
-            <button id="closePreviewBtn" class="text-gray-500 hover:text-gray-700 transition-colors duration-200">
+            <button id="closePreviewBtn" class="theme-text-muted hover:theme-text-secondary transition-colors duration-200">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
@@ -615,7 +615,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </svg>
                     <h3 class="font-semibold mb-2">No se puede conectar al servidor</h3>
                     <p class="text-sm mb-4">El servidor de archivos no está ejecutándose en el puerto 4002.</p>
-                    <div class="text-xs text-gray-600 bg-gray-100 p-3 rounded">
+                    <div class="text-xs theme-text-secondary theme-bg-tertiary p-3 rounded">
                         <p class="font-semibold mb-2">Para solucionarlo:</p>
                         <ol class="text-left list-decimal list-inside space-y-1">
                             <li>Abre una terminal en: <code>src/modules/file_manager/</code></li>
@@ -644,7 +644,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Mostrar loading
             document.getElementById('filesList').innerHTML = `
-                <div class="p-6 text-center text-gray-500">
+                <div class="p-6 text-center theme-text-muted">
                     <svg class="animate-spin h-6 w-6 mx-auto mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -687,7 +687,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (files.length === 0) {
                 container.innerHTML = `
-                    <div class="p-6 text-center text-gray-500">
+                    <div class="p-6 text-center theme-text-muted">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto mb-3 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                         </svg>
@@ -716,7 +716,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const isVisualizableFile = !file.isDirectory && this.isVisualizableFile(file.name);
                 
                 // Aplicar clases CSS apropiadas
-                let className = 'file-item flex items-center justify-between p-2 hover:bg-gray-50 border-b last:border-b-0 transition-colors duration-150';
+                let className = 'file-item flex items-center justify-between p-2 hover:theme-bg-secondary border-b last:border-b-0 transition-colors duration-150';
                 if (file.isDirectory) {
                     className += ' cursor-pointer'; // Carpetas: cursor normal
                 } else if (isVisualizableFile) {
@@ -745,9 +745,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                 '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 712-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>'
                             }
                         </span>
-                        <span class="font-medium text-gray-900 truncate">${file.name}</span>
+                        <span class="font-medium theme-text-primary truncate">${file.name}</span>
                     </div>
-                    <div class="flex items-center space-x-3 text-xs text-gray-500 flex-shrink-0">
+                    <div class="flex items-center space-x-3 text-xs theme-text-muted flex-shrink-0">
                         <span class="w-12 text-right">${formattedSize}</span>
                         <span class="w-20 text-right">${formattedDate}</span>
                     </div>
@@ -844,7 +844,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (index < this.currentPath.length - 1) {
                     html += `<button class="text-blue-600 hover:text-blue-800 transition-colors duration-200" data-index="${index}">${segment}</button>`;
                 } else {
-                    html += `<span class="text-gray-600">${segment}</span>`;
+                    html += `<span class="theme-text-secondary">${segment}</span>`;
                 }
             });
             
@@ -982,7 +982,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     .then(response => response.text())
                     .then(content => {
                         document.getElementById('previewContent').innerHTML = `
-                            <pre class="text-sm whitespace-pre-wrap overflow-auto p-4 bg-gray-50 rounded max-h-[60vh]">${this.escapeHtml(content)}</pre>
+                            <pre class="text-sm whitespace-pre-wrap overflow-auto p-4 theme-bg-secondary rounded max-h-[60vh]">${this.escapeHtml(content)}</pre>
                         `;
                     })
                     .catch(error => {
@@ -998,7 +998,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 712-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        <p class="text-gray-500 mb-4">Este tipo de archivo no se puede previsualizar</p>
+                        <p class="theme-text-muted mb-4">Este tipo de archivo no se puede previsualizar</p>
                         <button onclick="FileExplorer.downloadFile()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors duration-200">
                             Descargar archivo
                         </button>
@@ -1090,7 +1090,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 'sam': 'text-blue-600',
                 'vcf': 'text-red-600',
                 // Archivos de datos
-                'txt': 'text-gray-600',
+                'txt': 'theme-text-secondary',
                 'csv': 'text-blue-600',
                 'tsv': 'text-blue-600',
                 // Imágenes
@@ -1100,7 +1100,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Archivos comprimidos
                 'zip': 'text-yellow-600'
             };
-            return colorMap[extension] || 'text-gray-600';
+            return colorMap[extension] || 'theme-text-secondary';
         },
 
         // Verificar si un archivo es compatible para visualización

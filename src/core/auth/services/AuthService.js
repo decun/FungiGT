@@ -328,6 +328,51 @@ class AuthService {
             throw error;
         }
     }
+
+    // Actualizar preferencias del usuario
+    async updateUserPreferences(userId, preferences) {
+        try {
+            const user = await User.findById(userId);
+            if (!user) {
+                throw new Error('Usuario no encontrado');
+            }
+
+            // Actualizar solo las preferencias válidas
+            const validPreferences = {};
+            if (preferences.theme && ['light', 'dark'].includes(preferences.theme)) {
+                validPreferences['preferences.theme'] = preferences.theme;
+            }
+            if (preferences.language && ['es', 'en'].includes(preferences.language)) {
+                validPreferences['preferences.language'] = preferences.language;
+            }
+            if (typeof preferences.notifications === 'boolean') {
+                validPreferences['preferences.notifications'] = preferences.notifications;
+            }
+
+            const updatedUser = await User.findByIdAndUpdate(
+                userId,
+                { $set: validPreferences },
+                { new: true, runValidators: true }
+            );
+
+            return updatedUser.toPublicJSON();
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // Obtener preferencias del usuario
+    async getUserPreferences(userId) {
+        try {
+            const user = await User.findById(userId).select('preferences');
+            if (!user) {
+                throw new Error('Usuario no encontrado');
+            }
+            return user.preferences;
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 module.exports = new AuthService(); 

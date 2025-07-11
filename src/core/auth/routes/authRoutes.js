@@ -287,4 +287,43 @@ router.post('/init-admin', async (req, res) => {
     }
 });
 
+// ---- RUTAS DE PREFERENCIAS ----
+
+// Obtener preferencias del usuario
+router.get('/preferences', authenticateToken, async (req, res) => {
+    try {
+        const preferences = await AuthService.getUserPreferences(req.user.id);
+        res.json({ preferences });
+    } catch (error) {
+        res.status(400).json({
+            error: error.message,
+            code: 'PREFERENCES_GET_ERROR'
+        });
+    }
+});
+
+// Actualizar preferencias del usuario
+router.put('/preferences', authenticateToken, async (req, res) => {
+    try {
+        const { theme, language, notifications } = req.body;
+        
+        const preferences = {};
+        if (theme) preferences.theme = theme;
+        if (language) preferences.language = language;
+        if (notifications !== undefined) preferences.notifications = notifications;
+        
+        const updatedUser = await AuthService.updateUserPreferences(req.user.id, preferences);
+        
+        res.json({
+            message: 'Preferencias actualizadas exitosamente',
+            user: updatedUser
+        });
+    } catch (error) {
+        res.status(400).json({
+            error: error.message,
+            code: 'PREFERENCES_UPDATE_ERROR'
+        });
+    }
+});
+
 module.exports = router; 

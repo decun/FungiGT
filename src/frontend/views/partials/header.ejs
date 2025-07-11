@@ -8,20 +8,10 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/css/styles.css">
-    <style>
-        .glass-effect {
-            background: rgba(167, 243, 208, 0.2);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-        }
-        .nav-item-hover:hover {
-            background: rgba(167, 243, 208, 0.3);
-            transform: translateY(-2px);
-        }
-    </style>
+    <script src="/js/theme-manager.js"></script>
 </head>
-<body>
-    <header class="bg-gradient-to-r from-green-300 via-green-200 to-green-300 text-gray-800 shadow-lg">
+<body class="theme-bg-primary theme-text-primary">
+    <header class="theme-navbar theme-text-primary theme-shadow-light-lg">
         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center">
                 <!-- Logo section -->
@@ -33,56 +23,62 @@
                 </h1>
 
                 <!-- Navigation -->
-                <nav class="flex items-center">
-                    <ul class="flex space-x-2 mr-4">
+                <nav class="flex items-center space-x-4">
+                    <ul class="flex space-x-2">
                         <li>
-                            <a href="/database" class="flex items-center space-x-2 px-4 py-2 rounded-lg glass-effect nav-item-hover transition-all duration-300">
+                            <a href="/database" class="flex items-center space-x-2 px-4 py-2 rounded-lg theme-theme-glass-effect theme-nav-hover transition-all duration-300">
                                 <i class="fas fa-database text-green-700"></i>
                                 <span class="font-medium">Genomas NCBI</span>
                             </a>
                         </li>
                         <li>
-                            <a href="/annotator" class="flex items-center space-x-2 px-4 py-2 rounded-lg glass-effect nav-item-hover transition-all duration-300">
+                            <a href="/annotator" class="flex items-center space-x-2 px-4 py-2 rounded-lg theme-theme-glass-effect theme-nav-hover transition-all duration-300">
                                 <i class="fas fa-dna text-green-700"></i>
                                 <span class="font-medium">Anotación Genómica</span>
                             </a>
                         </li>
                         <li>
-                            <a href="/analyzer" class="flex items-center space-x-2 px-4 py-2 rounded-lg glass-effect nav-item-hover transition-all duration-300">
+                            <a href="/analyzer" class="flex items-center space-x-2 px-4 py-2 rounded-lg theme-theme-glass-effect theme-nav-hover transition-all duration-300">
                                 <i class="fas fa-microscope text-green-700"></i>
                                 <span class="font-medium">Análisis</span>
                             </a>
                         </li>
                         <li>
-                            <a href="/visualizer" class="flex items-center space-x-2 px-4 py-2 rounded-lg glass-effect nav-item-hover transition-all duration-300">
+                            <a href="/visualizer" class="flex items-center space-x-2 px-4 py-2 rounded-lg theme-theme-glass-effect theme-nav-hover transition-all duration-300">
                                 <i class="fas fa-chart-network text-green-700"></i>
                                 <span class="font-medium">Visualización</span>
                             </a>
                         </li>
                     </ul>
 
+                    <!-- Theme Toggle -->
+                    <div class="theme-toggle" title="Cambiar tema">
+                        <i class="fas fa-sun theme-icon sun"></i>
+                        <i class="fas fa-moon theme-icon moon"></i>
+                    </div>
+
                     <!-- Profile Menu -->
                     <div class="relative">
                         <button 
-                            class="w-10 h-10 rounded-full glass-effect flex items-center justify-center focus:outline-none hover:bg-green-200 transition-colors duration-300"
+                            class="w-10 h-10 rounded-full theme-theme-glass-effect flex items-center justify-center focus:outline-none hover:bg-green-200 transition-colors duration-300"
                             onClick="document.getElementById('profileMenu').classList.toggle('hidden')"
                         >
                             <i class="fas fa-user text-green-700"></i>
                         </button>
-                        <div id="profileMenu" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 hidden transform origin-top-right transition-all duration-300">
-                            <a href="/profile" class="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-green-50">
+                        <div id="profileMenu" class="absolute right-0 mt-2 w-48 theme-card rounded-lg theme-shadow-light-lg py-1 hidden transform origin-top-right transition-all duration-300">
+                            <a href="/profile" class="flex items-center space-x-2 px-4 py-2 text-sm theme-text-secondary hover:bg-green-50">
                                 <i class="fas fa-user-circle"></i>
                                 <span>Perfil</span>
                             </a>
-                            <a href="/config" class="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-green-50">
+                            <a href="/config" class="flex items-center space-x-2 px-4 py-2 text-sm theme-text-secondary hover:bg-green-50">
                                 <i class="fas fa-cog"></i>
                                 <span>Configuración</span>
                             </a>
-                            <a href="/history" class="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-green-50">
+                            <a href="/history" class="flex items-center space-x-2 px-4 py-2 text-sm theme-text-secondary hover:bg-green-50">
                                 <i class="fas fa-history"></i>
                                 <span>Historial de uso</span>
                             </a>
-                            <a href="/auth/logout" class="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-green-50">
+                            <a href="/auth/logout" class="flex items-center space-x-2 px-4 py-2 text-sm theme-text-secondary hover:bg-green-50">
                                 <i class="fas fa-sign-out-alt"></i>
                                 <span>Cerrar sesión</span>
                             </a>

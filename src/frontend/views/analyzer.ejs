@@ -3,9 +3,10 @@
 <head>
     <!-- SweetAlert2 para modales de ayuda -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/theme-manager.js"></script>
 </head>
 
-<body class="bg-gray-100 min-h-screen flex flex-col">
+<body class="theme-bg-primary theme-text-primary min-h-screen flex flex-col">
     <main class="flex-grow p-6">
         <div class="max-w-7xl mx-auto">
             <div class="flex flex-col md:flex-row gap-6">
@@ -16,7 +17,7 @@
                 
                 <!-- Panel principal -->
                 <div class="w-full md:w-2/3 lg:w-3/4">
-                    <h2 class="text-3xl font-bold mb-8 flex items-center text-gray-800">
+                    <h2 class="text-3xl font-bold mb-8 flex items-center theme-text-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
@@ -24,18 +25,18 @@
                     </h2>
 
                     <!-- Selector para elegir entre eggNOG, BlastN y Bindash -->
-                    <div class="bg-white p-6 rounded-xl shadow-lg mb-8 border border-gray-200">
-                        <h3 class="text-xl font-semibold mb-4 flex items-center text-gray-800">
+                    <div class="theme-bg-primary p-6 rounded-xl theme-shadow-light-lg mb-8 border theme-border">
+                        <h3 class="text-xl font-semibold mb-4 flex items-center theme-text-primary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
                             </svg>
                             Seleccionar Herramienta de Análisis
                         </h3>
                         <div class="mt-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                            <label class="block text-sm font-medium theme-text-secondary mb-3">
                                 Elige la herramienta que deseas utilizar:
                             </label>
-                            <select id="toolSelector" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                            <select id="toolSelector" class="form-select w-full">
                                 <option value="">Seleccione una herramienta</option>
                                 <option value="eggnog">eggNOG-mapper - Anotación Funcional</option>
                                 <option value="blastn">BlastN - Búsqueda de Homología</option>
@@ -45,29 +46,29 @@
                     </div>
 
                     <!-- Configuración de eggNOG-mapper -->
-                    <div id="eggNOGConfig" class="bg-white p-8 rounded-xl shadow-lg mb-8 border border-gray-200" style="display: none;">
+                    <div id="eggNOGConfig" class="theme-bg-primary p-8 rounded-xl theme-shadow-light-lg mb-8 border theme-border" style="display: none;">
                         <div class="border-l-4 border-green-500 pl-6 mb-6">
-                            <h3 class="text-2xl font-semibold mb-2 flex items-center text-gray-800">
+                            <h3 class="text-2xl font-semibold mb-2 flex items-center theme-text-primary">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V3m0 0a9 9 0 919 9h-3m0 0a9 9 0 01-9 9v-3m0 0a9 9 0 919-9z" />
                                 </svg>
                                 Configuración de eggNOG-mapper
                             </h3>
-                            <p class="text-gray-600 text-sm">Herramienta para anotación funcional de proteínas y genes</p>
+                            <p class="theme-text-secondary text-sm">Herramienta para anotación funcional de proteínas y genes</p>
                             
                             <!-- Información sobre bases de datos -->
-                            <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                                <h4 class="font-semibold text-blue-800 mb-2 flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <div class="mt-4 tool-card-blue">
+                                <h4 class="font-semibold tool-text-blue mb-2 flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 tool-icon-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                     ℹ️ Información sobre Base de Datos
                                 </h4>
-                                <p class="text-blue-700 text-sm">
+                                <p class="tool-text-blue text-sm">
                                     eggNOG-mapper utiliza <strong>una sola base de datos principal</strong> (~50 GB) que contiene información de múltiples dominios taxonómicos. 
                                     El <strong>alcance taxonómico</strong> determina qué nivel de la jerarquía usar para la anotación:
                                 </p>
-                                <ul class="text-blue-700 text-sm mt-2 ml-4 list-disc">
+                                <ul class="tool-text-blue text-sm mt-2 ml-4 list-disc">
                                     <li><strong>🍄 Fungi (4751)</strong>: Específico para hongos</li>
                                     <li><strong>🌿 Eukaryota (2759)</strong>: Recomendado para hongos (más cobertura)</li>
                                     <li><strong>🌍 Cellular organisms (1)</strong>: Máxima cobertura taxonómica</li>
@@ -77,26 +78,26 @@
                         
                         <form id="eggNOGForm" class="space-y-6">
                             <!-- Configuración Principal -->
-                            <div class="bg-gray-50 p-6 rounded-lg">
-                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Datos de Entrada</h4>
+                            <div class="theme-bg-secondary p-6 rounded-lg">
+                                <h4 class="text-lg font-semibold mb-4 theme-text-primary">Datos de Entrada</h4>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                        <label class="flex items-center text-sm font-medium theme-text-secondary mb-2">
                                             Ruta al Archivo de Entrada (-i)
                                             <div class="relative ml-2 group">
                                                 <svg xmlns="http://www.w3.org/2000/svg" id="helpProteinPath" class="h-4 w-4 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
                                             </div>
-                                            <button type="button" id="listFilesBtn" class="ml-2 px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
-                                                Ver archivos disponibles
-                                            </button>
+                                                                        <button type="button" id="listFilesBtn" class="action-btn-blue ml-2 px-2 py-1 text-xs rounded">
+                                Ver archivos disponibles
+                            </button>
                                         </label>
-                                        <input type="text" id="proteinFilePath" name="proteinFilePath" placeholder="/data/genomes/mi_archivo.faa" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                        <p class="mt-1 text-xs text-gray-500">Ruta absoluta al archivo FASTA de proteínas</p>
+                                        <input type="text" id="proteinFilePath" name="proteinFilePath" placeholder="/data/genomes/mi_archivo.faa" class="form-input mt-1 block w-full">
+                                        <p class="mt-1 text-xs theme-text-muted">Ruta absoluta al archivo FASTA de proteínas</p>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
                                             Nombre de Salida (-o)
                                             <div class="relative ml-2 inline-block group">
                                                 <svg xmlns="http://www.w3.org/2000/svg" id="helpOutputName" class="h-4 w-4 text-gray-400 cursor-help inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -104,18 +105,18 @@
                                                 </svg>
                                             </div>
                                         </label>
-                                        <input type="text" id="outputName" name="outputName" placeholder="resultado_eggnog" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                        <p class="mt-1 text-xs text-gray-500">Nombre base para los archivos de salida (sin extensión)</p>
+                                        <input type="text" id="outputName" name="outputName" placeholder="resultado_eggnog" class="form-input mt-1 block w-full">
+                                        <p class="mt-1 text-xs theme-text-muted">Nombre base para los archivos de salida (sin extensión)</p>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Configuración Básica -->
-                            <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
-                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Configuración Básica</h4>
+                            <div class="tool-card-blue">
+                                <h4 class="text-lg font-semibold mb-4 tool-text-blue">Configuración Básica</h4>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                        <label class="flex items-center text-sm font-medium theme-text-secondary mb-2">
                                             Alcance Taxonómico (--tax_scope)
                                             <div class="relative ml-2 group">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -130,124 +131,124 @@
                                                 </div>
                                             </div>
                                         </label>
-                                        <select id="taxScopeSelect" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors mb-2">
-                                            <option value="2759">🌿 Eukaryota (2759) - Recomendado para hongos</option>
-                                            <option value="4751">🍄 Fungi (4751) - Específico para hongos</option>
-                                            <option value="1">🌍 Cellular organisms (1) - Todos los organismos</option>
-                                            <option value="2">🦠 Bacteria (2) - Solo bacterias</option>
-                                            <option value="2157">⚡ Archaea (2157) - Solo arqueas</option>
-                                            <option value="custom">✏️ Personalizado</option>
-                                        </select>
-                                        <input type="text" id="taxScope" name="taxScope" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
-                                               value="2759" required style="display: none;" />
+                                                                <select id="taxScopeSelect" class="form-select w-full mb-2">
+                            <option value="2759">🌿 Eukaryota (2759) - Recomendado para hongos</option>
+                            <option value="4751">🍄 Fungi (4751) - Específico para hongos</option>
+                            <option value="1">🌍 Cellular organisms (1) - Todos los organismos</option>
+                            <option value="2">🦠 Bacteria (2) - Solo bacterias</option>
+                            <option value="2157">⚡ Archaea (2157) - Solo arqueas</option>
+                            <option value="custom">✏️ Personalizado</option>
+                        </select>
+                        <input type="text" id="taxScope" name="taxScope" 
+                               class="form-input w-full" 
+                               value="2759" required style="display: none;" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
                                             Número de CPUs (--cpu)
                                         </label>
-                                        <input type="number" id="cpu" name="cpu" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
-                                               min="1" value="1" required />
+                                                                <input type="number" id="cpu" name="cpu" 
+                               class="form-input w-full" 
+                               min="1" value="1" required />
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Opciones Avanzadas -->
-                            <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
+                            <div class="tool-card-yellow">
                                 <div class="flex items-center mb-4">
-                                    <input type="checkbox" id="toggleAdvancedEggNOG" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
-                                    <label for="toggleAdvancedEggNOG" class="ml-3 text-lg font-semibold text-gray-800">Mostrar Opciones Avanzadas</label>
+                                    <input type="checkbox" id="toggleAdvancedEggNOG" class="h-4 w-4 text-green-600 focus:ring-green-500 theme-border rounded theme-input">
+                                    <label for="toggleAdvancedEggNOG" class="ml-3 text-lg font-semibold tool-text-yellow">Mostrar Opciones Avanzadas</label>
                                 </div>
                                 
                                 <div id="advancedEggNOGOptions" class="space-y-4" style="display: none;">
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            <label class="block text-sm font-medium theme-text-secondary mb-2">
                                                 Tipo de Datos (--itype)
                                             </label>
-                                            <select id="itype" name="itype" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors">
-                                                <option value="proteins">Proteínas</option>
-                                                <option value="CDS">CDS</option>
-                                                <option value="genome">Genoma</option>
-                                                <option value="metagenome">Metagenoma</option>
-                                            </select>
+                                                                        <select id="itype" name="itype" class="form-select w-full">
+                                <option value="proteins">Proteínas</option>
+                                <option value="CDS">CDS</option>
+                                <option value="genome">Genoma</option>
+                                <option value="metagenome">Metagenoma</option>
+                            </select>
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            <label class="block text-sm font-medium theme-text-secondary mb-2">
                                                 Predicción de Genes (--genepred)
                                             </label>
-                                            <select id="genepred" name="genepred" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors">
-                                                <option value="search">Search</option>
-                                                <option value="prodigal">Prodigal</option>
-                                            </select>
+                                                                        <select id="genepred" name="genepred" class="form-select w-full">
+                                <option value="search">Search</option>
+                                <option value="prodigal">Prodigal</option>
+                            </select>
                                         </div>
-                                        <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
-                                            <input type="checkbox" id="translate" name="translate" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
-                                            <label for="translate" class="ml-3 text-sm text-gray-700 font-medium">Traducir CDS (--translate)</label>
+                                        <div class="flex items-center p-3 theme-bg-primary rounded-lg border theme-border">
+                                            <input type="checkbox" id="translate" name="translate" class="h-4 w-4 text-green-600 focus:ring-green-500 theme-border rounded theme-input">
+                                            <label for="translate" class="ml-3 text-sm theme-text-secondary font-medium">Traducir CDS (--translate)</label>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Opciones de Búsqueda -->
-                            <div class="bg-purple-50 p-6 rounded-lg border border-purple-200">
-                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Opciones de Búsqueda</h4>
+                            <div class="tool-card-purple">
+                                <h4 class="text-lg font-semibold mb-4 tool-text-purple">Opciones de Búsqueda</h4>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
                                             Modo de Búsqueda (-m)
                                         </label>
-                                        <select id="mode" name="mode" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors">
-                                            <option value="diamond">Diamond</option>
-                                            <option value="mmseqs">MMseqs2</option>
-                                            <option value="hmmer">HMMER</option>
-                                            <option value="no_search">No Search</option>
-                                            <option value="cache">Cache</option>
-                                            <option value="novel_fams">Novel Families</option>
-                                        </select>
+                                                                <select id="mode" name="mode" class="form-select w-full">
+                            <option value="diamond">Diamond</option>
+                            <option value="mmseqs">MMseqs2</option>
+                            <option value="hmmer">HMMER</option>
+                            <option value="no_search">No Search</option>
+                            <option value="cache">Cache</option>
+                            <option value="novel_fams">Novel Families</option>
+                        </select>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
                                             E-value (--evalue)
                                         </label>
-                                        <input type="number" step="any" id="evalue" name="evalue" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
-                                               value="0.001" required />
+                                                                <input type="number" step="any" id="evalue" name="evalue" 
+                               class="form-input w-full" 
+                               value="0.001" required />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
                                             Porcentaje de Identidad (--pident)
                                         </label>
-                                        <input type="number" step="any" id="pident" name="pident" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
-                                               min="0" max="100" />
+                                                                <input type="number" step="any" id="pident" name="pident" 
+                               class="form-input w-full" 
+                               min="0" max="100" />
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Opciones de Salida y Ejecución -->
-                            <div class="bg-green-50 p-6 rounded-lg border border-green-200">
-                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Opciones de Salida y Ejecución</h4>
+                            <div class="tool-card-green">
+                                <h4 class="text-lg font-semibold mb-4 tool-text-green">Opciones de Salida y Ejecución</h4>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
-                                        <input type="checkbox" id="noFileComments" name="noFileComments" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
-                                        <label for="noFileComments" class="ml-3 text-sm text-gray-700 font-medium">Sin comentarios (--no_file_comments)</label>
+                                    <div class="flex items-center p-3 theme-bg-primary rounded-lg border theme-border">
+                                        <input type="checkbox" id="noFileComments" name="noFileComments" class="h-4 w-4 text-green-600 focus:ring-green-500 theme-border rounded theme-input">
+                                        <label for="noFileComments" class="ml-3 text-sm theme-text-secondary font-medium">Sin comentarios (--no_file_comments)</label>
                                     </div>
-                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
-                                        <input type="checkbox" id="resume" name="resume" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
-                                        <label for="resume" class="ml-3 text-sm text-gray-700 font-medium">Reanudar (--resume)</label>
+                                    <div class="flex items-center p-3 theme-bg-primary rounded-lg border theme-border">
+                                        <input type="checkbox" id="resume" name="resume" class="h-4 w-4 text-green-600 focus:ring-green-500 theme-border rounded theme-input">
+                                        <label for="resume" class="ml-3 text-sm theme-text-secondary font-medium">Reanudar (--resume)</label>
                                     </div>
-                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
-                                        <input type="checkbox" id="override" name="override" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
-                                        <label for="override" class="ml-3 text-sm text-gray-700 font-medium">Sobrescribir (--override)</label>
+                                    <div class="flex items-center p-3 theme-bg-primary rounded-lg border theme-border">
+                                        <input type="checkbox" id="override" name="override" class="h-4 w-4 text-green-600 focus:ring-green-500 theme-border rounded theme-input">
+                                        <label for="override" class="ml-3 text-sm theme-text-secondary font-medium">Sobrescribir (--override)</label>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Botones de Acción -->
                                                         <!-- Verificación de Base de Datos -->
-                            <div id="databaseStatus" class="mb-6 p-6 bg-blue-50 border-2 border-blue-300 rounded-lg shadow-md">
+                            <div id="databaseStatus" class="section-container mb-6">
                                 <div class="flex items-center justify-between">
                                     <div class="flex-1">
                                         <h5 class="font-bold text-blue-800 text-lg flex items-center mb-2">
@@ -259,8 +260,8 @@
                                         <p id="dbStatusText" class="text-blue-700 font-medium">Verificando disponibilidad...</p>
                                     </div>
                                     <button type="button" id="checkDbBtn" 
-                                        class="px-5 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-lg font-bold transition-all duration-200 flex items-center shadow-lg hover:shadow-xl transform hover:scale-105">
-                                        <svg xmlns="http://www.w3Estado de .org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        class="action-btn-blue px-5 py-3 rounded-lg font-bold flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                         </svg>
                                         🔍 VERIFICAR ESTADO
@@ -268,16 +269,16 @@
                                 </div>
                             </div>
 
-                            <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                            <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t theme-border">
                                 <button type="button" id="showEggNOGCommandBtn"
-                                        class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors font-medium">
+                                        class="btn-soft-blue flex-1 px-6 py-3 rounded-lg font-medium">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5-6h3" />
                                     </svg>
                                     Mostrar Comando
                                 </button>
                                 <button type="submit" id="runEggNOGBtn"
-                                        class="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed">
+                                        class="btn-soft-green flex-1 px-6 py-3 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m-9-4V8a2 2 0 012-2h8a2 2 0 012 2v2M7 16h10" />
                                     </svg>
@@ -285,32 +286,32 @@
                                 </button>
                             </div>
                             
-                            <div id="eggNOGCommandDisplay" class="mt-4 p-4 bg-gray-100 rounded-lg hidden">
-                                <h5 class="font-semibold text-gray-800 mb-2">Comando eggNOG:</h5>
-                                <pre id="eggNOGCommand" class="text-sm text-gray-800 whitespace-pre-wrap bg-white p-3 rounded border"></pre>
+                            <div id="eggNOGCommandDisplay" class="mt-4 p-4 theme-bg-tertiary rounded-lg hidden">
+                                <h5 class="font-semibold theme-text-primary mb-2">Comando eggNOG:</h5>
+                                <pre id="eggNOGCommand" class="text-sm theme-text-primary whitespace-pre-wrap theme-bg-primary p-3 rounded border"></pre>
                             </div>
                         </form>
                     </div>
 
                     <!-- Configuración de BlastN -->
-                    <div id="blastnConfig" class="bg-white p-8 rounded-xl shadow-lg mb-8 border border-gray-200" style="display: none;">
+                    <div id="blastnConfig" class="theme-bg-primary p-8 rounded-xl theme-shadow-light-lg mb-8 border theme-border" style="display: none;">
                         <div class="border-l-4 border-purple-500 pl-6 mb-6">
-                            <h3 class="text-2xl font-semibold mb-2 flex items-center text-gray-800">
+                            <h3 class="text-2xl font-semibold mb-2 flex items-center theme-text-primary">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                                 Configuración de BlastN
                             </h3>
-                            <p class="text-gray-600 text-sm">Herramienta para búsqueda de homología de secuencias nucleotídicas</p>
+                            <p class="theme-text-secondary text-sm">Herramienta para búsqueda de homología de secuencias nucleotídicas</p>
                         </div>
                         
                         <form id="blastnForm" class="space-y-6">
                             <!-- Configuración Principal -->
-                            <div class="bg-gray-50 p-6 rounded-lg">
-                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Archivos de Entrada y Salida</h4>
+                            <div class="theme-bg-secondary p-6 rounded-lg">
+                                <h4 class="text-lg font-semibold mb-4 theme-text-primary">Archivos de Entrada y Salida</h4>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                        <label class="flex items-center text-sm font-medium theme-text-secondary mb-2">
                                             Archivo de Entrada (-query)
                                             <div class="relative ml-2 group">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -326,86 +327,86 @@
                                             </div>
                                         </label>
                                         <input type="text" id="queryFilePath" name="queryFilePath" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                               class="form-input w-full" 
                                                placeholder="E:/blastN/input/tu_archivo.fasta" required />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
                                             Archivo de Salida (-out)
                                         </label>
                                         <input type="text" id="out_blastn" name="out_blastn" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                               class="form-input w-full" 
                                                placeholder="E:/blastN/output/resultados.txt" required />
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Configuración de Base de Datos -->
-                            <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
-                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Configuración de Base de Datos</h4>
+                            <div class="tool-card-blue">
+                                <h4 class="text-lg font-semibold mb-4 tool-text-blue">Configuración de Base de Datos</h4>
                                 <div class="grid grid-cols-1 gap-6">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
                                             Tipo de Base de Datos
                                         </label>
-                                        <select id="databaseType" name="databaseType" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors mb-3">
+                                        <select id="databaseType" name="databaseType" class="form-select w-full mb-3">
                                             <option value="predefined">Base de Datos Predefinida</option>
                                             <option value="custom">Base de Datos Personalizada</option>
                                         </select>
                                         
-                                        <select id="predefinedDatabase" name="database" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                        <select id="predefinedDatabase" name="database" class="form-select w-full">
                                             <option value="nt">NT (Nucleotide)</option>
                                             <option value="nr">NR (Non-redundant)</option>
                                             <option value="swissprot">SwissProt</option>
                                         </select>
 
                                         <input type="text" id="customDatabase" name="customDatabase" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                               class="form-input w-full" 
                                                placeholder="E:/blastn/output/tu_base_datos" style="display: none;" />
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Parámetros de Búsqueda -->
-                            <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
-                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Parámetros de Búsqueda</h4>
+                            <div class="tool-card-yellow">
+                                <h4 class="text-lg font-semibold mb-4 tool-text-yellow">Parámetros de Búsqueda</h4>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
                                             E-value (-evalue)
                                         </label>
                                         <input type="number" step="any" id="evalue_blastn" name="evalue_blastn" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors" 
+                                               class="form-input w-full" 
                                                value="0.001" required />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
                                             Tamaño de palabra (-word_size)
                                         </label>
                                         <input type="number" id="wordSize" name="wordSize" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors" 
+                                               class="form-input w-full" 
                                                min="4" value="11" required />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
                                             Número de hilos (-num_threads)
                                         </label>
                                         <input type="number" id="numThreads" name="numThreads" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors" 
+                                               class="form-input w-full" 
                                                min="1" value="1" required />
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Opciones de Salida -->
-                            <div class="bg-purple-50 p-6 rounded-lg border border-purple-200">
-                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Opciones de Salida</h4>
+                            <div class="tool-card-purple">
+                                <h4 class="text-lg font-semibold mb-4 tool-text-purple">Opciones de Salida</h4>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
                                             Formato de salida (-outfmt)
                                         </label>
-                                        <select id="outfmt" name="outfmt" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" required>
+                                        <select id="outfmt" name="outfmt" class="form-select w-full" required>
                                             <option value="0">0 (Pairwise)</option>
                                             <option value="6">6 (Tabular)</option>
                                             <option value="7">7 (Tabular with comments)</option>
@@ -413,24 +414,24 @@
                                             <option value="10">10 (CSV)</option>
                                         </select>
                                     </div>
-                                    <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
-                                        <input type="checkbox" id="remote_blastn" name="remote_blastn" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
-                                        <label for="remote_blastn" class="ml-3 text-sm text-gray-700 font-medium">Usar BLAST remoto (-remote)</label>
+                                    <div class="flex items-center p-3 theme-bg-primary rounded-lg border theme-border">
+                                        <input type="checkbox" id="remote_blastn" name="remote_blastn" class="h-4 w-4 text-purple-600 focus:ring-purple-500 theme-border rounded theme-input">
+                                        <label for="remote_blastn" class="ml-3 text-sm theme-text-secondary font-medium">Usar BLAST remoto (-remote)</label>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Botones de Acción -->
-                            <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                            <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t theme-border">
                                 <button type="button" id="showBlastNCommandBtn" 
-                                        class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors font-medium">
+                                        class="btn-soft-blue flex-1 px-6 py-3 rounded-lg font-medium">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5-6h3" />
                                     </svg>
                                     Mostrar Comando
                                 </button>
                                 <button type="submit" 
-                                        class="flex-1 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors font-medium">
+                                        class="btn-soft-purple flex-1 px-6 py-3 rounded-lg font-medium">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                     </svg>
@@ -438,34 +439,34 @@
                                 </button>
                             </div>
                             
-                            <div id="blastnCommandDisplay" class="mt-4 p-4 bg-gray-100 rounded-lg hidden">
-                                <h5 class="font-semibold text-gray-800 mb-2">Comando BlastN:</h5>
-                                <pre id="blastnCommand" class="text-sm text-gray-800 whitespace-pre-wrap bg-white p-3 rounded border"></pre>
+                            <div id="blastnCommandDisplay" class="mt-4 p-4 theme-bg-tertiary rounded-lg hidden">
+                                <h5 class="font-semibold theme-text-primary mb-2">Comando BlastN:</h5>
+                                <pre id="blastnCommand" class="text-sm theme-text-primary whitespace-pre-wrap theme-bg-primary p-3 rounded border"></pre>
                             </div>
                         </form>
                     </div>
 
                     <!-- Configuración de BinDash -->
-                    <div id="bindashConfig" class="bg-white p-8 rounded-xl shadow-lg mb-8 border border-gray-200" style="display: none;">
+                    <div id="bindashConfig" class="theme-bg-primary p-8 rounded-xl theme-shadow-light-lg mb-8 border theme-border" style="display: none;">
                         <div class="border-l-4 border-orange-500 pl-6 mb-6">
-                            <h3 class="text-2xl font-semibold mb-2 flex items-center text-gray-800">
+                            <h3 class="text-2xl font-semibold mb-2 flex items-center theme-text-primary">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                                 </svg>
                                 Configuración de BinDash
                             </h3>
-                            <p class="text-gray-600 text-sm">Herramienta ultrarrápida para comparación de genomas y cálculo de ANI (Average Nucleotide Identity)</p>
+                            <p class="theme-text-secondary text-sm">Herramienta ultrarrápida para comparación de genomas y cálculo de ANI (Average Nucleotide Identity)</p>
                         </div>
 
                         <!-- Información sobre BinDash -->
                         <div class="bg-gradient-to-r from-orange-50 to-yellow-50 p-6 rounded-lg border border-orange-200 mb-6">
-                            <h4 class="text-lg font-semibold mb-3 text-gray-800 flex items-center">
+                            <h4 class="text-lg font-semibold mb-3 theme-text-primary flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 ¿Qué es BinDash?
                             </h4>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm theme-text-secondary">
                                 <div>
                                     <p class="mb-2"><strong>• Comparación ultrarrápida:</strong> Compara genomas completos en segundos</p>
                                     <p class="mb-2"><strong>• Cálculo de ANI:</strong> Estima Average Nucleotide Identity con alta precisión</p>
@@ -481,13 +482,13 @@
                         
                         <form id="bindashForm" class="space-y-6">
                             <!-- Selector de Modo de Operación -->
-                            <div class="bg-gray-50 p-6 rounded-lg">
-                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Modo de Operación</h4>
+                            <div class="theme-bg-secondary p-6 rounded-lg">
+                                <h4 class="text-lg font-semibold mb-4 theme-text-primary">Modo de Operación</h4>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <label class="block text-sm font-medium theme-text-secondary mb-2">
                                         Seleccionar operación a realizar:
                                     </label>
-                                    <select id="bindashMode" name="bindashMode" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors" required>
+                                    <select id="bindashMode" name="bindashMode" class="form-select w-full" required>
                                         <option value="">Seleccione una operación</option>
                                         <option value="sketch">Sketch - Crear firmas genómicas</option>
                                         <option value="dist">Dist - Calcular distancias entre genomas</option>
@@ -497,11 +498,11 @@
                             </div>
 
                             <!-- Configuración para Sketch -->
-                            <div id="sketchConfig" class="bg-blue-50 p-6 rounded-lg border border-blue-200" style="display: none;">
-                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Configuración de Sketch</h4>
+                            <div id="sketchConfig" class="tool-card-blue p-6 rounded-lg" style="display: none;">
+                                <h4 class="text-lg font-semibold mb-4 theme-text-primary">Configuración de Sketch</h4>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                        <label class="flex items-center text-sm font-medium theme-text-secondary mb-2">
                                             Archivo/Lista de Genomas
                                             <div class="relative ml-2 group">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -517,140 +518,140 @@
                                             </div>
                                         </label>
                                         <input type="text" id="sketchInput" name="sketchInput" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                               class="form-input w-full" 
                                                placeholder="./data/genome.fasta" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
                                             Archivo de Salida (--outfname)
                                         </label>
                                         <input type="text" id="sketchOutput" name="sketchOutput" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                               class="form-input w-full" 
                                                placeholder="genome.sketch" />
                                     </div>
                                 </div>
                                 <div class="mt-4">
                                     <div class="flex items-center">
-                                        <input type="checkbox" id="useListFile" name="useListFile" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                        <label for="useListFile" class="ml-3 text-sm text-gray-700 font-medium">Usar archivo de lista (--listfname)</label>
+                                        <input type="checkbox" id="useListFile" name="useListFile" class="h-4 w-4 text-blue-600 focus:ring-blue-500 theme-border rounded theme-input">
+                                        <label for="useListFile" class="ml-3 text-sm theme-text-secondary font-medium">Usar archivo de lista (--listfname)</label>
                                     </div>
-                                    <p class="text-xs text-gray-500 mt-1">Marcar si el archivo de entrada es una lista de genomas (uno por línea)</p>
+                                    <p class="text-xs theme-text-muted mt-1">Marcar si el archivo de entrada es una lista de genomas (uno por línea)</p>
                                 </div>
                             </div>
 
                             <!-- Configuración para Dist -->
-                            <div id="distConfig" class="bg-green-50 p-6 rounded-lg border border-green-200" style="display: none;">
-                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Configuración de Distancias</h4>
+                            <div id="distConfig" class="tool-card-green p-6 rounded-lg" style="display: none;">
+                                <h4 class="text-lg font-semibold mb-4 theme-text-primary">Configuración de Distancias</h4>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
                                             Sketch de Consulta
                                         </label>
                                         <input type="text" id="querySketch" name="querySketch" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" 
+                                               class="form-input w-full" 
                                                placeholder="query.sketch" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
                                             Sketch de Referencia (opcional)
                                         </label>
                                         <input type="text" id="targetSketch" name="targetSketch" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" 
+                                               class="form-input w-full" 
                                                placeholder="reference.sketch (opcional para all-vs-all)" />
                                     </div>
                                 </div>
                                 <div class="mt-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <label class="block text-sm font-medium theme-text-secondary mb-2">
                                         Archivo de Salida (--outfname)
                                     </label>
                                     <input type="text" id="distOutput" name="distOutput" 
-                                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" 
+                                           class="form-input w-full" 
                                            placeholder="distances.txt" />
                                 </div>
                             </div>
 
                             <!-- Configuración Completa -->
-                            <div id="completeConfig" class="bg-purple-50 p-6 rounded-lg border border-purple-200" style="display: none;">
-                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Configuración Completa (Sketch + Dist)</h4>
+                            <div id="completeConfig" class="tool-card-purple p-6 rounded-lg" style="display: none;">
+                                <h4 class="text-lg font-semibold mb-4 theme-text-primary">Configuración Completa (Sketch + Dist)</h4>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
                                             Directorio de Genomas
                                         </label>
                                         <input type="text" id="genomesDir" name="genomesDir" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                               class="form-input w-full" 
                                                placeholder="./data/genomes/" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
                                             Patrón de Archivos
                                         </label>
                                         <input type="text" id="filePattern" name="filePattern" 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                               class="form-input w-full" 
                                                value="*.fasta" />
                                     </div>
                                 </div>
                                 <div class="mt-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <label class="block text-sm font-medium theme-text-secondary mb-2">
                                         Prefijo de Salida
                                     </label>
                                     <input type="text" id="outputPrefix" name="outputPrefix" 
-                                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" 
+                                           class="form-input w-full" 
                                            placeholder="analysis_result" />
                                 </div>
                             </div>
 
                             <!-- Parámetros Avanzados -->
-                            <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
+                            <div class="tool-card-yellow p-6 rounded-lg">
                                 <div class="flex items-center mb-4">
-                                    <input type="checkbox" id="toggleAdvancedBindash" class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
-                                    <label for="toggleAdvancedBindash" class="ml-3 text-lg font-semibold text-gray-800">Mostrar Parámetros Avanzados</label>
+                                    <input type="checkbox" id="toggleAdvancedBindash" class="h-4 w-4 text-orange-600 focus:ring-orange-500 theme-border rounded theme-input">
+                                    <label for="toggleAdvancedBindash" class="ml-3 text-lg font-semibold theme-text-primary">Mostrar Parámetros Avanzados</label>
                                 </div>
                                 
                                 <div id="advancedBindashOptions" class="space-y-4" style="display: none;">
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            <label class="block text-sm font-medium theme-text-secondary mb-2">
                                                 Tamaño de k-mer (--kmersize)
                                             </label>
                                             <input type="number" id="kmerSize" name="kmerSize" 
-                                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors" 
+                                                   class="form-input w-full" 
                                                    min="1" max="32" value="16" />
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            <label class="block text-sm font-medium theme-text-secondary mb-2">
                                                 Tamaño de Sketch (--sketchsize64)
                                             </label>
                                             <input type="number" id="sketchSize" name="sketchSize" 
-                                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors" 
+                                                   class="form-input w-full" 
                                                    min="188" value="256" />
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            <label class="block text-sm font-medium theme-text-secondary mb-2">
                                                 Bits por Hash (--bbits)
                                             </label>
                                             <input type="number" id="bbits" name="bbits" 
-                                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors" 
+                                                   class="form-input w-full" 
                                                    min="1" max="8" value="1" />
                                         </div>
                                     </div>
                                     
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            <label class="block text-sm font-medium theme-text-secondary mb-2">
                                                 Estrategia de Densificación (--dens)
                                             </label>
-                                            <select id="densification" name="densification" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors">
+                                            <select id="densification" name="densification" class="form-select w-full">
                                                 <option value="1">1 - Optimal Densification (Shrivastava 2017)</option>
                                                 <option value="2">2 - Faster Densification (Mai et al. 2020)</option>
                                                 <option value="3">3 - Re-randomized Densification (Li et al. 2019)</option>
                                             </select>
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            <label class="block text-sm font-medium theme-text-secondary mb-2">
                                                 Modelo Evolutivo (--model)
                                             </label>
-                                            <select id="evolutionModel" name="evolutionModel" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors">
+                                            <select id="evolutionModel" name="evolutionModel" class="form-select w-full">
                                                 <option value="poisson">Poisson (por defecto)</option>
                                                 <option value="binomial">Binomial</option>
                                             </select>
@@ -658,31 +659,31 @@
                                     </div>
 
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
-                                            <input type="checkbox" id="canonical" name="canonical" class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
-                                            <label for="canonical" class="ml-3 text-sm text-gray-700 font-medium">Usar k-mers canónicos (--canonical)</label>
+                                        <div class="flex items-center p-3 theme-bg-primary rounded-lg border theme-border">
+                                            <input type="checkbox" id="canonical" name="canonical" class="h-4 w-4 text-orange-600 focus:ring-orange-500 theme-border rounded theme-input">
+                                            <label for="canonical" class="ml-3 text-sm theme-text-secondary font-medium">Usar k-mers canónicos (--canonical)</label>
                                         </div>
-                                        <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
-                                            <input type="checkbox" id="protein" name="protein" class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
-                                            <label for="protein" class="ml-3 text-sm text-gray-700 font-medium">Modo proteína (--protein)</label>
+                                        <div class="flex items-center p-3 theme-bg-primary rounded-lg border theme-border">
+                                            <input type="checkbox" id="protein" name="protein" class="h-4 w-4 text-orange-600 focus:ring-orange-500 theme-border rounded theme-input">
+                                            <label for="protein" class="ml-3 text-sm theme-text-secondary font-medium">Modo proteína (--protein)</label>
                                         </div>
-                                        <div class="flex items-center p-3 bg-white rounded-lg border border-gray-200">
-                                            <input type="checkbox" id="verbose" name="verbose" class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
-                                            <label for="verbose" class="ml-3 text-sm text-gray-700 font-medium">Modo verbose (--verbose)</label>
+                                        <div class="flex items-center p-3 theme-bg-primary rounded-lg border theme-border">
+                                            <input type="checkbox" id="verbose" name="verbose" class="h-4 w-4 text-orange-600 focus:ring-orange-500 theme-border rounded theme-input">
+                                            <label for="verbose" class="ml-3 text-sm theme-text-secondary font-medium">Modo verbose (--verbose)</label>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Información sobre Interpretación de Resultados -->
-                            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200">
-                                <h4 class="text-lg font-semibold mb-3 text-gray-800 flex items-center">
+                            <div class="tool-card-blue p-6 rounded-lg">
+                                <h4 class="text-lg font-semibold mb-3 theme-text-primary flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
                                     Interpretación de Resultados
                                 </h4>
-                                <div class="text-sm text-gray-700 space-y-2">
+                                <div class="text-sm theme-text-secondary space-y-2">
                                     <p><strong>Formato de salida:</strong> Cada línea contiene 5 campos separados por tabulaciones:</p>
                                     <ul class="list-disc list-inside ml-4 space-y-1">
                                         <li><strong>Genoma consulta (Q):</strong> Nombre del genoma de consulta</li>
@@ -696,7 +697,7 @@
                             </div>
 
                             <!-- Botones de Acción -->
-                            <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                            <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t theme-border">
                                 <button type="button" id="showBindashCommandBtn" 
                                         class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors font-medium">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -713,17 +714,17 @@
                                 </button>
                             </div>
                             
-                            <div id="bindashCommandDisplay" class="mt-4 p-4 bg-gray-100 rounded-lg hidden">
-                                <h5 class="font-semibold text-gray-800 mb-2">Comando BinDash:</h5>
-                                <pre id="bindashCommand" class="text-sm text-gray-800 whitespace-pre-wrap bg-white p-3 rounded border"></pre>
+                            <div id="bindashCommandDisplay" class="mt-4 p-4 theme-bg-tertiary rounded-lg hidden">
+                                <h5 class="font-semibold theme-text-primary mb-2">Comando BinDash:</h5>
+                                <pre id="bindashCommand" class="text-sm theme-text-primary whitespace-pre-wrap theme-bg-primary p-3 rounded border"></pre>
                             </div>
                         </form>
                     </div>
 
 
                     <!-- Tabla de Estado de Análisis -->
-                    <div class="bg-white p-6 rounded-xl shadow-lg mt-8 border border-gray-200">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <div class="theme-bg-primary p-6 rounded-xl theme-shadow-light-lg mt-8 border theme-border">
+            <h2 class="text-2xl font-bold theme-text-primary mb-6 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
@@ -732,34 +733,34 @@
             
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                    <thead class="theme-bg-secondary">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-left text-xs font-medium theme-text-muted uppercase tracking-wider">
                                 Herramienta
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-left text-xs font-medium theme-text-muted uppercase tracking-wider">
                                 Archivo
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-left text-xs font-medium theme-text-muted uppercase tracking-wider">
                                 Estado
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-left text-xs font-medium theme-text-muted uppercase tracking-wider">
                                 Progreso
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-left text-xs font-medium theme-text-muted uppercase tracking-wider">
                                 Tiempo
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-left text-xs font-medium theme-text-muted uppercase tracking-wider">
                                 Acciones
                             </th>
                         </tr>
                     </thead>
-                    <tbody id="analysisTableBody" class="bg-white divide-y divide-gray-200">
+                    <tbody id="analysisTableBody" class="theme-bg-primary divide-y divide-gray-200">
                         <!-- Las filas se añadirán dinámicamente aquí -->
                     </tbody>
                 </table>
                 
-                <div id="noAnalysisMessage" class="text-center py-8 text-gray-500">
+                <div id="noAnalysisMessage" class="text-center py-8 theme-text-muted">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
@@ -854,14 +855,14 @@
                 const actions = getActionButtons(analysis);
                 
                 return `
-                    <tr id="${analysis.id}" class="hover:bg-gray-50">
+                    <tr id="${analysis.id}" class="hover:theme-bg-secondary">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
-                                <div class="text-sm font-medium text-gray-900">${analysis.tool}</div>
+                                <div class="text-sm font-medium theme-text-primary">${analysis.tool}</div>
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">${analysis.file}</div>
+                            <div class="text-sm theme-text-primary">${analysis.file}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             ${statusBadge}
@@ -869,7 +870,7 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             ${progressBar}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm theme-text-muted">
                             ${elapsedTime}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -887,10 +888,10 @@
                 'En progreso': 'bg-blue-100 text-blue-800',
                 'Completado': 'bg-green-100 text-green-800',
                 'Error': 'bg-red-100 text-red-800',
-                'Cancelado': 'bg-gray-100 text-gray-800'
+                'Cancelado': 'theme-bg-tertiary theme-text-primary'
             };
             
-            const badgeClass = badges[status] || 'bg-gray-100 text-gray-800';
+            const badgeClass = badges[status] || 'theme-bg-tertiary theme-text-primary';
             return `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${badgeClass}">${status}</span>`;
         }
 
@@ -898,10 +899,10 @@
         function getProgressBar(progress) {
             const progressPercent = Math.min(100, Math.max(0, progress));
             return `
-                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div class="w-full theme-bg-tertiary rounded-full h-2.5">
                     <div class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: ${progressPercent}%"></div>
                 </div>
-                <span class="text-xs text-gray-500 mt-1">${progressPercent}%</span>
+                <span class="text-xs theme-text-muted mt-1">${progressPercent}%</span>
             `;
         }
 
@@ -946,7 +947,7 @@
                             <p class="mb-2"><strong>Herramienta:</strong> ${analysis.tool}</p>
                             <p class="mb-2"><strong>Archivo:</strong> ${analysis.file}</p>
                             <p class="mb-2"><strong>Ruta de resultados:</strong></p>
-                            <code class="bg-gray-100 px-2 py-1 rounded block">${analysis.resultPath}</code>
+                            <code class="theme-bg-tertiary px-2 py-1 rounded block">${analysis.resultPath}</code>
                         </div>
                     `,
                     showCancelButton: true,
@@ -1224,9 +1225,9 @@
                     html: `
                         <div class="text-left">
                             <h3 class="font-bold text-lg mb-2">Resumen:</h3>
-                            <p class="mb-2">ID de trabajo: <code class="bg-gray-100 px-1 py-0.5 rounded">${result.jobId}</code></p>
-                            <p class="mb-2">Archivos generados: <code class="bg-gray-100 px-1 py-0.5 rounded">${result.annotationFiles?.length || 0}</code></p>
-                            <p class="mb-2">Directorio de resultados: <code class="bg-gray-100 px-1 py-0.5 rounded">${result.outputPath}</code></p>
+                            <p class="mb-2">ID de trabajo: <code class="theme-bg-tertiary px-1 py-0.5 rounded">${result.jobId}</code></p>
+                            <p class="mb-2">Archivos generados: <code class="theme-bg-tertiary px-1 py-0.5 rounded">${result.annotationFiles?.length || 0}</code></p>
+                            <p class="mb-2">Directorio de resultados: <code class="theme-bg-tertiary px-1 py-0.5 rounded">${result.outputPath}</code></p>
                             
                             <h3 class="font-bold text-lg mt-4 mb-2">¿Qué desea hacer ahora?</h3>
                             <p>Puede visualizar los resultados en la sección de Visualización o revisar el estado en la tabla de análisis</p>
@@ -1258,7 +1259,7 @@
                             
                             <h3 class="font-bold text-lg mt-4 mb-2">Posibles soluciones:</h3>
                             <ul class="list-disc pl-5">
-                                <li class="mb-1">Verifique que la ruta del archivo sea correcta y comience con <code class="bg-gray-100 px-1 py-0.5 rounded">/data/</code></li>
+                                <li class="mb-1">Verifique que la ruta del archivo sea correcta y comience con <code class="theme-bg-tertiary px-1 py-0.5 rounded">/data/</code></li>
                                 <li class="mb-1">Asegúrese de que el archivo exista y tenga formato FASTA válido</li>
                                 <li class="mb-1">Compruebe que la base de datos eggNOG esté descargada</li>
                                 <li class="mb-1">Verifique que el servidor eggNOG-mapper esté en ejecución</li>
@@ -1684,9 +1685,9 @@ bindash dist \\
                 
                 const fileOptions = availableFiles.map(file => {
                     const fileName = file.split('/').pop();
-                    return `<div class="flex justify-between items-center p-2 hover:bg-gray-100 rounded cursor-pointer" onclick="selectFile('${file}')">
+                    return `<div class="flex justify-between items-center p-2 hover:theme-bg-tertiary rounded cursor-pointer" onclick="selectFile('${file}')">
                         <span class="text-sm">${fileName}</span>
-                        <span class="text-xs text-gray-500">${file}</span>
+                        <span class="text-xs theme-text-muted">${file}</span>
                     </div>`;
                 }).join('');
                 
@@ -1694,7 +1695,7 @@ bindash dist \\
                     title: 'Archivos disponibles en /data/genomes/',
                     html: `
                         <div class="text-left max-h-96 overflow-y-auto">
-                            <p class="mb-4 text-sm text-gray-600">Haga clic en un archivo para seleccionarlo:</p>
+                            <p class="mb-4 text-sm theme-text-secondary">Haga clic en un archivo para seleccionarlo:</p>
                             ${fileOptions}
                         </div>
                     `,
@@ -1737,12 +1738,12 @@ bindash dist \\
                     <div class="text-left">
                         <h3 class="font-bold text-lg mb-2">Estructura de rutas recomendada:</h3>
                         <ul class="list-disc pl-5 mb-4">
-                            <li class="mb-1"><code class="bg-gray-100 px-1 py-0.5 rounded">/data/genomes/mi_archivo.faa</code></li>
-                            <li class="mb-1"><code class="bg-gray-100 px-1 py-0.5 rounded">/data/proteinas/mi_archivo.fasta</code></li>
+                            <li class="mb-1"><code class="theme-bg-tertiary px-1 py-0.5 rounded">/data/genomes/mi_archivo.faa</code></li>
+                            <li class="mb-1"><code class="theme-bg-tertiary px-1 py-0.5 rounded">/data/proteinas/mi_archivo.fasta</code></li>
                         </ul>
                         
                         <h3 class="font-bold text-lg mb-2">¡Importante!</h3>
-                        <p class="mb-2">Debe usar rutas absolutas que comiencen con <code class="bg-gray-100 px-1 py-0.5 rounded">/data/</code></p>
+                        <p class="mb-2">Debe usar rutas absolutas que comiencen con <code class="theme-bg-tertiary px-1 py-0.5 rounded">/data/</code></p>
                         <p class="mb-2">No use rutas relativas como <code class="bg-red-100 px-1 py-0.5 rounded">./data/...</code></p>
                         
                         <h3 class="font-bold text-lg mb-2">Formatos aceptados:</h3>
@@ -1774,9 +1775,9 @@ bindash dist \\
                         
                         <h3 class="font-bold text-lg mb-2">Ejemplos:</h3>
                         <ul class="list-disc pl-5">
-                            <li><code class="bg-gray-100 px-1 py-0.5 rounded">resultado_genoma1</code></li>
-                            <li><code class="bg-gray-100 px-1 py-0.5 rounded">anotacion_proteinas_2023</code></li>
-                            <li><code class="bg-gray-100 px-1 py-0.5 rounded">eggnog_resultado</code></li>
+                            <li><code class="theme-bg-tertiary px-1 py-0.5 rounded">resultado_genoma1</code></li>
+                            <li><code class="theme-bg-tertiary px-1 py-0.5 rounded">anotacion_proteinas_2023</code></li>
+                            <li><code class="theme-bg-tertiary px-1 py-0.5 rounded">eggnog_resultado</code></li>
                         </ul>
                     </div>
                 `,

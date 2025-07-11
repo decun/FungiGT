@@ -27,7 +27,7 @@
             max-width: 600px;
             margin: 0 auto;
             padding: 2rem;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            box-theme-shadow-light: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
             border-radius: 0.5rem;
             background-color: #fff;
         }
@@ -61,7 +61,7 @@
         }
 
         .auth-form .form-control:focus {
-            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+            box-theme-shadow-light: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
             border-color: var(--primary-color);
         }
 
@@ -170,6 +170,7 @@
             color: #6c757d;
         }
     </style>
+    <script src="/js/theme-manager.js"></script>
 </head>
 <body>
     <div class="container py-4">
@@ -186,13 +187,13 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <div class="form-floating">
-                            <input type="text" class="form-control" id="firstName" placeholder="Nombre" required>
+                            <input type="text" class="form-control theme-input" id="firstName" placeholder="Nombre" required>
                             <label for="firstName"><i class="fas fa-user me-2"></i>Nombre</label>
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <div class="form-floating">
-                            <input type="text" class="form-control" id="lastName" placeholder="Apellido" required>
+                            <input type="text" class="form-control theme-input" id="lastName" placeholder="Apellido" required>
                             <label for="lastName"><i class="fas fa-user me-2"></i>Apellido</label>
                         </div>
                     </div>
@@ -200,7 +201,7 @@
                 
                 <div class="mb-3">
                     <div class="form-floating">
-                        <input type="text" class="form-control" id="username" placeholder="Nombre de usuario" required>
+                        <input type="text" class="form-control theme-input" id="username" placeholder="Nombre de usuario" required>
                         <label for="username"><i class="fas fa-user-tag me-2"></i>Nombre de usuario</label>
                     </div>
                     <small class="text-muted">Este será tu identificador único en la plataforma</small>
@@ -208,14 +209,14 @@
                 
                 <div class="mb-3">
                     <div class="form-floating">
-                        <input type="email" class="form-control" id="email" placeholder="correo@ejemplo.com" required>
+                        <input type="email" class="form-control theme-input" id="email" placeholder="correo@ejemplo.com" required>
                         <label for="email"><i class="fas fa-envelope me-2"></i>Correo electrónico</label>
                     </div>
                 </div>
                 
                 <div class="mb-3">
                     <div class="form-floating position-relative">
-                        <input type="password" class="form-control" id="password" placeholder="Contraseña" required minlength="6">
+                        <input type="password" class="form-control theme-input" id="password" placeholder="Contraseña" required minlength="6">
                         <label for="password"><i class="fas fa-lock me-2"></i>Contraseña</label>
                         <span class="toggle-password" onclick="togglePasswordVisibility('password', 'toggleIcon')">
                             <i class="fas fa-eye" id="toggleIcon"></i>
@@ -245,7 +246,7 @@
                 
                 <div class="mb-3">
                     <div class="form-floating position-relative">
-                        <input type="password" class="form-control" id="confirmPassword" placeholder="Confirmar contraseña" required>
+                        <input type="password" class="form-control theme-input" id="confirmPassword" placeholder="Confirmar contraseña" required>
                         <label for="confirmPassword"><i class="fas fa-lock me-2"></i>Confirmar contraseña</label>
                         <span class="toggle-password" onclick="togglePasswordVisibility('confirmPassword', 'toggleConfirmIcon')">
                             <i class="fas fa-eye" id="toggleConfirmIcon"></i>
@@ -254,7 +255,7 @@
                 </div>
                 
                 <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input" id="termsCheck" required>
+                    <input type="checkbox" class="form-check-input theme-input" id="termsCheck" required>
                     <label class="form-check-label" for="termsCheck">
                         Acepto los <a href="#" target="_blank">términos y condiciones</a> y la <a href="#" target="_blank">política de privacidad</a>
                     </label>

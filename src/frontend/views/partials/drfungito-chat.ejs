@@ -1,13 +1,13 @@
 <!-- DrFungito - Asistente Genómico Inteligente -->
 <div class="fixed bottom-4 right-4 z-50">
     <!-- Botón principal con imagen de DrFungito -->
-    <button id="drFungitoButton" class="bg-white text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-green-300 transform hover:scale-105 border-2 border-gray-200 hover:border-green-300">
+    <button id="drFungitoButton" class="theme-bg-primary text-white rounded-full w-16 h-16 flex items-center justify-center theme-shadow-light-lg hover:theme-shadow-light-xl transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-green-300 transform hover:scale-105 border-2 theme-border hover:border-green-300">
         <img src="/images/DrFungito.png" alt="Dr. Fungito" class="w-14 h-14 rounded-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
         <div class="w-14 h-14 rounded-full bg-green-500 flex items-center justify-center text-white font-bold text-xl hidden">🍄</div>
     </button>
     
     <!-- Panel de chat -->
-    <div id="drFungitoPanel" class="hidden absolute bottom-20 right-0 bg-white text-gray-800 rounded-2xl shadow-2xl w-96 max-h-[500px] border border-gray-200 overflow-hidden">
+    <div id="drFungitoPanel" class="hidden absolute bottom-20 right-0 theme-bg-primary theme-text-primary rounded-2xl theme-shadow-light-2xl w-96 max-h-[500px] border theme-border overflow-hidden">
         <!-- Header del chat -->
         <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-t-2xl">
             <div class="flex items-center justify-between">
@@ -32,12 +32,12 @@
         </div>
         
         <!-- Área de mensajes -->
-        <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 max-h-80 bg-gray-50">
+        <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 max-h-80 theme-bg-secondary">
             <div class="flex items-start space-x-2">
                 <img src="/images/DrFungito.png" alt="Dr. Fungito" class="w-8 h-8 rounded-full object-cover flex-shrink-0" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                 <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0 hidden">🍄</div>
-                <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-200 max-w-xs">
-                    <p class="text-sm text-gray-800">¡Hola! Soy Dr. Fungito con IA avanzada. Puedo analizar tus gráficos genómicos, generar reportes detallados y responder preguntas especializadas sobre hongos. ¿En qué puedo ayudarte?</p>
+                <div class="theme-bg-primary p-3 rounded-lg theme-theme-shadow-light-light border theme-border max-w-xs">
+                    <p class="text-sm theme-text-primary">¡Hola! Soy Dr. Fungito con IA avanzada. Puedo analizar tus gráficos genómicos, generar reportes detallados y responder preguntas especializadas sobre hongos. ¿En qué puedo ayudarte?</p>
                 </div>
             </div>
             
@@ -45,11 +45,11 @@
         </div>
         
         <!-- Input de mensaje -->
-        <div class="p-4 border-t border-gray-200 bg-white rounded-b-2xl">
+        <div class="p-4 border-t theme-border theme-bg-primary rounded-b-2xl">
             <div class="flex space-x-2">
                 <input type="text" 
                        id="userInput" 
-                       class="flex-grow px-3 py-2 pr-24 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm" 
+                       class="flex-grow px-3 py-2 pr-24 border theme-border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm theme-input" 
                        placeholder="Pregúntame sobre genómica o pide un reporte..." 
                        maxlength="500" />
                 <button id="sendMessage" 
@@ -80,7 +80,7 @@
                 </button>
             </div>
             
-            <div class="mt-2 text-xs text-gray-500 text-center">
+            <div class="mt-2 text-xs theme-text-muted text-center">
                 🧠 IA Avanzada: Análisis de imágenes, reportes inteligentes, memoria contextual
             </div>
         </div>
@@ -158,22 +158,22 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (isUser) {
             messageDiv.innerHTML = `
-                <div class="bg-green-500 text-white p-3 rounded-lg shadow-sm max-w-xs">
+                <div class="bg-green-500 text-white p-3 rounded-lg theme-theme-shadow-light-light max-w-xs">
                     <p class="text-sm">${message}</p>
                 </div>
                 <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">👤</div>
             `;
         } else {
-            const loadingIcon = isLoading ? '<div class="loading-spinner w-4 h-4 border-2 border-gray-300 border-t-green-500 rounded-full animate-spin"></div>' : '';
+            const loadingIcon = isLoading ? '<div class="loading-spinner w-4 h-4 border-2 theme-border border-t-green-500 rounded-full animate-spin"></div>' : '';
             const renderedMessage = isLoading ? message : renderMarkdown(message);
             
             messageDiv.innerHTML = `
                 <img src="/images/DrFungito.png" alt="Dr. Fungito" class="w-8 h-8 rounded-full object-cover flex-shrink-0" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                 <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0 hidden">🍄</div>
-                <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-200 max-w-xs">
+                <div class="theme-bg-primary p-3 rounded-lg theme-theme-shadow-light-light border theme-border max-w-xs">
                     <div class="flex items-center space-x-2">
                         ${loadingIcon}
-                        <div class="text-sm text-gray-800 ${isLoading ? 'whitespace-pre-wrap' : ''}">${renderedMessage}</div>
+                        <div class="text-sm theme-text-primary ${isLoading ? 'whitespace-pre-wrap' : ''}">${renderedMessage}</div>
                     </div>
                 </div>
             `;

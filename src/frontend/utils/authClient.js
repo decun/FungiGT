@@ -41,6 +41,32 @@ const authClient = {
         } catch (error) {
             throw new Error('Error al renovar el token');
         }
+    },
+
+    async getUserPreferences(token) {
+        try {
+            const response = await axios.get(`${API_URL}/preferences`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            throw new Error('Error al obtener las preferencias');
+        }
+    },
+
+    async updateUserPreferences(token, preferences) {
+        try {
+            const response = await axios.put(`${API_URL}/preferences`, preferences, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            throw new Error('Error al actualizar las preferencias');
+        }
     }
 };
 
