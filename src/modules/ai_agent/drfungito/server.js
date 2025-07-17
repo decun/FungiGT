@@ -643,7 +643,7 @@ Responde en español de manera profesional pero accesible.`,
         const systemPrompt = prompts[analysisType] || prompts.general;
         
         const message = await anthropic.messages.create({
-            model: "claude-3-sonnet-20240229",
+            model: "claude-sonnet-4-20250514",
             max_tokens: 1000,
             temperature: 0.3,
             system: systemPrompt,
@@ -1177,7 +1177,7 @@ Los análisis convergen en patrones consistentes que sugieren ${imageContext.len
                     pdfAvailable: false,
                     downloadUrl: null,
                     success: true,
-                    message: `📄 Reporte generado exitosamente. El PDF falló pero puedes encontrar el reporte en formato texto en: File Manager > reports > ${report.reportId}.txt`,
+                    message: `📄 Reporte generado exitosamente. Puedes encontrar el reporte en formato texto en: File Manager > reports > ${report.reportId}.txt`,
                     textPath: reportTextPath,
                     error: pdfError.message
                 });
@@ -1195,7 +1195,7 @@ Los análisis convergen en patrones consistentes que sugieren ${imageContext.len
                     pdfAvailable: false,
                     downloadUrl: null,
                     success: true,
-                    message: `📄 Reporte generado exitosamente. El PDF falló pero el contenido está disponible en la respuesta. ID del reporte: ${report.reportId}`,
+                    message: ``,
                     content: report.content,
                     error: pdfError.message
                 });
@@ -1314,7 +1314,7 @@ app.post('/chat', getUserMemory, async (req, res) => {
         try {
             // Intentar usar Anthropic primero
             const anthropicResponse = await anthropic.messages.create({
-                model: "claude-3-sonnet-20240229",
+                model: "claude-sonnet-4-20250514",
                 max_tokens: 1000,
                 temperature: 0.4,
                 system: `Eres Dr. Fungito, un experto en genómica de hongos. Proporcionas respuestas profesionales pero amigables. Responde en español.`,

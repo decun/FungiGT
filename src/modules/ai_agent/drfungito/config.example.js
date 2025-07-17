@@ -11,7 +11,7 @@ module.exports = {
     // Configuración de Anthropic
     anthropic: {
         apiKey: process.env.ANTHROPIC_API_KEY || 'tu_api_key_aqui',
-        model: 'claude-3-sonnet-20240229',
+        model: 'claude-sonnet-4-20250514',
         maxTokens: {
             analysis: 1000,
             report: 2000,
