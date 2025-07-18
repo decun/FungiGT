@@ -405,7 +405,7 @@ class BinDashVisualizer(BaseVisualizer):
                    linewidths=0.5,
                    cbar_kws={"shrink": .8})
         
-        plt.title('🔥 Matriz de Distancias Genómicas (BinDash)', fontsize=16, fontweight='bold')
+        plt.title('Matriz de Distancias Genómicas (BinDash)', fontsize=16, fontweight='bold')
         plt.xlabel('Genomas')
         plt.ylabel('Genomas')
         plt.xticks(rotation=45, ha='right')
@@ -432,7 +432,7 @@ class BinDashVisualizer(BaseVisualizer):
                    vmax=1.0,
                    cbar_kws={"shrink": .8})
         
-        plt.title('🧬 Matriz de ANI (Average Nucleotide Identity)', fontsize=16, fontweight='bold')
+        plt.title('Matriz de ANI (Average Nucleotide Identity)', fontsize=16, fontweight='bold')
         plt.xlabel('Genomas')
         plt.ylabel('Genomas')
         plt.xticks(rotation=45, ha='right')
@@ -466,7 +466,7 @@ class BinDashVisualizer(BaseVisualizer):
                       show_leaf_counts=True,
                       leaf_rotation=45)
             
-            plt.title('🌳 Dendrograma Filogenético (BinDash)', fontsize=16, fontweight='bold')
+            plt.title('Dendrograma Filogenético (BinDash)', fontsize=16, fontweight='bold')
             plt.xlabel('Genomas')
             plt.ylabel('Distancia Genómica')
             plt.tight_layout()
@@ -506,7 +506,7 @@ class BinDashVisualizer(BaseVisualizer):
         axes[1, 1].set_xlabel('Índice de Jaccard')
         axes[1, 1].set_ylabel('Frecuencia')
         
-        plt.suptitle('📊 Distribuciones de Métricas BinDash', fontsize=16, fontweight='bold')
+        plt.suptitle('Distribuciones de Métricas BinDash', fontsize=16, fontweight='bold')
         plt.tight_layout()
         
         return self.save_figure('distance_distributions')
@@ -539,7 +539,7 @@ class BinDashVisualizer(BaseVisualizer):
         axes[1, 1].set_ylabel('Índice de Jaccard')
         axes[1, 1].set_title('Distancia vs Jaccard')
         
-        plt.suptitle('📈 Análisis de Correlaciones BinDash', fontsize=16, fontweight='bold')
+        plt.suptitle('Análisis de Correlaciones BinDash', fontsize=16, fontweight='bold')
         plt.tight_layout()
         
         return self.save_figure('scatter_analysis')
@@ -560,7 +560,7 @@ class BinDashVisualizer(BaseVisualizer):
                 plt.annotate(genome, (mds_coords[i, 0], mds_coords[i, 1]), 
                            xytext=(5, 5), textcoords='offset points', fontsize=9)
             
-            plt.title('🎯 Análisis MDS de Distancias Genómicas', fontsize=16, fontweight='bold')
+            plt.title('Análisis MDS de Distancias Genómicas', fontsize=16, fontweight='bold')
             plt.xlabel('Dimensión 1')
             plt.ylabel('Dimensión 2')
             plt.grid(True, alpha=0.3)

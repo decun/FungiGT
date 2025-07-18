@@ -196,7 +196,7 @@ class SeedOrthologsVisualizer(BaseVisualizer):
             plt.barh(range(len(top_seeds)), top_seeds.values, color='skyblue')
             plt.yticks(range(len(top_seeds)), 
                       [seed[:60] + '...' if len(seed) > 60 else seed for seed in top_seeds.index])
-            plt.title('🌱 Top 15 Seed Orthologs más Frecuentes', fontsize=14, fontweight='bold')
+            plt.title('Top 15 Seed Orthologs más Frecuentes', fontsize=14, fontweight='bold')
             plt.xlabel('Frecuencia')
             plt.tight_layout()
             graphs.append(self.save_figure('top_seed_orthologs'))
@@ -211,7 +211,7 @@ class SeedOrthologsVisualizer(BaseVisualizer):
                 scores = data['score'].dropna()
                 if len(scores) > 0:
                     plt.hist(scores, bins=30, alpha=0.7, color='lightgreen', edgecolor='black')
-                    plt.title('📊 Distribución de Scores de Alineamiento', fontsize=14, fontweight='bold')
+                    plt.title('Distribución de Scores de Alineamiento', fontsize=14, fontweight='bold')
                     plt.xlabel('Score')
                     plt.ylabel('Frecuencia')
                     plt.grid(True, alpha=0.3)
@@ -252,7 +252,7 @@ Seeds únicos: {len(data['seed_ortholog'].unique()):,}
             plt.xlim(0, 1)
             plt.ylim(0, 1)
             plt.axis('off')
-            plt.title('📊 Estadísticas Generales de Seed Orthologs', fontsize=16, fontweight='bold', pad=20)
+            plt.title('Estadísticas Generales de Seed Orthologs', fontsize=16, fontweight='bold', pad=20)
             plt.tight_layout()
             graphs.append(self.save_figure('seed_stats'))
             plt.close()
@@ -273,7 +273,7 @@ Seeds únicos: {len(data['seed_ortholog'].unique()):,}
                 evalues = evalues[evalues > 0]
                 if len(evalues) > 0:
                     plt.hist(np.log10(evalues), bins=30, alpha=0.7, color='orange', edgecolor='black')
-                    plt.title('📊 Distribución de E-values (log10)', fontsize=14, fontweight='bold')
+                    plt.title('Distribución de E-values (log10)', fontsize=14, fontweight='bold')
                     plt.xlabel('Log10(E-value)')
                     plt.ylabel('Frecuencia')
                     plt.grid(True, alpha=0.3)
@@ -298,7 +298,7 @@ Seeds únicos: {len(data['seed_ortholog'].unique()):,}
                                   alpha=0.6, c='purple', s=50)
                         plt.xlabel('Cobertura (%)')
                         plt.ylabel('Identidad (%)')
-                        plt.title('🔍 Cobertura vs Identidad de Alineamientos', fontsize=14, fontweight='bold')
+                        plt.title('Cobertura vs Identidad de Alineamientos', fontsize=14, fontweight='bold')
                         plt.grid(True, alpha=0.3)
                         plt.tight_layout()
                         graphs.append(self.save_figure('coverage_vs_identity'))
@@ -338,7 +338,7 @@ Seeds únicos: {len(data['seed_ortholog'].unique()):,}
                     plt.xticks(range(len(top_taxa)), 
                               [taxon[:15] + '...' if len(taxon) > 15 else taxon for taxon in top_taxa.keys()], 
                               rotation=45, ha='right')
-                    plt.title('🌟 Top 10 Grupos Taxonómicos de Seed Orthologs', fontsize=14, fontweight='bold')
+                    plt.title('Top 10 Grupos Taxonómicos de Seed Orthologs', fontsize=14, fontweight='bold')
                     plt.ylabel('Frecuencia')
                     plt.tight_layout()
                     graphs.append(self.save_figure('taxonomic_distribution'))
@@ -384,27 +384,27 @@ Seeds únicos: {len(data['seed_ortholog'].unique()):,}
                     fontsize=14, fontweight='bold')
             
             summary_text = f"""
-🌱 Total de seed orthologs: {len(data):,}
-🧬 Queries únicas: {len(data['query'].unique()):,}
-🔍 Seeds únicos: {len(data['seed_ortholog'].unique()):,}
-📊 Ratio seed/query: {len(data['seed_ortholog'].unique()) / len(data['query'].unique()):.2f}
+Total de seed orthologs: {len(data):,}
+Queries únicas: {len(data['query'].unique()):,}
+Seeds únicos: {len(data['seed_ortholog'].unique()):,}
+Ratio seed/query: {len(data['seed_ortholog'].unique()) / len(data['query'].unique()):.2f}
 """
             
             if 'score' in data.columns:
                 scores = data['score'].dropna()
                 if len(scores) > 0:
                     summary_text += f"⭐ Score promedio: {scores.mean():.2f}\n"
-                    summary_text += f"🏆 Score máximo: {scores.max():.2f}\n"
+                    summary_text += f"Score máximo: {scores.max():.2f}\n"
             
             if 'coverage' in data.columns:
                 coverage = data['coverage'].dropna()
                 if len(coverage) > 0:
-                    summary_text += f"📏 Cobertura promedio: {coverage.mean():.1f}%\n"
+                    summary_text += f"Cobertura promedio: {coverage.mean():.1f}%\n"
             
             if 'identity' in data.columns:
                 identity = data['identity'].dropna()
                 if len(identity) > 0:
-                    summary_text += f"🔬 Identidad promedio: {identity.mean():.1f}%\n"
+                    summary_text += f"Identidad promedio: {identity.mean():.1f}%\n"
             
             ax1.text(0.1, 0.3, summary_text, ha='left', va='top', fontsize=10,
                     bbox=dict(boxstyle="round,pad=0.5", facecolor='lightgreen', alpha=0.7))
@@ -424,7 +424,7 @@ Seeds únicos: {len(data['seed_ortholog'].unique()):,}
                               alpha=0.6, c='purple', s=30)
                     ax2.set_xlabel('Cobertura (%)')
                     ax2.set_ylabel('Identidad (%)')
-                    ax2.set_title('🔍 Calidad de Alineamientos', fontweight='bold')
+                    ax2.set_title('Calidad de Alineamientos', fontweight='bold')
                     ax2.grid(True, alpha=0.3)
                 else:
                     ax2.text(0.5, 0.5, 'CALIDAD DE ALINEAMIENTOS\n\n⚠️ Datos insuficientes\npara el scatter plot', 
@@ -448,7 +448,7 @@ Seeds únicos: {len(data['seed_ortholog'].unique()):,}
                     ax3.barh(range(len(top_seeds)), top_seeds.values, color='skyblue')
                     ax3.set_yticks(range(len(top_seeds)))
                     ax3.set_yticklabels([s[:25] + '...' if len(s) > 25 else s for s in top_seeds.index])
-                    ax3.set_title('🏆 Top Seed Orthologs', fontweight='bold')
+                    ax3.set_title('Top Seed Orthologs', fontweight='bold')
                     ax3.set_xlabel('Frecuencia')
             else:
                 ax3.text(0.5, 0.5, 'TOP SEED ORTHOLOGS\n\n⚠️ No hay datos disponibles', 
@@ -463,14 +463,14 @@ Seeds únicos: {len(data['seed_ortholog'].unique()):,}
                     fontsize=14, fontweight='bold')
             
             instructions = """
-🖱️ CONTROLES DE SEED ORTHOLOGS:
+CONTROLES DE SEED ORTHOLOGS:
 
-🌱 Análisis de ortología completo
-🔍 Métricas de alineamiento
-📊 Distribuciones de calidad
-📈 Análisis filogenético
+Análisis de ortología completo
+Métricas de alineamiento
+Distribuciones de calidad
+Análisis filogenético
 
-💡 FUNCIONES DISPONIBLES:
+FUNCIONES DISPONIBLES:
 • Gráficos de cobertura vs identidad
 • Distribución de scores
 • Top seed orthologs frecuentes

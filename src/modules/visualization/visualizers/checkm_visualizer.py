@@ -358,16 +358,16 @@ class CheckMVisualizer(BaseVisualizer):
         avg_gc = data['gc_content'].mean() if 'gc_content' in data.columns else 0
         n50 = stats.get('n50', 0)
         
-        stats_text = f"""📊 RESUMEN FASTA
+        stats_text = f"""RESUMEN FASTA
         
-🧬 Secuencias totales: {total_seq:,}
-📏 Longitud total: {total_length:,} bp
-📐 Longitud promedio: {avg_length:.0f} bp
-🎯 N50: {n50:,} bp
-🔬 GC promedio: {avg_gc:.1f}%
+Secuencias totales: {total_seq:,}
+Longitud total: {total_length:,} bp
+Longitud promedio: {avg_length:.0f} bp
+N50: {n50:,} bp
+GC promedio: {avg_gc:.1f}%
 
-💡 Calidad del ensamblaje:
-{'🟢 Excelente' if n50 > 50000 else '🟡 Buena' if n50 > 10000 else '🔴 Mejorable'}
+Calidad del ensamblaje:
+{'Excelente' if n50 > 50000 else 'Buena' if n50 > 10000 else 'Mejorable'}
         """
         
         ax1.text(0.05, 0.95, stats_text, transform=ax1.transAxes, fontsize=12,
@@ -381,7 +381,7 @@ class CheckMVisualizer(BaseVisualizer):
             ax2.hist(lengths, bins=30, alpha=0.7, color='skyblue', edgecolor='black')
             ax2.axvline(lengths.mean(), color='red', linestyle='--', linewidth=2,
                        label=f'Media: {lengths.mean():.0f} bp')
-            ax2.set_title('📏 Distribución de Longitudes', fontweight='bold')
+            ax2.set_title('Distribución de Longitudes', fontweight='bold')
             ax2.set_xlabel('Longitud (bp)')
             ax2.set_ylabel('Frecuencia')
             ax2.legend()
@@ -394,7 +394,7 @@ class CheckMVisualizer(BaseVisualizer):
             ax3.hist(gc, bins=25, alpha=0.7, color='lightgreen', edgecolor='black')
             ax3.axvline(gc.mean(), color='darkgreen', linestyle='--', linewidth=2,
                        label=f'Media: {gc.mean():.1f}%')
-            ax3.set_title('🔬 Distribución de GC%', fontweight='bold')
+            ax3.set_title('Distribución de GC%', fontweight='bold')
             ax3.set_xlabel('Contenido GC (%)')
             ax3.set_ylabel('Frecuencia')
             ax3.legend()
@@ -409,10 +409,10 @@ class CheckMVisualizer(BaseVisualizer):
             ax4.set_yticks(y_pos)
             ax4.set_yticklabels([seq[:20] + '...' if len(seq) > 20 else seq 
                                for seq in top_seqs['sequence_id']], fontsize=8)
-            ax4.set_title('🏆 Top 10 Secuencias', fontweight='bold')
+            ax4.set_title('Top 10 Secuencias', fontweight='bold')
             ax4.set_xlabel('Longitud (bp)')
         
-        plt.suptitle('📋 Análisis de Archivo FASTA', fontsize=16, fontweight='bold')
+        plt.suptitle('Análisis de Archivo FASTA', fontsize=16, fontweight='bold')
         plt.tight_layout()
         
         return self.save_figure('fasta_analysis')
@@ -454,16 +454,16 @@ class CheckMVisualizer(BaseVisualizer):
         avg_comp = comp_data[valid_mask].mean()
         avg_cont = cont_data[valid_mask].mean()
         
-        summary_text = f"""🏆 RESUMEN DE CALIDAD CHECKM
+        summary_text = f"""RESUMEN DE CALIDAD CHECKM
         
-📊 Total de genomas analizados: {total_genomas}
-📈 Completitud promedio: {avg_comp:.1f}%
-⚠️ Contaminación promedio: {avg_cont:.1f}%
+Total de genomas analizados: {total_genomas}
+Completitud promedio: {avg_comp:.1f}%
+Contaminación promedio: {avg_cont:.1f}%
 
-🟢 ALTA CALIDAD (≥90% comp, ≤5% cont): {alta_calidad} genomas ({alta_calidad/total_genomas*100:.1f}%)
-🟡 CALIDAD MEDIA (≥70% comp, ≤10% cont): {media_calidad} genomas ({media_calidad/total_genomas*100:.1f}%)
-🟠 CALIDAD BAJA (≥50% comp, ≤15% cont): {baja_calidad} genomas ({baja_calidad/total_genomas*100:.1f}%)
-🔴 MUY BAJA CALIDAD: {muy_baja} genomas ({muy_baja/total_genomas*100:.1f}%)
+ALTA CALIDAD (≥90% comp, ≤5% cont): {alta_calidad} genomas ({alta_calidad/total_genomas*100:.1f}%)
+CALIDAD MEDIA (≥70% comp, ≤10% cont): {media_calidad} genomas ({media_calidad/total_genomas*100:.1f}%)
+CALIDAD BAJA (≥50% comp, ≤15% cont): {baja_calidad} genomas ({baja_calidad/total_genomas*100:.1f}%)
+MUY BAJA CALIDAD: {muy_baja} genomas ({muy_baja/total_genomas*100:.1f}%)
         """
         
         ax1.text(0.05, 0.95, summary_text, transform=ax1.transAxes, fontsize=12,
@@ -477,7 +477,7 @@ class CheckMVisualizer(BaseVisualizer):
         colors = ['green', 'orange', 'red', 'darkred']
         
         bars = ax2.bar(categories, values, color=colors, alpha=0.7)
-        ax2.set_title('📊 Distribución de Calidad', fontweight='bold', fontsize=14)
+        ax2.set_title('Distribución de Calidad', fontweight='bold', fontsize=14)
         ax2.set_ylabel('Número de Genomas')
         ax2.grid(True, alpha=0.3, axis='y')
         
@@ -536,13 +536,13 @@ class CheckMVisualizer(BaseVisualizer):
             cont = row[contamination_col]
             
             if comp >= 90 and cont <= 5:
-                quality = "🟢 Alta"
+                quality = "Alta"
             elif comp >= 70 and cont <= 10:
-                quality = "🟡 Media"
+                quality = "Media"
             elif comp >= 50 and cont <= 15:
-                quality = "🟠 Baja"
+                quality = "Baja"
             else:
-                quality = "🔴 Muy Baja"
+                quality = "Muy Baja"
             
             table_data.append([genome_id, f"{comp:.1f}%", f"{cont:.1f}%", quality])
         
@@ -561,9 +561,9 @@ class CheckMVisualizer(BaseVisualizer):
             table[(0, i)].set_facecolor('#4CAF50')
             table[(0, i)].set_text_props(weight='bold', color='white')
         
-        ax4.set_title('🏆 Top 10 Genomas de Mejor Calidad', fontweight='bold', fontsize=14, pad=20)
+        ax4.set_title('Top 10 Genomas de Mejor Calidad', fontweight='bold', fontsize=14, pad=20)
         
-        plt.suptitle('📋 Análisis CheckM - Resultados de Calidad Genómica', fontsize=16, fontweight='bold')
+        plt.suptitle('Análisis CheckM - Resultados de Calidad Genómica', fontsize=16, fontweight='bold')
         plt.tight_layout()
         
         return self.save_figure('checkm_analysis')
@@ -574,17 +574,17 @@ class CheckMVisualizer(BaseVisualizer):
         plt.axis('off')
         
         # Mostrar información básica del archivo
-        info_text = f"""📊 INFORMACIÓN DEL ARCHIVO CHECKM
+        info_text = f"""INFORMACIÓN DEL ARCHIVO CHECKM
         
-📁 Tipo de datos: Datos tabulares CheckM
-📋 Número de filas: {len(data)}
-📊 Número de columnas: {len(data.columns)}
+Tipo de datos: Datos tabulares CheckM
+Número de filas: {len(data)}
+Número de columnas: {len(data.columns)}
 
-📂 Columnas detectadas:
+Columnas detectadas:
 {chr(10).join([f"  • {col}" for col in data.columns[:15]])}
 {'  • ... y más' if len(data.columns) > 15 else ''}
 
-💡 Muestra de datos (primeras 5 filas):
+Muestra de datos (primeras 5 filas):
         """
         
         plt.text(0.05, 0.95, info_text, transform=plt.gca().transAxes, fontsize=12,
@@ -620,7 +620,7 @@ class CheckMVisualizer(BaseVisualizer):
                 table[(0, i)].set_facecolor('#2196F3')
                 table[(0, i)].set_text_props(weight='bold', color='white')
         
-        plt.title('📋 Vista Previa de Datos CheckM', fontsize=16, fontweight='bold', pad=20)
+        plt.title('Vista Previa de Datos CheckM', fontsize=16, fontweight='bold', pad=20)
         plt.tight_layout()
         
         return self.save_figure('checkm_data_view')

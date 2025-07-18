@@ -203,7 +203,7 @@ class HitsVisualizer(BaseVisualizer):
             # Crear histograma de distribución
             plt.hist(hits_per_query.values, bins=min(50, len(hits_per_query.unique())), 
                     alpha=0.7, color='skyblue', edgecolor='black')
-            plt.title('📊 Distribución de Número de Hits por Query', fontsize=14, fontweight='bold')
+            plt.title('Distribución de Número de Hits por Query', fontsize=14, fontweight='bold')
             plt.xlabel('Número de Hits')
             plt.ylabel('Número de Queries')
             plt.grid(True, alpha=0.3)
@@ -221,7 +221,7 @@ class HitsVisualizer(BaseVisualizer):
             plt.barh(range(len(top_queries)), top_queries.values, color='lightgreen')
             plt.yticks(range(len(top_queries)), 
                       [q[:50] + '...' if len(q) > 50 else q for q in top_queries.index])
-            plt.title('🎯 Top 15 Queries con Más Hits', fontsize=14, fontweight='bold')
+            plt.title('Top 15 Queries con Más Hits', fontsize=14, fontweight='bold')
             plt.xlabel('Número de Hits')
             plt.tight_layout()
             graphs.append(self.save_figure('top_queries_hits'))
@@ -237,7 +237,7 @@ class HitsVisualizer(BaseVisualizer):
             plt.barh(range(len(top_targets)), top_targets.values, color='lightcoral')
             plt.yticks(range(len(top_targets)), 
                       [t[:50] + '...' if len(t) > 50 else t for t in top_targets.index])
-            plt.title('🎯 Top 15 Targets más Frecuentes', fontsize=14, fontweight='bold')
+            plt.title('Top 15 Targets más Frecuentes', fontsize=14, fontweight='bold')
             plt.xlabel('Frecuencia')
             plt.tight_layout()
             graphs.append(self.save_figure('top_targets'))
@@ -274,7 +274,7 @@ Promedio hits/query: {len(data) / len(data['query'].unique()):.1f}
             plt.xlim(0, 1)
             plt.ylim(0, 1)
             plt.axis('off')
-            plt.title('📊 Estadísticas Generales de Hits', fontsize=16, fontweight='bold', pad=20)
+            plt.title('Estadísticas Generales de Hits', fontsize=16, fontweight='bold', pad=20)
             plt.tight_layout()
             graphs.append(self.save_figure('hits_stats'))
             plt.close()
@@ -294,7 +294,7 @@ Promedio hits/query: {len(data) / len(data['query'].unique()):.1f}
                 scores = data['score'].dropna()
                 if len(scores) > 0:
                     plt.hist(scores, bins=50, alpha=0.7, color='orange', edgecolor='black')
-                    plt.title('📊 Distribución de Scores de Hits', fontsize=14, fontweight='bold')
+                    plt.title('Distribución de Scores de Hits', fontsize=14, fontweight='bold')
                     plt.xlabel('Score')
                     plt.ylabel('Frecuencia')
                     plt.grid(True, alpha=0.3)
@@ -312,7 +312,7 @@ Promedio hits/query: {len(data) / len(data['query'].unique()):.1f}
                 evalues = evalues[evalues > 0]
                 if len(evalues) > 0:
                     plt.hist(np.log10(evalues), bins=50, alpha=0.7, color='red', edgecolor='black')
-                    plt.title('📊 Distribución de E-values (log10)', fontsize=14, fontweight='bold')
+                    plt.title('Distribución de E-values (log10)', fontsize=14, fontweight='bold')
                     plt.xlabel('Log10(E-value)')
                     plt.ylabel('Frecuencia')
                     plt.grid(True, alpha=0.3)
@@ -328,7 +328,7 @@ Promedio hits/query: {len(data) / len(data['query'].unique()):.1f}
                 identity = data['identity'].dropna()
                 if len(identity) > 0:
                     plt.hist(identity, bins=50, alpha=0.7, color='green', edgecolor='black')
-                    plt.title('📊 Distribución de Identidad de Secuencias', fontsize=14, fontweight='bold')
+                    plt.title('Distribución de Identidad de Secuencias', fontsize=14, fontweight='bold')
                     plt.xlabel('Identidad (%)')
                     plt.ylabel('Frecuencia')
                     plt.grid(True, alpha=0.3)
@@ -372,7 +372,7 @@ Promedio hits/query: {len(data) / len(data['query'].unique()):.1f}
                 lengths = data['alignment_length'].dropna()
                 if len(lengths) > 0:
                     plt.hist(lengths, bins=50, alpha=0.7, color='teal', edgecolor='black')
-                    plt.title('📏 Distribución de Longitudes de Alineamiento', fontsize=14, fontweight='bold')
+                    plt.title('Distribución de Longitudes de Alineamiento', fontsize=14, fontweight='bold')
                     plt.xlabel('Longitud de Alineamiento')
                     plt.ylabel('Frecuencia')
                     plt.grid(True, alpha=0.3)
@@ -391,7 +391,7 @@ Promedio hits/query: {len(data) / len(data['query'].unique()):.1f}
                 if len(valid_data) > 0:
                     coverage = (valid_data['alignment_length'] / valid_data['query_length']) * 100
                     plt.hist(coverage, bins=50, alpha=0.7, color='gold', edgecolor='black')
-                    plt.title('📊 Distribución de Cobertura de Query', fontsize=14, fontweight='bold')
+                    plt.title('Distribución de Cobertura de Query', fontsize=14, fontweight='bold')
                     plt.xlabel('Cobertura (%)')
                     plt.ylabel('Frecuencia')
                     plt.grid(True, alpha=0.3)
@@ -420,7 +420,7 @@ Promedio hits/query: {len(data) / len(data['query'].unique()):.1f}
                     if crosstab.size > 0:
                         plt.imshow(crosstab.values, cmap='Blues', aspect='auto')
                         plt.colorbar(label='Frecuencia')
-                        plt.title('🔥 Heatmap Score vs Identidad', fontsize=14, fontweight='bold')
+                        plt.title('Heatmap Score vs Identidad', fontsize=14, fontweight='bold')
                         plt.xlabel('Identidad')
                         plt.ylabel('Score')
                         plt.tight_layout()
@@ -441,22 +441,22 @@ Promedio hits/query: {len(data) / len(data['query'].unique()):.1f}
             ax1.text(0.5, 0.8, 'RESUMEN DE HITS', ha='center', va='center', fontsize=14, fontweight='bold')
             
             summary_text = f"""
-🎯 Total de hits: {len(data):,}
-🧬 Queries únicas: {len(data['query'].unique()):,}
-🔍 Targets únicos: {len(data['target'].unique()):,}
-📈 Promedio hits/query: {len(data) / len(data['query'].unique()):.1f}
+Total de hits: {len(data):,}
+Queries únicas: {len(data['query'].unique()):,}
+Targets únicos: {len(data['target'].unique()):,}
+Promedio hits/query: {len(data) / len(data['query'].unique()):.1f}
 """
             
             if 'score' in data.columns:
                 scores = data['score'].dropna()
                 if len(scores) > 0:
                     summary_text += f"⭐ Score promedio: {scores.mean():.2f}\n"
-                    summary_text += f"🏆 Score máximo: {scores.max():.2f}\n"
+                    summary_text += f"Score máximo: {scores.max():.2f}\n"
             
             if 'identity' in data.columns:
                 identity = data['identity'].dropna()
                 if len(identity) > 0:
-                    summary_text += f"🔬 Identidad promedio: {identity.mean():.1f}%\n"
+                    summary_text += f"Identidad promedio: {identity.mean():.1f}%\n"
             
             ax1.text(0.1, 0.4, summary_text, ha='left', va='top', fontsize=10,
                     bbox=dict(boxstyle="round,pad=0.5", facecolor='lightyellow', alpha=0.7))
@@ -470,7 +470,7 @@ Promedio hits/query: {len(data) / len(data['query'].unique()):.1f}
                 evalues = evalues[evalues > 0]
                 if len(evalues) > 0:
                     ax2.hist(np.log10(evalues), bins=20, alpha=0.7, color='orange', edgecolor='black')
-                    ax2.set_title('📊 E-values (log10)', fontweight='bold')
+                    ax2.set_title('E-values (log10)', fontweight='bold')
                     ax2.set_xlabel('Log10(E-value)')
                     ax2.set_ylabel('Frecuencia')
                     ax2.grid(True, alpha=0.3)
@@ -489,7 +489,7 @@ Promedio hits/query: {len(data) / len(data['query'].unique()):.1f}
                     ax3.barh(range(len(top_queries)), top_queries.values, color='lightgreen')
                     ax3.set_yticks(range(len(top_queries)))
                     ax3.set_yticklabels([q[:20] + '...' if len(q) > 20 else q for q in top_queries.index])
-                    ax3.set_title('🏆 Top Queries (más hits)', fontweight='bold')
+                    ax3.set_title('Top Queries (más hits)', fontweight='bold')
                     ax3.set_xlabel('Número de hits')
             else:
                 ax3.text(0.5, 0.5, 'TOP QUERIES\n\n⚠️ No hay datos disponibles', 
@@ -504,14 +504,14 @@ Promedio hits/query: {len(data) / len(data['query'].unique()):.1f}
                     fontsize=14, fontweight='bold')
             
             instructions = """
-🖱️ CONTROLES DE HITS:
+CONTROLES DE HITS:
 
-🎯 Análisis de homología completo
-🔍 Filtros por score e identidad
-📊 Estadísticas de calidad
-📈 Distribuciones detalladas
+Análisis de homología completo
+Filtros por score e identidad
+Estadísticas de calidad
+Distribuciones detalladas
 
-💡 FUNCIONES DISPONIBLES:
+FUNCIONES DISPONIBLES:
 • Histogramas de scores e identidad
 • Top queries y targets
 • Análisis de cobertura

@@ -1,6 +1,6 @@
 FROM node:18-alpine
 
-# Instalar dependencias del sistema para Sharp, Puppeteer, Chromium y Canvas
+# Instalar dependencias del sistema para Sharp, Puppeteer, Chromium, Canvas y LaTeX
 RUN apk add --no-cache \
     vips-dev \
     python3 \

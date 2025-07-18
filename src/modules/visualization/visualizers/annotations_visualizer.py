@@ -195,7 +195,7 @@ class AnnotationsVisualizer(BaseVisualizer):
             
             if coverage_data:
                 plt.bar(coverage_data.keys(), coverage_data.values(), color=['lightblue', 'lightgreen', 'orange', 'pink'])
-                plt.title('📊 Cobertura por Base de Datos', fontsize=14, fontweight='bold')
+                plt.title('Cobertura por Base de Datos', fontsize=14, fontweight='bold')
                 plt.ylabel('Número de Proteínas Anotadas')
                 plt.xticks(rotation=45)
                 plt.tight_layout()
@@ -215,7 +215,7 @@ class AnnotationsVisualizer(BaseVisualizer):
                     plt.barh(range(len(top_descriptions)), top_descriptions.values, color='skyblue')
                     plt.yticks(range(len(top_descriptions)), 
                               [desc[:60] + '...' if len(desc) > 60 else desc for desc in top_descriptions.index])
-                    plt.title('📊 Top 15 Descripciones Funcionales', fontsize=14, fontweight='bold')
+                    plt.title('Top 15 Descripciones Funcionales', fontsize=14, fontweight='bold')
                     plt.xlabel('Frecuencia')
                     plt.tight_layout()
                     graphs.append(self.save_figure('top_descriptions'))
@@ -231,7 +231,7 @@ class AnnotationsVisualizer(BaseVisualizer):
                 evalues = evalues[evalues > 0]
                 if len(evalues) > 0:
                     plt.hist(np.log10(evalues), bins=30, alpha=0.7, color='orange', edgecolor='black')
-                    plt.title('📊 Distribución de E-values (log10)', fontsize=14, fontweight='bold')
+                    plt.title('Distribución de E-values (log10)', fontsize=14, fontweight='bold')
                     plt.xlabel('Log10(E-value)')
                     plt.ylabel('Frecuencia')
                     plt.grid(True, alpha=0.3)
@@ -269,7 +269,7 @@ Proteínas únicas: {len(data['query'].unique()):,}
             plt.xlim(0, 1)
             plt.ylim(0, 1)
             plt.axis('off')
-            plt.title('📊 Estadísticas Generales de Anotaciones', fontsize=16, fontweight='bold', pad=20)
+            plt.title('Estadísticas Generales de Anotaciones', fontsize=16, fontweight='bold', pad=20)
             plt.tight_layout()
             graphs.append(self.save_figure('annotation_stats'))
             plt.close()
@@ -306,7 +306,7 @@ Proteínas únicas: {len(data['query'].unique()):,}
             plt.xticks(range(len(top_go)), 
                       [term[:15] + '...' if len(term) > 15 else term for term in top_go.keys()], 
                       rotation=45, ha='right')
-            plt.title('🧬 Top 15 Términos GO', fontsize=14, fontweight='bold')
+            plt.title('Top 15 Términos GO', fontsize=14, fontweight='bold')
             plt.ylabel('Frecuencia')
             plt.tight_layout()
             graphs.append(self.save_figure('go_top_terms'))
@@ -333,7 +333,7 @@ Proteínas únicas: {len(data['query'].unique()):,}
             plt.xticks(range(len(ko_counts)), 
                       [ko[:15] + '...' if len(ko) > 15 else ko for ko in ko_counts.index], 
                       rotation=45, ha='right')
-            plt.title('🔬 Top 15 Términos KEGG KO', fontsize=14, fontweight='bold')
+            plt.title('Top 15 Términos KEGG KO', fontsize=14, fontweight='bold')
             plt.ylabel('Frecuencia')
             plt.tight_layout()
             graphs.append(self.save_figure('kegg_top_terms'))
@@ -378,18 +378,18 @@ Proteínas únicas: {len(data['query'].unique()):,}
             ax1.text(0.5, 0.7, 'RESUMEN DE DATOS', ha='center', va='center', fontsize=14, fontweight='bold')
             
             summary_text = f"""
-📊 Total de anotaciones: {len(data):,}
-🧬 Proteínas únicas: {len(data['query'].unique()):,}
-📈 Promedio anotaciones/proteína: {len(data) / len(data['query'].unique()):.1f}
+Total de anotaciones: {len(data):,}
+Proteínas únicas: {len(data['query'].unique()):,}
+Promedio anotaciones/proteína: {len(data) / len(data['query'].unique()):.1f}
 """
             
             if 'GOs' in data.columns:
                 go_count = len(data[data['GOs'].notna() & (data['GOs'] != '-')])
-                summary_text += f"🔬 Proteínas con GO: {go_count:,} ({go_count/len(data)*100:.1f}%)\n"
+                summary_text += f"Proteínas con GO: {go_count:,} ({go_count/len(data)*100:.1f}%)\n"
             
             if 'KEGG_ko' in data.columns:
                 kegg_count = len(data[data['KEGG_ko'].notna() & (data['KEGG_ko'] != '-')])
-                summary_text += f"🧪 Proteínas con KEGG: {kegg_count:,} ({kegg_count/len(data)*100:.1f}%)\n"
+                summary_text += f"Proteínas con KEGG: {kegg_count:,} ({kegg_count/len(data)*100:.1f}%)\n"
             
             ax1.text(0.1, 0.3, summary_text, ha='left', va='top', fontsize=10,
                     bbox=dict(boxstyle="round,pad=0.5", facecolor='lightblue', alpha=0.7))
@@ -402,7 +402,7 @@ Proteínas únicas: {len(data['query'].unique()):,}
                 scores = data['score'].dropna()
                 if len(scores) > 0:
                     ax2.hist(scores, bins=20, alpha=0.7, color='green', edgecolor='black')
-                    ax2.set_title('📊 Distribución de Scores', fontweight='bold')
+                    ax2.set_title('Distribución de Scores', fontweight='bold')
                     ax2.set_xlabel('Score')
                     ax2.set_ylabel('Frecuencia')
                     ax2.grid(True, alpha=0.3)
@@ -445,14 +445,14 @@ Proteínas únicas: {len(data['query'].unique()):,}
                     fontsize=14, fontweight='bold')
             
             instructions = """
-🖱️ CONTROLES DISPONIBLES:
+CONTROLES DISPONIBLES:
 
-📊 Gráficos generados automáticamente
-🔍 Estadísticas detalladas calculadas
-📈 Análisis comparativo incluido
-🗂️ Exportación de resultados disponible
+Gráficos generados automáticamente
+Estadísticas detalladas calculadas
+Análisis comparativo incluido
+Exportación de resultados disponible
 
-💡 CONSEJOS:
+CONSEJOS:
 • Revisa las estadísticas de calidad
 • Compara cobertura entre bases de datos
 • Identifica patrones funcionales

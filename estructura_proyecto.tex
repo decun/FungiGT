@@ -1,0 +1,277 @@
+\section{Código y estructura}\label{descripcion}
+
+% Primera página - Estructura principal
+\begin{minipage}{\textwidth}
+\dirtree{%
+.1 {\textbf{FungiGT/}}.
+.2 data/ \textit{(Datos persistentes)}.
+.3 raw/.
+.4 genomes/.
+.4 proteomes/.
+.3 results/.
+.4 quality\_control/.
+.4 annotation/.
+.4 analysis/.
+.4 visualization/.
+.3 reports/.
+.2 src/ \textit{(Código fuente)}.
+.3 core/ \textit{(Servicios core)}.
+.4 auth/ \textit{(Puerto 4001)}.
+.5 database/.
+.6 connection.js.
+.5 middleware/.
+.6 authMiddleware.js.
+.5 models/.
+.6 User.js.
+.5 routes/.
+.6 authRoutes.js.
+.5 services/.
+.6 AuthService.js.
+.5 index.js.
+.4 database/.
+.5 connection.js.
+.4 logging/.
+.3 frontend/ \textit{(Puerto 4005)}.
+.4 app.js \textit{(Servidor Express)}.
+.4 views/.
+.5 landing.ejs \textit{(Página inicio)}.
+.5 analyzer.ejs \textit{(Análisis)}.
+.5 annotator.ejs \textit{(Anotación)}.
+.5 visualizer.ejs \textit{(Visualización)}.
+.5 database.ejs \textit{(Base datos)}.
+.5 profile.ejs \textit{(Perfil usuario)}.
+.5 history.ejs \textit{(Historial)}.
+.5 config.ejs \textit{(Configuración)}.
+.5 auth/.
+.6 login.ejs.
+.6 register.ejs.
+.6 logout.ejs.
+.5 partials/ \textit{(Componentes)}.
+.6 header.ejs.
+.6 footer.ejs.
+.6 file-explorer.ejs.
+.6 drfungito-chat.ejs.
+.4 public/.
+.5 css/.
+.6 styles.css.
+.5 js/.
+.6 main.js.
+.6 braker3-client.js.
+.6 chatbot.js.
+.6 theme-manager.js.
+.5 images/.
+.5 examples/.
+.4 routes/.
+.5 index.js.
+.5 auth.js.
+.5 analyzer.js.
+.5 annotator.js.
+.5 visualizer.js.
+.5 database.js.
+.4 middleware/.
+.5 authProxyMiddleware.js.
+.4 models/.
+.5 User.js.
+.4 config/.
+.5 database.js.
+.4 utils/.
+.5 authClient.js.
+}
+\end{minipage}
+
+\clearpage
+
+% Segunda página - Módulos principales
+\begin{minipage}{\textwidth}
+\dirtree{%
+.1 {\textbf{FungiGT/}} \textit{(continuación)}.
+.2 src/modules/ \textit{(Microservicios)}.
+.3 file\_manager/ \textit{(Puerto 4002)}.
+.4 server.js.
+.4 file\_router.js.
+.4 storage\_service.js.
+.4 data/.
+.3 visualization/ \textit{(Puerto 4003)}.
+.4 app.py \textit{(Servidor Flask)}.
+.4 visualizers/.
+.5 base\_visualizer.py.
+.5 bindash\_visualizer.py.
+.5 annotations\_visualizer.py.
+.5 checkm\_visualizer.py.
+.5 hits\_visualizer.py.
+.5 seed\_orthologs\_visualizer.py.
+.5 dna\_features\_visualizer.py.
+.4 genomic\_visualizer/.
+.5 server.py.
+.5 BioGraphmaker/.
+.6 graph\_maker/.
+.7 PythonScripts/.
+.8 process\_annotations.py.
+.8 process\_hmmer\_data.py.
+.8 process\_seed\_orthologs.py.
+.7 output/.
+.7 uploads/.
+.6 server.js.
+.4 data/.
+.4 uploads/.
+.4 outputs/.
+.3 quality\_control/ \textit{(Puerto 4004)}.
+.4 checkm/.
+.5 server.js.
+.5 data/.
+.4 data/.
+.3 acquisition/ \textit{(Puerto 4006)}.
+.4 ncbi\_cli/.
+.5 server.js.
+.5 service.js.
+.5 router.js.
+.5 tmp/.
+.3 analysis/.
+.4 bindash/ \textit{(Puerto 4007)}.
+.5 server.js.
+.4 eggnog/ \textit{(Puerto 3002)}.
+.5 server.js.
+.5 logs/.
+.4 blastn/.
+.3 annotation/.
+.4 braker3/ \textit{(Puerto 3004)}.
+.5 server.js.
+.5 run-server.js.
+.3 ai\_agent/.
+.4 drfungito/ \textit{(Puerto 4009)}.
+.5 server.js.
+.5 data/.
+.5 logs/.
+.5 temp/.
+.5 SISTEMA\_REPORTES.md.
+.5 DEBUG\_REPORTES.md.
+.5 debug\_report.ps1.
+.5 debug\_report.bat.
+.5 config.example.js.
+}
+\end{minipage}
+
+\clearpage
+
+% Tercera página - Infraestructura y scripts
+\begin{minipage}{\textwidth}
+\dirtree{%
+.1 {\textbf{FungiGT/}} \textit{(continuación)}.
+.2 infrastructure/ \textit{(Configuración Docker)}.
+.3 docker/.
+.4 auth/.
+.5 Dockerfile.
+.4 frontend/.
+.5 Dockerfile.
+.4 file\_manager/.
+.5 Dockerfile.
+.5 docker-compose.yml.
+.4 visualization/.
+.5 Dockerfile.
+.4 quality\_control/.
+.5 Dockerfile.
+.4 acquisition/.
+.5 Dockerfile.
+.5 docker-compose.yml.
+.4 analysis/.
+.5 bindash/.
+.6 Dockerfile.
+.5 eggnog/.
+.6 Dockerfile.
+.6 docker-compose.yml.
+.4 annotation/.
+.5 Dockerfile.
+.5 docker-compose.yml.
+.4 ai\_agent/.
+.5 Dockerfile.
+.4 backend/.
+.2 scripts/ \textit{(Scripts de gestión)}.
+.3 setup/.
+.4 install.py.
+.4 setup\_fungigt.py.
+.4 start\_services.py.
+.4 stop\_services.py.
+.4 quick\_start.py.
+.4 debug\_installation.py.
+.4 check\_structure.py.
+.4 fix\_docker\_network.py.
+.4 linux\_setup.sh.
+.4 INSTALL\_GUIDE.md.
+.3 mongo-init/.
+.4 init-db.js.
+.3 eggnog\_db\_manager.py.
+.3 eggnog\_helper.sh.
+.3 quick\_start.py.
+.3 fix\_docker\_error.bat.
+.3 requirements.txt.
+.2 docs/ \textit{(Documentación)}.
+.3 dockerization\_report.tex.
+.3 file\_manager\_volumes.tex.
+.3 justificacion\_contenedores.tex.
+.2 logs/ \textit{(Logs del sistema)}.
+.2 tmp/ \textit{(Archivos temporales)}.
+.2 docker-compose.yml \textit{(Orquestación completa)}.
+.2 README.md \textit{(Documentación principal)}.
+.2 claude.md \textit{(Documentación para LLMs)}.
+.2 .gitignore.
+.2 .dockerignore.
+}
+\end{minipage}
+
+\clearpage
+
+% Cuarta página - Resumen de servicios
+\begin{minipage}{\textwidth}
+\dirtree{%
+.1 {\textbf{FungiGT/}} \textit{(Servicios y puertos)}.
+.2 \textbf{Servicios Core}.
+.3 MongoDB \textit{(Puerto 27017)}.
+.4 Base de datos principal.
+.4 Autenticación configurada.
+.4 Volumen persistente.
+.3 Auth Service \textit{(Puerto 4001)}.
+.4 JWT tokens.
+.4 Middleware de autenticación.
+.4 Gestión de usuarios.
+.3 Frontend \textit{(Puerto 4005)}.
+.4 Interfaz web unificada.
+.4 Dashboard principal.
+.4 Integración de servicios.
+.3 File Manager \textit{(Puerto 4002)}.
+.4 Gestión centralizada de archivos.
+.4 Upload/download de datasets.
+.4 Navegación de resultados.
+.2 \textbf{Servicios de Análisis}.
+.3 Visualization Server \textit{(Puerto 4003)}.
+.4 Servidor Python Flask.
+.4 Gráficos interactivos.
+.4 Múltiples visualizadores.
+.3 Quality Control \textit{(Puerto 4004)}.
+.4 Control de calidad CheckM.
+.4 Evaluación de completitud.
+.4 Detección de contaminación.
+.3 Acquisition \textit{(Puerto 4006)}.
+.4 Descarga NCBI.
+.4 CLI personalizado.
+.4 Automatización de datos.
+.3 BinDash Analysis \textit{(Puerto 4007)}.
+.4 Análisis filogenético.
+.4 Matrices de distancia.
+.4 Dendrogramas automáticos.
+.2 \textbf{Servicios de Anotación}.
+.3 BRAKER3 Server \textit{(Puerto 3004)}.
+.4 API de anotación genómica.
+.4 Orquestación BRAKER3.
+.4 Gestión de trabajos.
+.3 eggNOG-mapper \textit{(Puerto 3002)}.
+.4 Anotación funcional.
+.4 Análisis COG, GO, KEGG.
+.4 API personalizada.
+.2 \textbf{Servicios Especializados}.
+.3 Dr. Fungito AI \textit{(Puerto 4009)}.
+.4 Agente IA especializado.
+.4 Análisis automático de imágenes.
+.4 Generación de reportes.
+.4 Powered by Anthropic Claude.
+}
+\end{minipage} 

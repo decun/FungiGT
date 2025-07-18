@@ -1,3 +1,103 @@
+<!-- Estilos específicos para Dr. Fungito -->
+<style>
+    .loading-spinner {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    .markdown-content h1, .markdown-content h2, .markdown-content h3 {
+        margin-top: 0.5rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .markdown-content strong {
+        font-weight: 600;
+        color: var(--color-text-primary, #065f46);
+    }
+    
+    [data-theme="dark"] .markdown-content strong {
+        color: #10b981;
+    }
+    
+    .markdown-content em {
+        font-style: italic;
+        color: var(--color-text-secondary, #047857);
+    }
+    
+    [data-theme="dark"] .markdown-content em {
+        color: #6ee7b7;
+    }
+    
+    .markdown-content code {
+        font-family: 'Courier New', monospace;
+        font-size: 0.875rem;
+        background-color: var(--color-bg-tertiary, #f3f4f6);
+        padding: 0.125rem 0.25rem;
+        border-radius: 0.25rem;
+    }
+    
+    [data-theme="dark"] .markdown-content code {
+        background-color: #374151;
+        color: #e5e7eb;
+    }
+    
+    .markdown-content li {
+        margin-bottom: 0.25rem;
+    }
+    
+    .markdown-content a {
+        transition: color 0.2s ease;
+    }
+    
+    .markdown-content a:hover {
+        color: #059669 !important;
+    }
+    
+    /* Ventana redimensionable */
+    .resizable-panel {
+        resize: both;
+        overflow: hidden;
+        min-width: 320px;
+        min-height: 400px;
+        max-width: 90vw;
+        max-height: 90vh;
+    }
+    
+    .resize-handle {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 20px;
+        height: 20px;
+        background: linear-gradient(-45deg, transparent 30%, #10b981 30%, #10b981 40%, transparent 40%, transparent 60%, #10b981 60%, #10b981 70%, transparent 70%);
+        cursor: nw-resize;
+        opacity: 0.6;
+        transition: opacity 0.2s;
+    }
+    
+    .resize-handle:hover {
+        opacity: 1;
+    }
+    
+    [data-theme="dark"] .resize-handle {
+        background: linear-gradient(-45deg, transparent 30%, #6ee7b7 30%, #6ee7b7 40%, transparent 40%, transparent 60%, #6ee7b7 60%, #6ee7b7 70%, transparent 70%);
+    }
+    
+    /* Asegurar que hidden funcione correctamente */
+    #drFungitoPanel.hidden {
+        display: none !important;
+    }
+    
+    #drFungitoPanel:not(.hidden) {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+</style>
+
 <!-- DrFungito - Asistente Genómico Inteligente -->
 <div class="fixed bottom-4 right-4 z-50">
     <!-- Botón principal con imagen de DrFungito -->
@@ -6,10 +106,10 @@
         <div class="w-14 h-14 rounded-full bg-green-500 flex items-center justify-center text-white font-bold text-xl hidden">🍄</div>
     </button>
     
-    <!-- Panel de chat -->
-    <div id="drFungitoPanel" class="hidden absolute bottom-20 right-0 theme-bg-primary theme-text-primary rounded-2xl theme-shadow-light-2xl w-96 max-h-[500px] border theme-border overflow-hidden">
-        <!-- Header del chat -->
-        <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-t-2xl">
+    <!-- Panel de chat draggable y redimensionable -->
+    <div id="drFungitoPanel" class="hidden fixed theme-bg-primary theme-text-primary rounded-2xl theme-shadow-light-2xl border theme-border resizable-panel" style="bottom: 20px; right: 0px; z-index: 1000; width: 384px; height: 500px;">
+        <!-- Header del chat - Draggable -->
+        <div id="drFungitoHeader" class="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-t-2xl cursor-move select-none">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
                     <img src="/images/DrFungito.png" alt="Dr. Fungito" class="w-10 h-10 rounded-full object-cover border-2 border-white" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -22,7 +122,8 @@
                 <div class="flex items-center space-x-2">
                     <!-- Indicador de estado de conexión -->
                     <div id="connectionStatus" class="w-2 h-2 rounded-full bg-yellow-400" title="Conectando..."></div>
-                    <button id="closeDrFungito" class="text-white hover:text-green-200 transition-colors">
+                    <!-- Botón de cerrar -->
+                    <button id="closeDrFungito" class="text-white hover:text-green-200 transition-colors" title="Cerrar">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
@@ -32,7 +133,7 @@
         </div>
         
         <!-- Área de mensajes -->
-        <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 max-h-80 theme-bg-secondary">
+        <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 theme-bg-secondary" style="min-height: 200px; max-height: calc(100% - 200px);">
             <div class="flex items-start space-x-2">
                 <img src="/images/DrFungito.png" alt="Dr. Fungito" class="w-8 h-8 rounded-full object-cover flex-shrink-0" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                 <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0 hidden">🍄</div>
@@ -40,83 +141,142 @@
                     <p class="text-sm theme-text-primary">¡Hola! Soy Dr. Fungito con IA avanzada. Puedo analizar tus gráficos genómicos, generar reportes detallados y responder preguntas especializadas sobre hongos. ¿En qué puedo ayudarte?</p>
                 </div>
             </div>
-            
-
+        </div>
+        
+        <!-- Botones de acción rápida -->
+        <div class="px-4 py-2 theme-bg-secondary border-t theme-border">
+            <div class="flex flex-wrap gap-2">
+                <button class="quick-action-btn px-3 py-1 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors" data-action="memory">📊 Ver mi memoria</button>
+                <button class="quick-action-btn px-3 py-1 bg-purple-500 text-white text-xs rounded-full hover:bg-purple-600 transition-colors" data-action="report">📄 Generar reporte</button>
+                <button class="quick-action-btn px-3 py-1 bg-red-500 text-white text-xs rounded-full hover:bg-red-600 transition-colors" data-action="clear">🗑️ Limpiar memoria</button>
+                <button class="quick-action-btn px-3 py-1 bg-orange-500 text-white text-xs rounded-full hover:bg-orange-600 transition-colors" data-action="help">❓ Ayuda</button>
+            </div>
         </div>
         
         <!-- Input de mensaje -->
-        <div class="p-4 border-t theme-border theme-bg-primary rounded-b-2xl">
+        <div class="p-4 theme-bg-primary border-t theme-border">
             <div class="flex space-x-2">
-                <input type="text" 
-                       id="userInput" 
-                       class="flex-grow px-3 py-2 pr-24 border theme-border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm theme-input" 
-                       placeholder="Pregúntame sobre genómica o pide un reporte..." 
-                       maxlength="500" />
-                <button id="sendMessage" 
-                        class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                <input type="text" id="userInput" placeholder="Escribe tu pregunta..." class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-800 text-sm">
+                <button id="sendMessage" class="bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition-colors focus:outline-none focus:ring-2 focus:ring-green-400">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                     </svg>
                 </button>
             </div>
-            
-            <!-- Botones de acceso rápido - Reposicionados debajo del input -->
-            <div class="flex flex-wrap gap-2 mt-3 justify-center">
-                <button class="quick-action-btn bg-blue-100 text-blue-800 px-3 py-2 rounded-lg text-xs hover:bg-blue-200 transition-colors flex items-center space-x-1" data-action="memory">
-                    <span>📊</span>
-                    <span>Ver mi memoria</span>
-                </button>
-                <button class="quick-action-btn bg-purple-100 text-purple-800 px-3 py-2 rounded-lg text-xs hover:bg-purple-200 transition-colors flex items-center space-x-1" data-action="report">
-                    <span>📄</span>
-                    <span>Generar reporte</span>
-                </button>
-                <button class="quick-action-btn bg-red-100 text-red-800 px-3 py-2 rounded-lg text-xs hover:bg-red-200 transition-colors flex items-center space-x-1" data-action="clear">
-                    <span>🗑️</span>
-                    <span>Borrar memoria</span>
-                </button>
-                <button class="quick-action-btn bg-green-100 text-green-800 px-3 py-2 rounded-lg text-xs hover:bg-green-200 transition-colors flex items-center space-x-1" data-action="help">
-                    <span>❓</span>
-                    <span>Ayuda</span>
-                </button>
-            </div>
-            
-            <div class="mt-2 text-xs theme-text-muted text-center">
-                🧠 IA Avanzada: Análisis de imágenes, reportes inteligentes, memoria contextual
-            </div>
         </div>
+        
+        <!-- Handle de redimensionamiento -->
+        <div class="resize-handle" title="Redimensionar ventana"></div>
     </div>
 </div>
 
-<!-- Script para DrFungito con IA -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const drFungitoButton = document.getElementById('drFungitoButton');
     const drFungitoPanel = document.getElementById('drFungitoPanel');
+    const drFungitoHeader = document.getElementById('drFungitoHeader');
     const closeDrFungito = document.getElementById('closeDrFungito');
     const userInput = document.getElementById('userInput');
     const sendButton = document.getElementById('sendMessage');
     const chatMessages = document.getElementById('chatMessages');
     const connectionStatus = document.getElementById('connectionStatus');
     
+    // Variables para dragging
+    let isDragging = false;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+    
     // URL del agente Dr. Fungito AI
     const drFungitoUrl = 'http://localhost:4009';
+    
+    // Verificar que todos los elementos estén disponibles
+    console.log('🍄 [DEBUG] Elementos encontrados:');
+    console.log('- drFungitoButton:', !!drFungitoButton);
+    console.log('- drFungitoPanel:', !!drFungitoPanel);
+    console.log('- closeDrFungito:', !!closeDrFungito);
+    console.log('- drFungitoHeader:', !!drFungitoHeader);
     
     // Verificar estado de conexión al cargar
     checkConnectionStatus();
     
-    // Toggle del panel
+    // Toggle del panel (NO auto-close)
     drFungitoButton.addEventListener('click', () => {
-        drFungitoPanel.classList.toggle('hidden');
-        if (!drFungitoPanel.classList.contains('hidden')) {
+        console.log('🍄 [DEBUG] Toggle botón clickeado');
+        
+        if (drFungitoPanel.classList.contains('hidden')) {
+            // Abrir panel
+            drFungitoPanel.classList.remove('hidden');
+            drFungitoPanel.style.display = 'flex';
             userInput.focus();
             checkConnectionStatus();
+            console.log('🍄 [DEBUG] Panel abierto');
+        } else {
+            // Cerrar panel
+            drFungitoPanel.classList.add('hidden');
+            drFungitoPanel.style.display = 'none';
+            console.log('🍄 [DEBUG] Panel cerrado desde toggle');
         }
     });
 
-    // Cerrar panel
-    closeDrFungito.addEventListener('click', () => {
+    // Cerrar panel manualmente
+    closeDrFungito.addEventListener('click', (e) => {
+        console.log('🍄 [DEBUG] Botón cerrar clickeado');
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Múltiples métodos para asegurar que se cierre
         drFungitoPanel.classList.add('hidden');
+        drFungitoPanel.style.display = 'none';
+        
+        // Double check
+        setTimeout(() => {
+            if (!drFungitoPanel.classList.contains('hidden')) {
+                drFungitoPanel.classList.add('hidden');
+            }
+        }, 50);
+        
+        console.log('🍄 [DEBUG] Panel cerrado, clases:', drFungitoPanel.className);
     });
+    
+    // === FUNCIONALIDAD DE DRAG ===
+    drFungitoHeader.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        const rect = drFungitoPanel.getBoundingClientRect();
+        dragOffsetX = e.clientX - rect.left;
+        dragOffsetY = e.clientY - rect.top;
+        
+        drFungitoHeader.style.cursor = 'grabbing';
+        document.addEventListener('mousemove', handleDrag);
+        document.addEventListener('mouseup', stopDrag);
+        
+        e.preventDefault();
+    });
+    
+    function handleDrag(e) {
+        if (!isDragging) return;
+        
+        const x = e.clientX - dragOffsetX;
+        const y = e.clientY - dragOffsetY;
+        
+        // Limitar a los bordes de la ventana
+        const maxX = window.innerWidth - drFungitoPanel.offsetWidth;
+        const maxY = window.innerHeight - drFungitoPanel.offsetHeight;
+        
+        const constrainedX = Math.max(0, Math.min(x, maxX));
+        const constrainedY = Math.max(0, Math.min(y, maxY));
+        
+        drFungitoPanel.style.left = constrainedX + 'px';
+        drFungitoPanel.style.top = constrainedY + 'px';
+        drFungitoPanel.style.bottom = 'auto';
+        drFungitoPanel.style.right = 'auto';
+    }
+    
+    function stopDrag() {
+        isDragging = false;
+        drFungitoHeader.style.cursor = 'move';
+        document.removeEventListener('mousemove', handleDrag);
+        document.removeEventListener('mouseup', stopDrag);
+    }
     
     // Botones de acción rápida
     document.querySelectorAll('.quick-action-btn').forEach(btn => {
@@ -132,61 +292,36 @@ document.addEventListener('DOMContentLoaded', function() {
             const response = await fetch(`${drFungitoUrl}/health`);
             if (response.ok) {
                 connectionStatus.className = 'w-2 h-2 rounded-full bg-green-400';
-                connectionStatus.title = 'Conectado al agente IA';
+                connectionStatus.title = 'Conectado';
             } else {
-                throw new Error('Service unavailable');
+                connectionStatus.className = 'w-2 h-2 rounded-full bg-red-400';
+                connectionStatus.title = 'Error de conexión';
             }
         } catch (error) {
             connectionStatus.className = 'w-2 h-2 rounded-full bg-red-400';
-            connectionStatus.title = 'Desconectado del agente IA';
+            connectionStatus.title = 'Sin conexión';
         }
     }
-
+    
     // Función para renderizar markdown básico
     function renderMarkdown(text) {
         return text
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/`(.*?)`/g, '<code class="bg-gray-100 px-1 rounded text-sm">$1</code>')
+            .replace(/### (.*?)$/gm, '<h3 class="font-bold text-lg mt-3 mb-2 text-green-600">$1</h3>')
+            .replace(/## (.*?)$/gm, '<h2 class="font-bold text-xl mt-4 mb-2 text-green-700">$1</h2>')
+            .replace(/# (.*?)$/gm, '<h1 class="font-bold text-2xl mt-4 mb-3 text-green-800">$1</h1>')
+            .replace(/^\* (.*?)$/gm, '<li class="ml-4">• $1</li>')
+            .replace(/^\- (.*?)$/gm, '<li class="ml-4">• $1</li>')
+            .replace(/\n\n/g, '<br><br>')
             .replace(/\n/g, '<br>')
             .replace(/🔗 <a href="(.*?)"(.*?)>(.*?)<\/a>/g, '<a href="$1" target="_blank" class="text-blue-500 hover:text-blue-700 underline font-semibold">$3</a>');
-    }
-
-    // Función para mostrar mensaje en el chat
-    function displayMessage(message, isUser = false, isLoading = false) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `flex items-start space-x-2 ${isUser ? 'justify-end' : ''}`;
-        
-        if (isUser) {
-            messageDiv.innerHTML = `
-                <div class="bg-green-500 text-white p-3 rounded-lg theme-theme-shadow-light-light max-w-xs">
-                    <p class="text-sm">${message}</p>
-                </div>
-                <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">👤</div>
-            `;
-        } else {
-            const loadingIcon = isLoading ? '<div class="loading-spinner w-4 h-4 border-2 theme-border border-t-green-500 rounded-full animate-spin"></div>' : '';
-            const renderedMessage = isLoading ? message : renderMarkdown(message);
-            
-            messageDiv.innerHTML = `
-                <img src="/images/DrFungito.png" alt="Dr. Fungito" class="w-8 h-8 rounded-full object-cover flex-shrink-0" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0 hidden">🍄</div>
-                <div class="theme-bg-primary p-3 rounded-lg theme-theme-shadow-light-light border theme-border max-w-xs">
-                    <div class="flex items-center space-x-2">
-                        ${loadingIcon}
-                        <div class="text-sm theme-text-primary ${isLoading ? 'whitespace-pre-wrap' : ''}">${renderedMessage}</div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        chatMessages.appendChild(messageDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-        return messageDiv;
     }
     
     // Función para manejar acciones rápidas
     async function handleQuickAction(action) {
-        switch (action) {
+        switch(action) {
             case 'memory':
                 await showUserMemory();
                 break;
@@ -202,9 +337,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Función para mostrar memoria del usuario
+    // Función para mostrar memoria del usuario (versión corta como en la imagen)
     async function showUserMemory() {
-        const loadingMessage = displayMessage('Consultando tu memoria...', false, true);
+        const loadingMessage = displayMessage('📊 Consultando tu memoria genómica...', false, true);
         
         try {
             const response = await fetch(`${drFungitoUrl}/memory?limit=5`, {
@@ -220,27 +355,20 @@ document.addEventListener('DOMContentLoaded', function() {
             const memoryData = await response.json();
             loadingMessage.remove();
             
-            const memoryText = `📊 **Tu Memoria Genómica:**\n\n` +
-                `🖼️ Imágenes analizadas: ${memoryData.totalImages}\n` +
-                `📄 Reportes generados: ${memoryData.totalReports}\n` +
-                `📅 Última actividad: ${new Date(memoryData.lastActivity).toLocaleString()}\n\n` +
+            const memoryText = `🧠 **Tu Memoria Genómica:**\n\n` +
+                `📷 **Imágenes analizadas:** ${memoryData.totalImages}\n` +
+                `📄 **Reportes generados:** ${memoryData.totalReports}\n` +
+                `📅 **Última actividad:** ${new Date(memoryData.lastActivity).toLocaleDateString('es-ES')}\n\n` +
                 `**Últimas imágenes:**\n` +
                 memoryData.images.slice(0, 3).map(img => 
-                    `• ${img.filename} (${img.analysisType})`
+                    `🔬 ${img.filename} (${img.analysisType})`
                 ).join('\n') +
-                `\n\n**Reportes disponibles:**\n` +
-                memoryData.reports.slice(0, 3).map(report => 
-                    `📄 ${report.title} - ${new Date(report.createdAt).toLocaleDateString()}`
-                ).join('\n');
+                (memoryData.totalReports > 0 ? `\n\n**Reportes disponibles:**\n` +
+                memoryData.reports.slice(0, 2).map(report => 
+                    `📄 ${report.title} - ${new Date(report.createdAt).toLocaleDateString('es-ES')}`
+                ).join('\n') : '');
             
             displayMessage(memoryText);
-            
-            // Añadir un botón para ver debug detallado de reportes
-            if (memoryData.totalReports > 0) {
-                displayMessage('🔍 **Debug disponible:**\n' +
-                    '• `debug reportes` - Ver todos los reportes\n' +
-                    '• `debug [ID-REPORTE]` - Debug específico de un reporte');
-            }
             
         } catch (error) {
             loadingMessage.remove();
@@ -250,7 +378,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Función para generar reporte rápido
     async function generateQuickReport() {
-        const loadingMessage = displayMessage('🔄 Generando reporte PDF de tus análisis recientes...', false, true);
+        const loadingMessage = displayMessage('📄 Generando reporte profesional...', false, true);
         
         try {
             const response = await fetch(`${drFungitoUrl}/generate-report`, {
@@ -275,58 +403,44 @@ document.addEventListener('DOMContentLoaded', function() {
             loadingMessage.remove();
             
             if (reportData.success && reportData.pdfAvailable) {
-                // Reporte generado exitosamente
-                const reportMessage = `🎉 **¡Reporte PDF Generado Exitosamente!**\n\n` +
-                    `📄 **Título:** ${reportData.title}\n` +
-                    `📊 **Imágenes incluidas:** ${reportData.imageCount}\n` +
-                    `🔬 **Tipos de análisis:** ${reportData.analysisTypes.join(', ')}\n` +
-                    `📅 **Fecha:** ${new Date(reportData.createdAt).toLocaleString()}\n\n` +
-                    `✅ **PDF listo para descargar:**\n` +
-                    `🔗 <a href="${drFungitoUrl}${reportData.downloadUrl}" target="_blank" style="color: #10b981; text-decoration: underline; font-weight: bold;">📥 Descargar Reporte PDF</a>\n\n` +
-                    `💡 **Tip:** El reporte incluye todas las imágenes analizadas con sus interpretaciones detalladas y recomendaciones técnicas.`;
+                const reportMessage = `🎉 **¡Reporte PDF Generado!**\n\n` +
+                    `📄 **${reportData.title}**\n` +
+                    `📊 **${reportData.imageCount} imágenes**\n` +
+                    `🔬 **Tipos:** ${reportData.analysisTypes.join(', ')}\n\n` +
+                    `🔗 [📥 Descargar Reporte PDF](${drFungitoUrl}${reportData.downloadUrl})`;
                 
                 displayMessage(reportMessage);
-                
-                // Mostrar comando de debug disponible
-                displayMessage(`🔧 **Debug disponible**: Si hay problemas con la descarga, escribe "debug ${reportData.reportId}" para más información.`);
-                
-                // Mostrar notificación de éxito si está disponible
-                if (window.Swal) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: '🎉 ¡Reporte PDF Generado!',
-                        html: `Reporte con <strong>${reportData.imageCount}</strong> imágenes listo para descargar.`,
-                        showConfirmButton: true,
-                        confirmButtonText: '📥 Descargar Ahora',
-                        confirmButtonColor: '#10b981'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.open(`${drFungitoUrl}${reportData.downloadUrl}`, '_blank');
-                        }
-                    });
-                }
-                
             } else {
-                // Reporte generado pero sin PDF
-                displayMessage(`📄 **Reporte generado exitosamente**\n\nRevisa la carpeta \`data/reports/\` y busca el ID del reporte: **${reportData.reportId}**\n\n${reportData.message || 'El reporte está disponible en el sistema de archivos.'}`);
+                displayMessage(`📄 **Reporte generado** (ID: ${reportData.reportId})\n\nRevisa la carpeta \`reports\` en el File Manager.`);
             }
             
         } catch (error) {
             loadingMessage.remove();
-            displayMessage('❌ **Error al generar reporte**\n\nAsegúrate de haber analizado algunas imágenes primero usando los botones 🍄 en los visualizadores.');
+            displayMessage('❌ **Error al generar reporte**\n\nAsegúrate de haber analizado algunas imágenes primero.');
         }
     }
     
-    // Función para borrar memoria del usuario
-    async function clearUserMemory() {
-        // Confirmación antes de borrar
-        const confirmed = confirm('🗑️ ¿Estás seguro de que quieres borrar toda tu memoria genómica?\n\nEsto eliminará:\n• Todas las imágenes analizadas\n• Todos los reportes generados\n• Todo el historial de chat\n\nEsta acción no se puede deshacer.');
+    // Función para mostrar ayuda
+    function showHelp() {
+        const helpText = `🤖 **Dr. Fungito AI - Ayuda:**\n\n` +
+            `**Funciones principales:**\n` +
+            `🔬 Análisis automático de gráficos genómicos\n` +
+            `📊 Interpretación de resultados (BinDash, eggNOG, CheckM)\n` +
+            `📄 Generación de reportes PDF profesionales\n` +
+            `🧠 Memoria contextual por usuario\n\n` +
+            `**Tip:** ¡Usa los botones 🍄 en cada visualizador!`;
         
-        if (!confirmed) {
+        displayMessage(helpText);
+    }
+    
+    // Función para limpiar memoria del usuario
+    async function clearUserMemory() {
+        // Confirmar acción con el usuario
+        if (!confirm('⚠️ ¿Estás seguro de que quieres limpiar toda tu memoria genómica?\n\nEsto eliminará:\n- Todas las imágenes analizadas\n- Todos los reportes generados\n- Todo el historial de chat\n\nEsta acción NO se puede deshacer.')) {
             return;
         }
         
-        const loadingMessage = displayMessage('Borrando tu memoria genómica...', false, true);
+        const loadingMessage = displayMessage('🗑️ Limpiando tu memoria genómica...', false, true);
         
         try {
             const response = await fetch(`${drFungitoUrl}/clear-memory`, {
@@ -338,89 +452,98 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             if (!response.ok) {
-                throw new Error('Error al borrar memoria');
+                throw new Error('Error al limpiar memoria');
             }
             
+            const result = await response.json();
             loadingMessage.remove();
             
-            // Limpiar el chat local también
-            const messagesContainer = chatMessages;
-            // Mantener solo el mensaje inicial de bienvenida
-            const welcomeMessage = messagesContainer.children[0];
-            messagesContainer.innerHTML = '';
-            messagesContainer.appendChild(welcomeMessage);
+            // Limpiar el chat visual también
+            chatMessages.innerHTML = `
+                <div class="flex items-start space-x-2">
+                    <img src="/images/DrFungito.png" alt="Dr. Fungito" class="w-8 h-8 rounded-full object-cover flex-shrink-0" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0 hidden">🍄</div>
+                    <div class="theme-bg-primary p-3 rounded-lg theme-theme-shadow-light-light border theme-border max-w-xs">
+                        <p class="text-sm theme-text-primary">¡Hola! Soy Dr. Fungito con IA avanzada. Puedo analizar tus gráficos genómicos, generar reportes detallados y responder preguntas especializadas sobre hongos. ¿En qué puedo ayudarte?</p>
+                    </div>
+                </div>
+            `;
             
-            displayMessage('🗑️ **Memoria borrada exitosamente**\n\n✅ Todas tus imágenes analizadas han sido eliminadas\n✅ Todos los reportes generados han sido eliminados\n✅ El historial de chat ha sido limpiado\n\n🔄 Puedes comenzar de nuevo con análisis frescos.');
+            const successText = `✅ **Memoria limpiada exitosamente**\n\n` +
+                `🗑️ **Eliminado:**\n` +
+                `📷 ${result.previousStats?.images || 0} imágenes\n` +
+                `📄 ${result.previousStats?.reports || 0} reportes\n` +
+                `💬 ${result.previousStats?.chats || 0} mensajes de chat\n\n` +
+                `🆕 **Estado:** Memoria reiniciada\n` +
+                `¡Listo para nuevos análisis!`;
+            
+            displayMessage(successText);
             
         } catch (error) {
             loadingMessage.remove();
-            displayMessage('❌ Error al borrar memoria. Intenta nuevamente o verifica la conexión con el agente IA.');
+            displayMessage('❌ **Error al limpiar memoria**\n\nNo se pudo conectar con el agente IA. Verifica que el servicio esté funcionando.');
         }
     }
     
-    // Función para mostrar ayuda
-    function showHelp() {
-        const helpText = `🤖 **Dr. Fungito AI - Ayuda:**\n\n` +
-            `**Comandos disponibles:**\n` +
-            `• "¿generar reporte?" - Crear reporte detallado\n` +
-            `• "mostrar memoria" - Ver análisis anteriores\n` +
-            `• "analizar [tipo]" - Información sobre análisis\n\n` +
-            `**Capacidades:**\n` +
-            `🔬 Análisis automático de gráficos genómicos\n` +
-            `📊 Interpretación de resultados BinDash, anotaciones, etc.\n` +
-            `📄 Generación de reportes inteligentes\n` +
-            `🧠 Memoria contextual por usuario\n\n` +
-            `**Tip:** Usa los botones en cada visualizador para análisis directo!`;
+    // Función para mostrar mensajes en el chat
+    function displayMessage(content, isUser = false, isLoading = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'flex items-start space-x-2';
         
-        displayMessage(helpText);
+        if (isUser) {
+            messageDiv.className += ' flex-row-reverse space-x-reverse';
+            messageDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">U</div>
+                <div class="bg-blue-500 text-white p-3 rounded-lg max-w-xs">
+                    <p class="text-sm">${content}</p>
+                </div>
+            `;
+        } else {
+            const loadingIcon = isLoading ? '<div class="loading-spinner w-4 h-4 border-2 border-gray-300 border-t-green-500 rounded-full animate-spin inline-block mr-2"></div>' : '';
+            const renderedContent = isLoading ? content : renderMarkdown(content);
+            
+            messageDiv.innerHTML = `
+                <img src="/images/DrFungito.png" alt="Dr. Fungito" class="w-8 h-8 rounded-full object-cover flex-shrink-0" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0 hidden">🍄</div>
+                <div class="theme-bg-primary p-3 rounded-lg theme-theme-shadow-light-light border theme-border max-w-xs">
+                    <div class="text-sm theme-text-primary markdown-content">
+                        ${loadingIcon}${renderedContent}
+                    </div>
+                </div>
+            `;
+        }
+        
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        return messageDiv;
     }
-
-    // Función para enviar mensaje
+    
+    // Función para enviar mensajes
     async function handleSendMessage() {
         const message = userInput.value.trim();
         if (!message) return;
-
-        // Deshabilitar input mientras se procesa
-        sendButton.disabled = true;
-        userInput.disabled = true;
-
+        
         // Mostrar mensaje del usuario
         displayMessage(message, true);
         userInput.value = '';
-
-        // Verificar si es un comando especial
-        const lowerMessage = message.toLowerCase();
-        if (lowerMessage.includes('debug')) {
-            // Rehabilitar input
-            sendButton.disabled = false;
-            userInput.disabled = false;
-            userInput.focus();
-            
-            // Verificar si es debug de reporte específico
-            const reportIdMatch = message.match(/debug\s+([a-f0-9-]{36})/i);
-            if (reportIdMatch) {
-                const reportId = reportIdMatch[1];
-                await debugSpecificReport(reportId);
-                return;
-            }
-            
-            // Si no es específico, mostrar debug general
-            if (lowerMessage.includes('reporte')) {
-                await showReportsDebug();
-                return;
-            }
-            
-            // Mostrar ayuda de debug
-            displayMessage('🔧 **Comandos de Debug disponibles:**\n\n' +
-                '• `debug reportes` - Ver todos los reportes\n' +
-                '• `debug [ID-REPORTE]` - Debug específico de un reporte\n' +
-                '• `debug cd57000a-5dd8-4a6a-9dff-0584bba7c75b` - Ejemplo con ID específico');
-            return;
-        }
-
+        
+        // Deshabilitar input mientras se procesa
+        sendButton.disabled = true;
+        userInput.disabled = true;
+        
         // Mostrar indicador de carga
-        const loadingMessage = displayMessage('Analizando tu consulta...', false, true);
-
+        const loadingMessage = document.createElement('div');
+        loadingMessage.className = 'flex items-start space-x-2';
+        loadingMessage.innerHTML = `
+            <img src="/images/DrFungito.png" alt="Dr. Fungito" class="w-8 h-8 rounded-full object-cover flex-shrink-0" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0 hidden">🍄</div>
+            <div class="theme-bg-primary p-3 rounded-lg theme-theme-shadow-light-light border theme-border max-w-xs">
+                <div class="text-sm theme-text-primary">🤔 Pensando...</div>
+            </div>
+        `;
+        chatMessages.appendChild(loadingMessage);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
         try {
             // Enviar a Dr. Fungito AI Agent
             const response = await fetch(`${drFungitoUrl}/chat`, {
@@ -462,105 +585,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Función para mostrar debug de reportes
-    async function showReportsDebug() {
-        const loadingMessage = displayMessage('Obteniendo información de debug...', false, true);
-        
-        try {
-            const response = await fetch(`${drFungitoUrl}/debug/reports`, {
-                headers: {
-                    'X-User-Id': getUserId()
-                }
-            });
-            
-            if (!response.ok) {
-                throw new Error('Error al obtener debug');
-            }
-            
-            const debugData = await response.json();
-            loadingMessage.remove();
-            
-            const debugText = `🔧 **Debug de Reportes:**\n\n` +
-                `👤 **Usuario:** ${debugData.userId}\n` +
-                `📄 **Total de reportes:** ${debugData.totalReports}\n\n` +
-                `**Reportes disponibles:**\n` +
-                debugData.reports.map(report => 
-                    `📄 **${report.title}**\n` +
-                    `   ID: ${report.reportId}\n` +
-                    `   PDF: ${report.pdfAvailable ? '✅ Disponible' : '❌ No disponible'}\n` +
-                    `   Imágenes: ${report.imageCount}\n` +
-                    `   Descargas: ${report.downloadCount}\n` +
-                    `   Fecha: ${new Date(report.createdAt).toLocaleDateString()}\n`
-                ).join('\n');
-            
-            displayMessage(debugText);
-            
-        } catch (error) {
-            loadingMessage.remove();
-            displayMessage('❌ Error al obtener información de debug. Revisa la conexión con el agente IA.');
-        }
-    }
-    
-    // Función para debug de reporte específico
-    async function debugSpecificReport(reportId) {
-        const loadingMessage = displayMessage(`Debugeando reporte ${reportId}...`, false, true);
-        
-        try {
-            const response = await fetch(`${drFungitoUrl}/debug/report/${reportId}`, {
-                headers: {
-                    'X-User-Id': getUserId()
-                }
-            });
-            
-            if (!response.ok) {
-                throw new Error('Error al obtener debug del reporte');
-            }
-            
-            const debugData = await response.json();
-            loadingMessage.remove();
-            
-            const report = debugData.report;
-            const debugText = `🔧 **Debug del Reporte: ${report.title}**\n\n` +
-                `🆔 **ID:** ${report.reportId}\n` +
-                `📄 **Título:** ${report.title}\n` +
-                `📊 **Tipo:** ${report.type}\n` +
-                `🖼️ **Imágenes:** ${report.imageCount}\n` +
-                `🔬 **Análisis:** ${report.analysisTypes.join(', ')}\n` +
-                `📅 **Creado:** ${new Date(report.createdAt).toLocaleString()}\n` +
-                `📥 **Descargas:** ${report.downloadCount}\n` +
-                `🔗 **URL:** ${report.downloadUrl}\n\n` +
-                `**Estado del PDF:**\n` +
-                `📁 **Ruta:** ${report.pdfPath}\n` +
-                `✅ **Existe:** ${report.debug.pdfExists ? 'Sí' : 'No'}\n` +
-                `📏 **Tamaño:** ${report.debug.pdfSize ? (report.debug.pdfSize / 1024).toFixed(2) + ' KB' : 'N/A'}\n` +
-                `🕐 **Modificado:** ${report.debug.pdfModified ? new Date(report.debug.pdfModified).toLocaleString() : 'N/A'}\n\n` +
-                `**Diagnóstico:**\n` +
-                `${report.debug.pdfExists ? 
-                    '✅ El archivo PDF existe y debería funcionar la descarga' : 
-                    '❌ El archivo PDF no existe - esto explica el problema de descarga'}\n\n` +
-                `**Enlace de descarga:**\n` +
-                `🔗 <a href="${drFungitoUrl}${report.downloadUrl}" target="_blank" style="color: #10b981; text-decoration: underline; font-weight: bold;">📥 Intentar Descarga</a>`;
-            
-            displayMessage(debugText);
-            
-        } catch (error) {
-            loadingMessage.remove();
-            displayMessage('❌ Error al obtener debug del reporte específico. Revisa la conexión con el agente IA.');
-        }
-    }
-    
-    // Función para generar respuestas locales (fallback)
+    // Función para generar respuestas locales cuando el agente no está disponible
     function generateLocalResponse(message) {
         const lowerMessage = message.toLowerCase();
         
-        if (lowerMessage.includes('reporte') || lowerMessage.includes('report')) {
-            return '📄 Para generar un reporte detallado, usa los botones "Analizar Gráficos" en cualquier módulo del visualizador, luego haz clic en "Generar Reporte". También puedes usar el botón "📄 Generar reporte" arriba.';
-        } else if (lowerMessage.includes('memoria') || lowerMessage.includes('memory')) {
-            return '🧠 Tu memoria contiene todos los análisis de imágenes que hayas realizado. Usa el botón "📊 Ver mi memoria" para consultar tu historial de análisis.';
-        } else if (lowerMessage.includes('eggnog') || lowerMessage.includes('anotación')) {
-            return '🔬 Para análisis de anotaciones con eggNOG-mapper, usa el módulo "Visualizador de Anotaciones" y luego analiza los gráficos con Dr. Fungito AI.';
-        } else if (lowerMessage.includes('bindash') || lowerMessage.includes('distancia')) {
-            return '🧬 BinDash es excelente para comparaciones genómicas. Usa el "Visualizador BinDash" y luego el análisis IA para interpretación automática de matrices de distancia.';
+        if (lowerMessage.includes('hola') || lowerMessage.includes('buenas')) {
+            return '🍄 ¡Hola! Soy Dr. Fungito AI. Conecta el agente en puerto 4009 para análisis inteligente completo.';
+        } else if (lowerMessage.includes('reporte')) {
+            return '📄 Para generar reportes necesito estar conectado al agente IA. Verifica que el servicio esté ejecutándose.';
+        } else if (lowerMessage.includes('memoria')) {
+            return '🧠 La memoria contextual requiere conexión al agente IA. Inicia el servicio Dr. Fungito.';
         } else {
             return '🤖 Dr. Fungito AI no está disponible. Conecta el agente en puerto 4009 para análisis inteligente de imágenes, generación automática de reportes y chat contextual avanzado.';
         }
@@ -585,12 +619,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Cerrar al hacer clic fuera
-    document.addEventListener('click', (e) => {
-        if (!drFungitoPanel.contains(e.target) && !drFungitoButton.contains(e.target)) {
-            drFungitoPanel.classList.add('hidden');
-        }
-    });
+    // ELIMINADO: El auto-close que causaba problemas
+    // Ya no se cierra automáticamente al hacer clic fuera
     
     // Verificar conexión periódicamente
     setInterval(checkConnectionStatus, 30000); // Cada 30 segundos
@@ -642,39 +672,22 @@ document.addEventListener('DOMContentLoaded', function() {
             return result;
             
         } catch (error) {
-            console.error('Error al enviar imagen al Dr. Fungito:', error);
+            console.error('Error al enviar imagen a Dr. Fungito:', error);
             
+            // Mostrar error
             if (window.Swal) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'No se pudo enviar la imagen al Dr. Fungito. Verifica la conexión.',
-                    confirmButtonColor: '#10b981'
+                    text: 'No se pudo enviar la imagen a Dr. Fungito. Verifica que el agente esté funcionando.',
+                    toast: true,
+                    position: 'top-end',
+                    timer: 3000,
+                    showConfirmButton: false
                 });
             }
             
             throw error;
-        }
-    };
-    
-    // Función para obtener historial de chat
-    window.getDrFungitoHistory = async function() {
-        try {
-            const response = await fetch(`${drFungitoUrl}/chat-history?limit=10`, {
-                headers: {
-                    'X-User-Id': getUserId()
-                }
-            });
-            
-            if (!response.ok) {
-                throw new Error('Error al obtener historial');
-            }
-            
-            return await response.json();
-            
-        } catch (error) {
-            console.error('Error al obtener historial:', error);
-            return { history: [], totalChats: 0 };
         }
     };
 });

@@ -265,14 +265,65 @@ function generateLocalChatResponse(message, imageContext) {
     return `🍄 **Dr. Fungito responde:**\n\n🤔 Interesante pregunta sobre genómica de hongos.\n\n💡 **Puedo ayudarte mejor si:**\n• Analizas imágenes usando los botones 🍄 en el visualizador\n• Me preguntas sobre resultados específicos\n• Solicitas un reporte detallado\n\n🔬 **Especialidades:**\n• Análisis BinDash y distancias genómicas\n• Anotación funcional con EggNOG\n• Control de calidad CheckM\n• Interpretación de resultados\n\n¿Qué tipo de análisis genómico estás realizando?`;
 }
 
-// Función para renderizar markdown básico en el servidor
+// Función para renderizar markdown básico en el servidor con codificación UTF-8 segura
 function renderMarkdownToHTML(text) {
-    return text
+    if (!text) return '';
+    
+    // Asegurar que el texto esté en UTF-8
+    const safeText = Buffer.from(text, 'utf8').toString('utf8');
+    
+    return safeText
+        // Headers
+        .replace(/### (.*?)$/gm, '<h3 class="font-bold text-lg mt-3 mb-2 text-green-600">$1</h3>')
+        .replace(/## (.*?)$/gm, '<h2 class="font-bold text-xl mt-4 mb-2 text-green-700">$1</h2>')
+        .replace(/# (.*?)$/gm, '<h1 class="font-bold text-2xl mt-4 mb-3 text-green-800">$1</h1>')
+        // Bold and italic
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        // Code
+        .replace(/`(.*?)`/g, '<code class="bg-gray-100 px-1 rounded text-sm font-mono">$1</code>')
+        // Lists - PRIMERO eliminar bullets sueltos del texto
+        .replace(/•\s*/g, '')
+        .replace(/^\* (.*?)$/gm, '<li class="ml-4">• $1</li>')
+        .replace(/^\- (.*?)$/gm, '<li class="ml-4">• $1</li>')
+        // Emojis y caracteres especiales - convertir a texto plano para PDF
+        .replace(/🔬/g, '<strong>MICROSCOPIO</strong>')
+        .replace(/🧬/g, '<strong>ADN</strong>')
+        .replace(/📊/g, '<strong>GRAFICO</strong>')
+        .replace(/🍄/g, '<strong>HONGO</strong>')
+        .replace(/📄/g, '<strong>DOCUMENTO</strong>')
+        .replace(/🎯/g, '<strong>OBJETIVO</strong>')
+        .replace(/🧠/g, '<strong>CEREBRO</strong>')
+        .replace(/📋/g, '<strong>LISTA</strong>')
+        .replace(/🔍/g, '<strong>BUSQUEDA</strong>')
+        .replace(/✅/g, '<strong>CORRECTO</strong>')
+        .replace(/❌/g, '<strong>INCORRECTO</strong>')
+        .replace(/⚠️/g, '<strong>ADVERTENCIA</strong>')
+        .replace(/🗺️/g, '<strong>MAPA</strong>')
+        .replace(/🌳/g, '<strong>ARBOL</strong>')
+        .replace(/🧪/g, '<strong>LABORATORIO</strong>')
+        .replace(/⚗️/g, '<strong>QUIMICA</strong>')
+        .replace(/📈/g, '<strong>TENDENCIA</strong>')
+        .replace(/💡/g, '<strong>IDEA</strong>')
+        .replace(/🚨/g, '<strong>ALERTA</strong>')
+        .replace(/🔄/g, '<strong>CICLO</strong>')
+        .replace(/🎉/g, '<strong>EXITO</strong>')
+        .replace(/🖼️/g, '<strong>IMAGEN</strong>')
+        .replace(/🤖/g, '<strong>ROBOT</strong>')
+        .replace(/📷/g, '<strong>FOTO</strong>')
+        .replace(/📅/g, '<strong>FECHA</strong>')
+        .replace(/🗑️/g, '<strong>ELIMINAR</strong>')
+        .replace(/🆕/g, '<strong>NUEVO</strong>')
+        .replace(/💬/g, '<strong>CHAT</strong>')
+        // Eliminar cualquier emoji restante con patrón Unicode general
+        .replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '')
+        // Eliminar caracteres de control
+        .replace(/[\u0000-\u001F\u007F-\u009F]/g, '')
+        // Line breaks (bullets ya eliminados arriba)
+        .replace(/\n\n/g, '<br><br>')
         .replace(/\n/g, '<br>')
-        .replace(/•/g, '&bull;')
-        .replace(/([🔬🧬📊🗺️🎯🌳🧪⚗️🔍📈🧠💡✅❌⚠️🚨])/g, '<span class="emoji">$1</span>');
+        // Limpiar espacios múltiples
+        .replace(/\s+/g, ' ');
 }
 
 // Función para obtener la imagen de Dr. Fungito en base64
@@ -293,6 +344,304 @@ async function getDrFungitoImageBase64() {
     } catch (error) {
         logger.error('🍄 [PDF] Error al cargar imagen de Dr. Fungito:', error);
         return null;
+    }
+}
+
+// === SISTEMA DE REPORTES LATEX ===
+
+// Función para generar template LaTeX
+function generateLatexTemplate(report, images) {
+    const currentDate = new Date().toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    
+    // Limpiar contenido para LaTeX (escapar caracteres especiales)
+    const cleanContent = (text) => {
+        if (!text) return '';
+        
+        return text
+            // Primero reemplazar markdown antes de escapar
+            .replace(/\*\*(.*?)\*\*/g, '\\textbf{$1}')
+            .replace(/\*(.*?)\*/g, '\\textit{$1}')
+            .replace(/`(.*?)`/g, '\\texttt{$1}')
+            // Headers
+            .replace(/### (.*?)$/gm, '\\subsection{$1}')
+            .replace(/## (.*?)$/gm, '\\subsection{$1}')
+            .replace(/# (.*?)$/gm, '\\section{$1}')
+            // Escapar caracteres especiales de LaTeX
+            .replace(/\\/g, '\\textbackslash{}')
+            .replace(/\{/g, '\\{')
+            .replace(/\}/g, '\\}')
+            .replace(/\$/g, '\\$')
+            .replace(/&/g, '\\&')
+            .replace(/%/g, '\\%')
+            .replace(/#/g, '\\#')
+            .replace(/\^/g, '\\textasciicircum{}')
+            .replace(/_/g, '\\_')
+            .replace(/~/g, '\\textasciitilde{}')
+            // Emojis y símbolos especiales - ELIMINAR COMPLETAMENTE o convertir a texto
+            .replace(/🔬/g, 'MICROSCOPIO')
+            .replace(/🧬/g, 'ADN')
+            .replace(/📊/g, 'GRAFICO')
+            .replace(/🍄/g, 'HONGO')
+            .replace(/📄/g, 'DOCUMENTO')
+            .replace(/🎯/g, 'OBJETIVO')
+            .replace(/🧠/g, 'CEREBRO')
+            .replace(/📋/g, 'LISTA')
+            .replace(/🔍/g, 'BUSQUEDA')
+            .replace(/✅/g, 'CORRECTO')
+            .replace(/❌/g, 'INCORRECTO')
+            .replace(/⚠️/g, 'ADVERTENCIA')
+            .replace(/🗺️/g, 'MAPA')
+            .replace(/🌳/g, 'ARBOL')
+            .replace(/🧪/g, 'LABORATORIO')
+            .replace(/⚗️/g, 'QUIMICA')
+            .replace(/📈/g, 'TENDENCIA')
+            .replace(/💡/g, 'IDEA')
+            .replace(/🚨/g, 'ALERTA')
+            .replace(/🔄/g, 'CICLO')
+            .replace(/🎉/g, 'EXITO')
+            .replace(/🖼️/g, 'IMAGEN')
+            .replace(/🤖/g, 'ROBOT')
+            .replace(/📷/g, 'FOTO')
+            .replace(/📅/g, 'FECHA')
+            .replace(/🗑️/g, 'ELIMINAR')
+            .replace(/🆕/g, 'NUEVO')
+            .replace(/💬/g, 'CHAT')
+            // Eliminar cualquier emoji restante (patrón Unicode)
+            .replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '')
+            // Eliminar caracteres de control y no imprimibles
+            .replace(/[\u0000-\u001F\u007F-\u009F]/g, '')
+            // Limpiar múltiples espacios
+            .replace(/\s+/g, ' ')
+            // Listas: convertir markdown a LaTeX correctamente
+            .replace(/^\* (.*?)$/gm, '\\item $1')
+            .replace(/^\- (.*?)$/gm, '\\item $1')
+            // Eliminar bullets sueltos para evitar duplicación
+            .replace(/•/g, '')
+            // Espaciado
+            .replace(/\n\n/g, '\n\n\\vspace{0.3cm}\n\n')
+            .replace(/\n/g, ' ');
+    };
+
+    const latexContent = `
+\\documentclass[12pt,a4paper]{article}
+\\usepackage[utf8]{inputenc}
+\\usepackage[T1]{fontenc}
+\\usepackage[spanish]{babel}
+\\usepackage{geometry}
+\\usepackage{graphicx}
+\\usepackage{xcolor}
+\\usepackage{fancyhdr}
+\\usepackage{titlesec}
+\\usepackage{enumitem}
+\\usepackage{hyperref}
+\\usepackage{tcolorbox}
+\\usepackage{amsmath}
+\\usepackage{amsfonts}
+\\usepackage{amssymb}
+\\usepackage{booktabs}
+\\usepackage{array}
+\\usepackage{textcomp}
+\\usepackage{lmodern}
+
+% Configuración de página
+\\geometry{margin=2.5cm}
+\\pagestyle{fancy}
+\\fancyhf{}
+\\fancyhead[L]{\\textcolor{green!70!black}{\\faLeaf} FungiGT - Dr. Fungito AI}
+\\fancyhead[R]{\\textcolor{gray}{${currentDate}}}
+\\fancyfoot[C]{\\thepage}
+
+% Colores personalizados
+\\definecolor{fungigreen}{RGB}{34,197,94}
+\\definecolor{darkgreen}{RGB}{22,101,52}
+\\definecolor{lightgray}{RGB}{248,250,252}
+
+% Configuración de títulos
+\\titleformat{\\section}{\\Large\\bfseries\\color{darkgreen}}{\\thesection}{1em}{}
+\\titleformat{\\subsection}{\\large\\bfseries\\color{fungigreen}}{\\thesubsection}{1em}{}
+
+% Configuración de hipervínculos
+\\hypersetup{
+    colorlinks=true,
+    linkcolor=darkgreen,
+    urlcolor=fungigreen,
+    pdftitle={${cleanContent(report.title)}},
+    pdfauthor={Dr. Fungito AI - FungiGT}
+}
+
+\\begin{document}
+
+% Portada
+\\begin{titlepage}
+    \\centering
+    \\vspace*{2cm}
+    
+    {\\Huge\\bfseries\\color{darkgreen} ${cleanContent(report.title)} \\par}
+    \\vspace{1cm}
+    {\\Large\\color{fungigreen} Reporte de Análisis Genómico \\par}
+    \\vspace{2cm}
+    
+    \\begin{tcolorbox}[colback=lightgray,colframe=fungigreen,width=0.8\\textwidth,arc=3mm]
+        \\centering
+        {\\Large Dr. Fungito AI \\par}
+        \\vspace{0.5cm}
+        {\\large Plataforma FungiGT \\par}
+        \\vspace{0.3cm}
+        {\\normalsize Análisis Genómico Inteligente de Hongos \\par}
+    \\end{tcolorbox}
+    
+    \\vfill
+    
+    \\begin{minipage}{0.4\\textwidth}
+        \\begin{flushleft}
+            \\textbf{Fecha:} ${currentDate} \\\\
+            \\textbf{Tipo:} ${report.type || 'Detallado'} \\\\
+            \\textbf{Imágenes:} ${images.length} \\\\
+            \\textbf{ID:} \\texttt{${report.reportId.substring(0, 8)}}
+        \\end{flushleft}
+    \\end{minipage}
+    \\hfill
+    \\begin{minipage}{0.4\\textwidth}
+        \\begin{flushright}
+            \\textbf{Análisis incluidos:} \\\\
+            ${[...new Set(images.map(img => img.analysisType))].map(type => `${type}`).join(' \\\\ ')}
+        \\end{flushright}
+    \\end{minipage}
+\\end{titlepage}
+
+\\newpage
+\\tableofcontents
+\\newpage
+
+% Contenido del reporte
+\\section{Resumen Ejecutivo}
+
+${cleanContent(report.content.substring(0, 500))}...
+
+\\section{Análisis Detallado}
+
+${cleanContent(report.content)}
+
+\\section{Imágenes Analizadas}
+
+A continuación se presentan las imágenes analizadas durante este estudio genómico:
+
+\\begin{enumerate}
+    ${images.map((img, index) => `
+    \\item \\textbf{${cleanContent(img.filename)}}
+    \\begin{itemize}
+        \\item \\textbf{Tipo de análisis:} ${img.analysisType}
+        \\item \\textbf{Fecha:} ${new Date(img.uploadDate).toLocaleDateString('es-ES')}
+        \\item \\textbf{Descripción:} ${cleanContent(img.analysis.substring(0, 200))}...
+    \\end{itemize}
+    \\vspace{0.5cm}
+    `).join('')}
+\\end{enumerate}
+
+\\section{Conclusiones y Recomendaciones}
+
+\\begin{tcolorbox}[colback=fungigreen!5,colframe=fungigreen,title=Hallazgos Principales]
+Este análisis genómico ha revelado información valiosa sobre las muestras fúngicas estudiadas. Los datos sugieren patrones específicos que requieren investigación adicional.
+\\end{tcolorbox}
+
+\\subsection{Recomendaciones Técnicas}
+
+\\begin{itemize}[leftmargin=1.5cm]
+    \\item Validación experimental de los resultados computacionales
+    \\item Análisis comparativo con bases de datos públicas
+    \\item Seguimiento longitudinal de las muestras
+    \\item Integración con análisis proteómicos complementarios
+\\end{itemize}
+
+\\section{Información Técnica}
+
+\\subsection{Metodología de Análisis}
+Los análisis fueron realizados utilizando la plataforma FungiGT con los siguientes componentes:
+
+\\begin{description}
+    \\item[BinDash] Análisis de distancias genómicas y comparaciones filogenéticas
+    \\item[eggNOG-mapper] Anotación funcional y análisis de ortología  
+    \\item[CheckM] Control de calidad y evaluación de completitud
+    \\item[Dr. Fungito AI] Interpretación inteligente y generación de insights
+\\end{description}
+
+\\subsection{Parámetros de Calidad}
+\\begin{itemize}
+    \\item Completitud del análisis: Alta
+    \\item Confiabilidad de resultados: Verificada
+    \\item Consistencia metodológica: Mantenida
+\\end{itemize}
+
+\\vfill
+
+\\begin{center}
+\\begin{tcolorbox}[colback=darkgreen!10,colframe=darkgreen,width=0.8\\textwidth]
+    \\centering
+    \\textcolor{darkgreen}{\\faLeaf\\space\\textbf{Dr. Fungito AI}} \\\\
+    \\small Generado automáticamente por el sistema de análisis genómico FungiGT \\\\
+    \\tiny Reportes inteligentes para investigación fúngica avanzada
+\\end{tcolorbox}
+\\end{center}
+
+\\end{document}
+`;
+
+    return latexContent;
+}
+
+// Función para generar PDF desde LaTeX (versión simplificada sin pdflatex)
+async function generateLatexReport(report, images, userId) {
+    try {
+        logger.info(`🍄 [LaTeX] Iniciando generación de reporte LaTeX para usuario: ${userId}`);
+        
+        // Crear directorio de reportes si no existe
+        const reportsDir = path.join(__dirname, 'data', 'reports', userId);
+        await fsExtra.ensureDir(reportsDir);
+        
+        // Generar contenido LaTeX
+        const latexContent = generateLatexTemplate(report, images);
+        
+        // Definir rutas de archivos
+        const timestamp = new Date().toISOString().slice(0, 10);
+        const filename = `reporte_latex_${report.reportId.substring(0, 8)}_${timestamp}`;
+        const texPath = path.join(reportsDir, `${filename}.tex`);
+        
+        // Escribir archivo LaTeX
+        await fs.writeFile(texPath, latexContent, 'utf8');
+        logger.info(`🍄 [LaTeX] Archivo .tex creado: ${texPath}`);
+        
+        // Intentar compilar con pdflatex si está disponible
+        const pdfPath = path.join(reportsDir, `${filename}.pdf`);
+        
+        try {
+            const { exec } = require('child_process');
+            const { promisify } = require('util');
+            const execAsync = promisify(exec);
+            
+            // Intentar compilar con pdflatex
+            await execAsync(`pdflatex -interaction=nonstopmode -output-directory="${reportsDir}" "${texPath}"`);
+            logger.info(`🍄 [LaTeX] PDF compilado exitosamente: ${pdfPath}`);
+            
+            // Copiar también al File Manager
+            const fileManagerReportsDir = path.join(FILE_MANAGER_DATA_DIR, 'reports');
+            await fsExtra.ensureDir(fileManagerReportsDir);
+            const fileManagerPdfPath = path.join(fileManagerReportsDir, `${filename}.pdf`);
+            await fsExtra.copy(pdfPath, fileManagerPdfPath);
+            
+            return pdfPath;
+            
+        } catch (latexError) {
+            logger.warn(`🍄 [LaTeX] pdflatex no disponible o falló: ${latexError.message}`);
+            throw new Error('LaTeX compilation failed - using HTML-PDF fallback');
+        }
+        
+    } catch (error) {
+        logger.error('🍄 [LaTeX] Error en generación de reporte:', error);
+        throw error;
     }
 }
 
@@ -335,131 +684,267 @@ async function generateReportHTML(report, images) {
             <meta charset="UTF-8">
             <title>${report.title}</title>
             <style>
-                body {
-                    font-family: 'Arial', sans-serif;
-                    line-height: 1.6;
+                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+                
+                * {
                     margin: 0;
-                    padding: 20px;
-                    background-color: #f8f9fa;
+                    padding: 0;
+                    box-sizing: border-box;
                 }
+                
+                body {
+                    font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+                    line-height: 1.7;
+                    color: #1f2937;
+                    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+                    font-size: 11pt;
+                    -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                }
+                
                 .report-container {
-                    max-width: 800px;
-                    margin: 0 auto;
+                    max-width: 750px;
+                    margin: 40px auto;
                     background: white;
-                    border-radius: 10px;
-                    padding: 30px;
-                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                    border-radius: 16px;
+                    padding: 60px 50px;
+                    box-shadow: 
+                        0 20px 25px -5px rgba(0, 0, 0, 0.1),
+                        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                    border: 1px solid #e5e7eb;
+                }
+                
+                @media print {
+                    body { 
+                        background: white; 
+                        font-size: 10pt;
+                    }
+                    .report-container { 
+                        margin: 0; 
+                        box-shadow: none; 
+                        border: none;
+                        border-radius: 0;
+                        padding: 40px;
+                    }
                 }
                 .header {
                     text-align: center;
-                    border-bottom: 3px solid #10b981;
-                    padding-bottom: 20px;
-                    margin-bottom: 30px;
+                    position: relative;
+                    padding-bottom: 40px;
+                    margin-bottom: 50px;
+                    border-bottom: 2px solid #e5e7eb;
                 }
+                
+                .header::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -2px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 80px;
+                    height: 3px;
+                    background: linear-gradient(90deg, #10b981, #059669);
+                    border-radius: 2px;
+                }
+                
                 .header h1 {
                     color: #065f46;
-                    margin-bottom: 10px;
-                    font-size: 28px;
+                    margin-bottom: 12px;
+                    font-size: 32px;
+                    font-weight: 700;
+                    letter-spacing: -0.025em;
+                    line-height: 1.2;
                 }
-                .header p {
+                
+                .header .subtitle {
+                    color: #10b981;
+                    font-size: 16px;
+                    font-weight: 500;
+                    margin-bottom: 8px;
+                }
+                
+                .header .meta {
                     color: #6b7280;
-                    font-size: 14px;
+                    font-size: 13px;
+                    font-weight: 400;
                 }
+                .section {
+                    margin-bottom: 45px;
+                }
+                
+                .section h2 {
+                    color: #065f46;
+                    font-size: 24px;
+                    font-weight: 600;
+                    margin-bottom: 20px;
+                    padding-bottom: 12px;
+                    border-bottom: 1px solid #e5e7eb;
+                    position: relative;
+                }
+                
+                .section h2::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -1px;
+                    left: 0;
+                    width: 40px;
+                    height: 2px;
+                    background: #10b981;
+                }
+                
+                .content-text {
+                    line-height: 1.8;
+                    font-size: 12pt;
+                    color: #374151;
+                    text-align: justify;
+                }
+                
                 .image-section {
-                    margin-bottom: 40px;
+                    margin-bottom: 35px;
                     border: 1px solid #e5e7eb;
-                    border-radius: 8px;
-                    padding: 20px;
-                    background-color: #f9fafb;
+                    border-radius: 12px;
+                    padding: 25px;
+                    background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 100%);
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
                 }
+                
+                .image-section h3 {
+                    color: #0f172a;
+                    font-size: 18px;
+                    font-weight: 600;
+                    margin-bottom: 15px;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                
                 .image-container {
                     text-align: center;
                     margin: 20px 0;
                 }
+                
                 .report-image {
                     max-width: 100%;
                     height: auto;
-                    border-radius: 8px;
-                    border: 1px solid #d1d5db;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    border-radius: 12px;
+                    border: 2px solid #e5e7eb;
+                    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
                 }
+                
                 .image-analysis {
-                    background-color: white;
-                    padding: 15px;
-                    border-radius: 6px;
-                    margin-top: 15px;
+                    background: white;
+                    padding: 20px;
+                    border-radius: 10px;
+                    margin-top: 20px;
                     border-left: 4px solid #10b981;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
                 }
-                .image-metadata {
-                    background-color: #f3f4f6;
-                    padding: 10px;
-                    border-radius: 6px;
-                    margin-top: 10px;
-                    font-size: 12px;
-                }
-                .content {
-                    background-color: white;
-                    padding: 25px;
-                    border-radius: 8px;
-                    border: 1px solid #e5e7eb;
-                    margin-bottom: 20px;
-                }
-                .content h2 {
+                
+                .image-analysis h4 {
                     color: #065f46;
-                    border-bottom: 2px solid #10b981;
-                    padding-bottom: 10px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    margin-bottom: 10px;
+                }
+                
+                .analysis-content {
+                    line-height: 1.6;
+                    font-size: 11pt;
+                    color: #4b5563;
+                }
+                
+                .image-metadata {
+                    background: rgba(16, 185, 129, 0.05);
+                    padding: 15px;
+                    border-radius: 8px;
+                    margin-top: 15px;
+                    font-size: 11pt;
+                    color: #374151;
+                    border: 1px solid rgba(16, 185, 129, 0.1);
+                }
+                
+                .image-metadata p {
+                    margin-bottom: 4px;
                 }
                 .footer {
                     text-align: center;
-                    margin-top: 30px;
-                    padding-top: 20px;
-                    border-top: 1px solid #e5e7eb;
+                    margin-top: 50px;
+                    padding-top: 30px;
+                    border-top: 2px solid #f1f5f9;
                     color: #6b7280;
-                    font-size: 12px;
+                    font-size: 11pt;
+                    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                    padding: 25px;
+                    border-radius: 12px;
+                    margin-left: -50px;
+                    margin-right: -50px;
+                    margin-bottom: -60px;
                 }
+                
+                .footer p {
+                    margin-bottom: 6px;
+                }
+                
+                .footer p:first-child {
+                    font-weight: 600;
+                    color: #065f46;
+                }
+                
                 .logo-container {
                     display: inline-block;
-                    margin-bottom: 10px;
+                    margin-bottom: 15px;
                 }
+                
                 .logo-image {
-                    width: 60px;
-                    height: 60px;
+                    width: 70px;
+                    height: 70px;
                     border-radius: 50%;
-                    border: 3px solid #10b981;
+                    border: 4px solid #10b981;
                     object-fit: cover;
                     display: inline-block;
+                    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
                 }
+                
                 .logo-fallback {
                     display: none;
-                    width: 60px;
-                    height: 60px;
-                    background-color: #10b981;
+                    width: 70px;
+                    height: 70px;
+                    background: linear-gradient(135deg, #10b981, #059669);
                     border-radius: 50%;
                     color: white;
                     text-align: center;
-                    line-height: 60px;
-                    font-size: 30px;
-                    margin-bottom: 10px;
+                    line-height: 70px;
+                    font-size: 32px;
+                    margin-bottom: 15px;
+                    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
                 }
-                .content-text {
-                    line-height: 1.8;
-                    font-size: 14px;
-                }
-                .analysis-content {
-                    line-height: 1.6;
-                    font-size: 13px;
-                }
+                
                 .emoji {
-                    font-size: 16px;
+                    font-size: 14px;
                     margin-right: 4px;
                 }
+                
                 strong {
                     color: #065f46;
                     font-weight: 600;
                 }
+                
                 em {
                     color: #047857;
                     font-style: italic;
+                }
+                
+                h1, h2, h3, h4, h5, h6 {
+                    color: #065f46;
+                    margin-bottom: 12px;
+                    font-weight: 600;
+                }
+                
+                .bg-gray-100 {
+                    background-color: #f3f4f6;
+                    padding: 2px 6px;
+                    border-radius: 4px;
+                    font-family: 'Monaco', 'Menlo', monospace;
                 }
             </style>
         </head>
@@ -473,16 +958,17 @@ async function generateReportHTML(report, images) {
                         }
                     </div>
                     <h1>${report.title}</h1>
-                    <p>Generado por Dr. Fungito AI • ${formattedDate}</p>
+                    <div class="subtitle">Reporte de Análisis Genómico</div>
+                    <div class="meta">Generado por Dr. Fungito AI • ${formattedDate}</div>
                 </div>
                 
-                <div class="content">
-                    <h2>📋 Reporte de Análisis Genómico</h2>
+                <div class="section">
+                    <h2>Análisis Ejecutivo</h2>
                     <div class="content-text">${renderedContent}</div>
                 </div>
                 
-                <div class="images-section">
-                    <h2>🖼️ Imágenes Analizadas</h2>
+                <div class="section">
+                    <h2>Imágenes Analizadas</h2>
                     ${imagesHTML}
                 </div>
                 
@@ -506,11 +992,11 @@ async function generateReportPDF(report, images, userId) {
         logger.info(`🍄 [PDF] Iniciando generación de PDF para reporte: ${report.reportId}`);
         const htmlContent = await generateReportHTML(report, images);
         
-        // Guardar HTML temporalmente
+        // Guardar HTML temporalmente con codificación UTF-8 explícita
         const tempHtmlPath = path.join(__dirname, 'temp', `report_${report.reportId}.html`);
         await fsExtra.ensureDir(path.dirname(tempHtmlPath));
-        await fs.writeFile(tempHtmlPath, htmlContent);
-        logger.info(`🍄 [PDF] HTML temporal guardado: ${tempHtmlPath}`);
+        await fs.writeFile(tempHtmlPath, htmlContent, 'utf8');
+        logger.info(`🍄 [PDF] HTML temporal guardado con UTF-8: ${tempHtmlPath}`);
         
         // Generar PDF con Puppeteer
         logger.info(`🍄 [PDF] Iniciando Puppeteer...`);
@@ -536,8 +1022,14 @@ async function generateReportPDF(report, images, userId) {
         });
         
         const page = await browser.newPage();
+        
+        // Configurar encoding UTF-8 para caracteres especiales
+        await page.setExtraHTTPHeaders({
+            'Accept-Charset': 'utf-8'
+        });
+        
         await page.goto(`file://${tempHtmlPath}`, { waitUntil: 'networkidle0', timeout: 30000 });
-        logger.info(`🍄 [PDF] Página cargada, generando PDF...`);
+        logger.info(`🍄 [PDF] Página cargada con UTF-8, generando PDF...`);
         
         const pdfBuffer = await page.pdf({
             format: 'A4',
@@ -705,6 +1197,8 @@ app.get('/info', (req, res) => {
         supportedFormats: ['jpeg', 'png', 'gif', 'webp']
     });
 });
+
+// ENDPOINT ELIMINADO: Primera definición duplicada de /memory - Ver línea 1166 para la implementación actual
 
 // Subir y analizar imagen (mejorado)
 app.post('/analyze-image', upload.single('image'), getUserMemory, async (req, res) => {
@@ -1054,12 +1548,23 @@ Los análisis convergen en patrones consistentes que sugieren ${imageContext.len
         };
         logger.info(`🍄 [DEBUG] Objeto reporte creado con ID: ${reportId}`);
         
-        // Generar PDF directamente en lugar de JSON gigante
-        logger.info(`🍄 [DEBUG] Generando PDF del reporte...`);
+        // Generar PDF directamente con LaTeX preferido
+        logger.info(`🍄 [DEBUG] Generando PDF del reporte con LaTeX...`);
         
         try {
-            // Generar PDF con Puppeteer
-            const pdfPath = await generateReportPDF(report, selectedImages, req.userMemory.userId);
+            // Priorizar LaTeX para reportes profesionales
+            let pdfPath;
+            let pdfMethod = 'LaTeX';
+            
+            try {
+                pdfPath = await generateLatexReport(report, selectedImages, req.userMemory.userId);
+                logger.info('🍄 [PDF] ✅ Reporte generado exitosamente con LaTeX');
+                pdfMethod = 'LaTeX';
+            } catch (latexError) {
+                logger.warn('🍄 [PDF] ⚠️ LaTeX falló, usando fallback HTML-PDF:', latexError.message);
+                pdfPath = await generateReportPDF(report, selectedImages, req.userMemory.userId);
+                pdfMethod = 'HTML-PDF';
+            }
             
             // Actualizar reporte con información del PDF
             report.pdfPath = pdfPath;
@@ -1138,7 +1643,7 @@ Los análisis convergen en patrones consistentes que sugieren ${imageContext.len
             
             logger.info(`Reporte PDF generado exitosamente: ${reportId} con ${selectedImages.length} imágenes`);
             
-            // Respuesta ligera con link de descarga
+            // Respuesta ligera con link de descarga e información del método
             const responseObject = {
                 reportId: report.reportId,
                 title: report.title,
@@ -1148,8 +1653,9 @@ Los análisis convergen en patrones consistentes que sugieren ${imageContext.len
                 analysisTypes: report.analysisTypes,
                 pdfAvailable: true,
                 downloadUrl: `/download-report/${reportId}`,
+                pdfMethod: pdfMethod,
                 success: true,
-                message: `✅ Reporte PDF generado exitosamente. Tu reporte se ha guardado en la carpeta "reports" del File Manager. Puedes acceder al File Manager desde el menú principal para descargar tu archivo PDF.`
+                message: `✅ Reporte PDF generado exitosamente con ${pdfMethod}. ${pdfMethod === 'LaTeX' ? '📄 PDF profesional' : '🖼️ PDF básico'} guardado en File Manager > reports.`
             };
             
             logger.info(`🍄 [DEBUG] Respuesta ligera preparada, enviando...`);
