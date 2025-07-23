@@ -566,6 +566,94 @@ app.post('/extract-zip', (req, res) => {
     }
 });
 
+// Mover archivo o carpeta
+app.post('/move', (req, res) => {
+    try {
+        const { sourcePath, destinationPath, fileName } = req.body;
+        
+        if (!sourcePath || !fileName) {
+            return res.status(400).json({
+                success: false,
+                error: 'Ruta de origen y nombre de archivo requeridos'
+            });
+        }
+        
+        // Validar rutas de origen y destino
+        if (!isValidPath(sourcePath)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Ruta de origen no válida'
+            });
+        }
+        
+        if (destinationPath && !isValidPath(destinationPath)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Ruta de destino no válida'
+            });
+        }
+        
+        const fullSourcePath = path.join(DATA_DIR, sourcePath);
+        const fullDestinationPath = destinationPath ? 
+            path.join(DATA_DIR, destinationPath, fileName) : 
+            path.join(DATA_DIR, fileName);
+        
+        // Verificar que el archivo/carpeta de origen existe
+        if (!fs.existsSync(fullSourcePath)) {
+            return res.status(404).json({
+                success: false,
+                error: 'Archivo o carpeta de origen no encontrado'
+            });
+        }
+        
+        // Verificar que el directorio de destino existe
+        const destinationDir = path.dirname(fullDestinationPath);
+        if (!fs.existsSync(destinationDir)) {
+            return res.status(404).json({
+                success: false,
+                error: 'Directorio de destino no encontrado'
+            });
+        }
+        
+        // Verificar que no se está moviendo a la misma ubicación
+        if (fullSourcePath === fullDestinationPath) {
+            return res.status(400).json({
+                success: false,
+                error: 'No se puede mover un archivo a su misma ubicación'
+            });
+        }
+        
+        // Verificar que no hay conflicto de nombres en el destino
+        if (fs.existsSync(fullDestinationPath)) {
+            return res.status(409).json({
+                success: false,
+                error: 'Ya existe un archivo o carpeta con ese nombre en el destino'
+            });
+        }
+        
+        console.log(`Moviendo ${fullSourcePath} a ${fullDestinationPath}`);
+        
+        // Mover el archivo o carpeta
+        fs.moveSync(fullSourcePath, fullDestinationPath, { overwrite: false });
+        
+        console.log('Archivo movido exitosamente');
+        
+        res.json({
+            success: true,
+            message: 'Archivo movido exitosamente',
+            sourcePath: sourcePath,
+            destinationPath: destinationPath ? path.join(destinationPath, fileName) : fileName
+        });
+        
+    } catch (error) {
+        console.error('Error al mover archivo:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al mover archivo: ' + error.message
+        });
+    }
+});
+
 // ==================== ENDPOINTS LEGACY (para compatibilidad) ====================
 
 // Ruta de prueba para verificar que el servicio está funcionando

@@ -17,6 +17,7 @@
 .file-item:not(.draggable-file) {
     cursor: pointer !important;
 }
+
 </style>
 
 <div class="theme-bg-primary rounded-lg theme-shadow-light-lg border max-w-full">
@@ -194,6 +195,13 @@
         Renombrar
     </button>
     
+    <button class="w-full text-left px-3 py-2 text-sm context-menu-item flex items-center" id="contextMove">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+        </svg>
+        Mover a...
+    </button>
+    
     <button class="w-full text-left px-3 py-2 text-sm hover:bg-red-100 text-red-600 flex items-center" id="contextDelete">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -257,6 +265,58 @@
     </div>
 </div>
 
+<!-- Modal para mover archivos -->
+<div id="moveModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="theme-bg-primary p-6 rounded-lg theme-shadow-light-xl max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col">
+        <h3 class="text-lg font-semibold mb-4">Mover archivo</h3>
+        <div class="mb-4">
+            <p class="text-sm theme-text-secondary mb-2">Archivo a mover: <span id="moveFileName" class="font-medium theme-text-primary"></span></p>
+        </div>
+        
+        <div class="flex-1 overflow-hidden">
+            <div class="mb-3">
+                <label class="block text-sm font-medium theme-text-secondary mb-2">Seleccionar carpeta destino:</label>
+                <div class="flex space-x-2 mb-2">
+                    <button id="moveHomeBtn" class="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        Inicio
+                    </button>
+                    <button id="moveBackBtn" class="px-3 py-1 bg-gray-500 text-white text-sm rounded hover:bg-gray-600 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Atrás
+                    </button>
+                </div>
+                <div class="text-sm theme-text-secondary mb-2">
+                    Ruta actual: <span id="moveCurrentPath" class="font-mono">data</span>
+                </div>
+            </div>
+            
+            <div id="moveFilesList" class="border rounded-lg overflow-y-auto max-h-48 theme-bg-secondary">
+                <div class="p-4 text-center theme-text-muted">
+                    <svg class="animate-spin h-6 w-6 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p>Cargando carpetas...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex justify-end space-x-2 mt-4 pt-4 border-t">
+            <button id="cancelMoveBtn" class="bg-gray-300 theme-text-primary px-4 py-2 rounded hover:bg-gray-400 transition-colors duration-200">
+                Cancelar
+            </button>
+            <button id="confirmMoveBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors duration-200">
+                Mover aquí
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Modal para extraer ZIP -->
 <div id="extractZipModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
     <div class="theme-bg-primary p-6 rounded-lg theme-shadow-light-xl max-w-md w-full mx-4">
@@ -312,6 +372,8 @@ document.addEventListener('DOMContentLoaded', function() {
         selectedFile: null,
         serverConnected: false,
         contextMenuFile: null, // Archivo sobre el que se hizo clic derecho
+        moveModalPath: [], // Ruta actual en el modal de mover
+        fileToMove: null, // Archivo que se va a mover
         
         init: function() {
             console.log('Inicializando FileExplorer...');
@@ -358,6 +420,12 @@ document.addEventListener('DOMContentLoaded', function() {
             // Modal de extracción ZIP
             document.getElementById('confirmExtractBtn').addEventListener('click', () => this.extractZip());
             document.getElementById('cancelExtractBtn').addEventListener('click', () => this.hideExtractZipModal());
+            
+            // Modal de mover archivos
+            document.getElementById('confirmMoveBtn').addEventListener('click', () => this.moveFile());
+            document.getElementById('cancelMoveBtn').addEventListener('click', () => this.hideMoveModal());
+            document.getElementById('moveHomeBtn').addEventListener('click', () => this.moveModalNavigateToHome());
+            document.getElementById('moveBackBtn').addEventListener('click', () => this.moveModalNavigateBack());
             
             // Cerrar menú contextual al hacer clic fuera
             document.addEventListener('click', (e) => {
@@ -408,6 +476,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.hideContextMenu();
             });
             
+            document.getElementById('contextMove').addEventListener('click', () => {
+                this.showMoveModal();
+                this.hideContextMenu();
+            });
+            
             document.getElementById('contextDelete').addEventListener('click', () => {
                 this.deleteFile();
                 this.hideContextMenu();
@@ -418,6 +491,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.showExtractZipModal();
                 this.hideContextMenu();
             });
+            
             
             // Opciones para área vacía
             document.getElementById('contextNewFolder').addEventListener('click', () => {
@@ -467,6 +541,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (file.name.toLowerCase().endsWith('.zip')) {
                         extractZipOption.style.display = 'block';
                     }
+                    
                 }
             } else {
                 // Clic derecho en área vacía
@@ -765,7 +840,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Agregar evento de clic derecho
                 fileEl.addEventListener('contextmenu', (e) => this.showContextMenu(e, file));
                 
-                        // Agregar eventos de drag solo para archivos compatibles
+                        // Agregar eventos de drag para archivos visualizables
                 if (isVisualizableFile) {
                     fileEl.addEventListener('dragstart', (e) => {
                         e.dataTransfer.setData('text/plain', JSON.stringify({
@@ -1046,6 +1121,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         },
+        
         
         showError: function(message) {
             document.getElementById('filesList').innerHTML = `
@@ -1397,6 +1473,218 @@ document.addEventListener('DOMContentLoaded', function() {
                     alert('Solo se pueden extraer archivos ZIP');
                 }
             }
+        },
+        
+        moveFile: function() {
+            if (!this.fileToMove) {
+                console.error('No hay archivo para mover');
+                alert('No hay archivo seleccionado para mover');
+                return;
+            }
+            
+            const sourcePath = [...this.currentPath, this.fileToMove.name].join('/');
+            const destinationPath = this.moveModalPath.join('/');
+            
+            console.log('Moviendo archivo:');
+            console.log('  - Archivo:', this.fileToMove.name);
+            console.log('  - Desde:', sourcePath);
+            console.log('  - Hacia:', destinationPath);
+            
+            // Mostrar indicador de carga
+            const confirmBtn = document.getElementById('confirmMoveBtn');
+            const originalText = confirmBtn.innerHTML;
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = `
+                <svg class="animate-spin h-4 w-4 mr-2 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Moviendo...
+            `;
+            
+            fetch(`${this.apiUrl}/move`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sourcePath: sourcePath,
+                    destinationPath: destinationPath,
+                    fileName: this.fileToMove.name
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    this.hideMoveModal();
+                    this.loadFiles();
+                    this.clearSelection();
+                    this.showCopyNotification('✅ Archivo movido exitosamente');
+                    this.fileToMove = null; // Limpiar la referencia
+                } else {
+                    console.error('Error al mover archivo:', data.error);
+                    alert('Error al mover archivo: ' + data.error);
+                    this.fileToMove = null;
+                }
+            })
+            .catch(error => {
+                console.error('Error de conexión al mover:', error);
+                alert('Error de conexión: ' + error.message);
+                this.fileToMove = null; // Limpiar la referencia en caso de error
+            })
+            .finally(() => {
+                // Restaurar botón
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = originalText;
+                // Asegurar que la variable se limpie
+                if (!this.fileToMove) {
+                    this.fileToMove = null;
+                }
+            });
+        },
+        
+        // ===== FUNCIONALIDAD DE MOVER ARCHIVOS =====
+        
+        showMoveModal: function() {
+            const file = this.contextMenuFile || this.selectedFile;
+            if (!file) {
+                console.log('No hay archivo seleccionado para mover');
+                return;
+            }
+            
+            this.fileToMove = file;
+            this.moveModalPath = [];
+            
+            document.getElementById('moveFileName').textContent = file.name;
+            document.getElementById('moveModal').classList.remove('hidden');
+            
+            this.loadMoveModalFiles();
+        },
+        
+        hideMoveModal: function() {
+            document.getElementById('moveModal').classList.add('hidden');
+            this.fileToMove = null;
+            this.moveModalPath = [];
+        },
+        
+        loadMoveModalFiles: function() {
+            const pathStr = this.moveModalPath.join('/');
+            document.getElementById('moveCurrentPath').textContent = `data/${pathStr}`;
+            
+            // Mostrar loading
+            document.getElementById('moveFilesList').innerHTML = `
+                <div class="p-4 text-center theme-text-muted">
+                    <svg class="animate-spin h-6 w-6 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p>Cargando carpetas...</p>
+                </div>
+            `;
+            
+            // Construir URL
+            const url = pathStr ? `${this.apiUrl}/files?path=${encodeURIComponent(pathStr)}` : `${this.apiUrl}/files`;
+            
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        this.renderMoveModalFiles(data.files || []);
+                    } else {
+                        this.showMoveModalError(data.error || 'Error al cargar carpetas');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al cargar carpetas para mover:', error);
+                    this.showMoveModalError('Error de conexión: ' + error.message);
+                });
+        },
+        
+        renderMoveModalFiles: function(files) {
+            const container = document.getElementById('moveFilesList');
+            
+            // Filtrar solo carpetas
+            const folders = files.filter(file => file.isDirectory);
+            
+            if (folders.length === 0) {
+                container.innerHTML = `
+                    <div class="p-4 text-center theme-text-muted">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto mb-2 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                        </svg>
+                        <p>No hay carpetas disponibles</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Ordenar carpetas alfabéticamente
+            folders.sort((a, b) => a.name.localeCompare(b.name));
+            
+            container.innerHTML = '';
+            
+            folders.forEach(folder => {
+                const folderEl = document.createElement('div');
+                folderEl.className = 'flex items-center justify-between p-3 hover:theme-bg-tertiary border-b last:border-b-0 cursor-pointer transition-colors duration-150';
+                folderEl.dataset.folderName = folder.name;
+                
+                const date = new Date(folder.modified || folder.mtime);
+                const formattedDate = date.toLocaleDateString('es-ES');
+                
+                folderEl.innerHTML = `
+                    <div class="flex items-center flex-1 min-w-0">
+                        <span class="mr-2 flex-shrink-0 text-blue-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                            </svg>
+                        </span>
+                        <span class="font-medium theme-text-primary truncate">${folder.name}</span>
+                    </div>
+                    <div class="flex items-center space-x-3 text-xs theme-text-muted flex-shrink-0">
+                        <span class="w-20 text-right">${formattedDate}</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </div>
+                `;
+                
+                folderEl.addEventListener('click', () => this.moveModalNavigateToFolder(folder.name));
+                container.appendChild(folderEl);
+            });
+        },
+        
+        showMoveModalError: function(message) {
+            document.getElementById('moveFilesList').innerHTML = `
+                <div class="p-4 text-center text-red-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p class="text-sm">${message}</p>
+                    <button onclick="FileExplorer.loadMoveModalFiles()" class="mt-2 bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition-colors duration-200">
+                        Reintentar
+                    </button>
+                </div>
+            `;
+        },
+        
+        moveModalNavigateToHome: function() {
+            this.moveModalPath = [];
+            this.loadMoveModalFiles();
+        },
+        
+        moveModalNavigateBack: function() {
+            if (this.moveModalPath.length > 0) {
+                this.moveModalPath.pop();
+                this.loadMoveModalFiles();
+            }
+        },
+        
+        moveModalNavigateToFolder: function(folderName) {
+            this.moveModalPath.push(folderName);
+            this.loadMoveModalFiles();
         }
     };
     

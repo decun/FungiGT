@@ -1,3 +1,7 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 # FungiGT - Plataforma de Análisis Genómico de Hongos
 
 ## Descripción General
@@ -13,7 +17,7 @@ FungiGT es una plataforma completa de análisis genómico especializada en hongo
 - **Containerización**: Docker & Docker Compose
 - **AI/ML**: Anthropic Claude API para análisis inteligente
 
-### Microservicios (14 contenedores)
+### Microservicios (15 contenedores)
 
 #### Servicios Core
 1. **MongoDB** (`fungigt-mongodb`) - Puerto 27017
@@ -93,6 +97,7 @@ FungiGT es una plataforma completa de análisis genómico especializada en hongo
     - Generación de reportes inteligentes
     - Powered by Anthropic Claude
 
+
 ## Características Principales
 
 ### Pipeline Completo de Análisis
@@ -147,26 +152,44 @@ FRONTEND_PORT=4005
 AUTH_PORT=4001
 ```
 
-## Comandos de Gestión
+## Comandos de Desarrollo Esenciales
 
-### Inicio Completo
+### Instalación Inicial (Primera Vez)
 ```bash
+python scripts/setup/setup_fungigt.py
+```
+
+### Desarrollo Diario (Inicio Rápido)
+```bash
+python scripts/setup/quick_start.py
+```
+
+### Detener Servicios
+```bash
+python scripts/setup/stop_services.py
+```
+
+### Solucionar Problemas de Red Docker
+```bash
+python scripts/setup/fix_docker_network.py
+```
+
+### Comandos Docker Compose Avanzados
+```bash
+# Inicio completo
 docker-compose up -d
-```
 
-### Solo Servicios Web (sin herramientas)
-```bash
+# Solo servicios web (sin herramientas pesadas)
 docker-compose up -d --profile web
-```
 
-### Con Todas las Herramientas
-```bash
+# Con todas las herramientas bioinformáticas
 docker-compose --profile tools up -d
-```
 
-### Logs de Servicio Específico
-```bash
-docker-compose logs -f <service-name>
+# Logs de servicio específico
+docker-compose -p fungigt logs -f <service-name>
+
+# Reconstruir servicios
+docker-compose build --no-cache <service-name>
 ```
 
 ## Casos de Uso Típicos
@@ -203,9 +226,71 @@ docker-compose logs -f <service-name>
 - Análisis comparativo inter-especies
 - Dr. Fungito entrenado en literatura micológica
 
-## Notas para Desarrollo
+## Estructura de Directorios Clave
+
+```
+data/                         # Datos persistentes
+├── raw/genomes/             # Genomas descargados de NCBI
+├── results/                 # Resultados de análisis
+├── uploads/                 # Archivos subidos por usuarios
+├── visualizations/          # Gráficos generados
+├── eggnog_results/          # Anotaciones funcionales
+├── bindash_results/         # Análisis filogenético
+└── checkm_output/           # Control de calidad
+
+src/
+├── frontend/                # Interfaz web (Node.js/Express/EJS)
+├── core/auth/              # Servicio de autenticación
+└── modules/                # Servicios de análisis
+    ├── file_manager/       # Gestión de archivos
+    ├── visualization/      # Servidor Python Flask
+    ├── acquisition/        # Cliente NCBI
+    ├── quality_control/    # Integración CheckM
+    ├── analysis/           # bindash, eggnog
+    └── ai_agent/           # Dr. Fungito (Claude AI)
+```
+
+## APIs Principales
+
+
+### Autenticación (Puerto 4001)
+- `POST /auth/register` - Registro de usuarios
+- `POST /auth/login` - Login con JWT
+- `GET /auth/profile` - Perfil de usuario
+
+### Frontend (Puerto 4005)
+- `GET /` - Página principal
+- `GET /database` - Gestión de datos
+- `GET /annotator` - Anotación genómica
+- `GET /analyzer` - Análisis comparativo
+- `GET /visualizer` - Visualizaciones
+
+## Desarrollo y Debugging
+
+### Hot Reload
 - Servicios Node.js usan `nodemon` para auto-reload
-- Python services con `PYTHONUNBUFFERED=1`
-- MongoDB con autenticación habilitada
-- Docker socket montado para gestión de contenedores anidados
-- Permisos de usuario configurables via `DOCKER_USER` 
+- Cambios en código se reflejan automáticamente
+- Logs centralizados en `./logs/`
+
+### Base de Datos
+- MongoDB con autenticación (admin/admin123)
+- Conexión: `mongodb://admin:admin123@mongodb:27017/fungigt?authSource=admin`
+- Inicialización automática con `scripts/mongo-init/init-db.js`
+
+### Health Checks
+- Todos los servicios exponen endpoint `/health`
+- Monitoreo automático con Docker Compose
+- Reinicio automático en caso de fallo
+
+### Variables de Entorno Críticas
+```bash
+ANTHROPIC_API_KEY=<claude-api-key>    # Para Dr. Fungito AI
+JWT_SECRET=fungi-gt-secret-key-2024   # Autenticación
+MONGODB_URI=mongodb://admin:admin123@mongodb:27017/fungigt?authSource=admin
+```
+
+## Arquitectura de Comunicación
+- Red interna: `fungigt-network` (bridge)
+- Servicios se comunican por nombre de contenedor
+- Puertos expuestos solo para desarrollo/debugging
+- Balanceador de carga interno para escalabilidad 
