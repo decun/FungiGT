@@ -351,6 +351,54 @@ services:
     profiles:
       - tools  # Solo se inicia con perfil "tools"
 
+  # Servidor API para Funannotate (custom - generado por nosotros)
+  funannotate-server:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/annotation/funannotate/Dockerfile
+    container_name: fungigt-funannotate-server
+    volumes:
+      - ./src/modules/annotation/funannotate:/app
+      - /app/node_modules
+      - ./data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - PORT=3005
+      - FUNANNOTATE_IMAGE=nextgenusfs/funannotate:latest
+      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin123@mongodb:27017/test?authSource=admin}
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    privileged: true
+    networks:
+      - fungigt-network
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Anotación genómica con Funannotate - Docker Hub
+  funannotate-tool:
+    image: nextgenusfs/funannotate:latest
+    container_name: fungigt-funannotate
+    volumes:
+      - ./data:/data
+      - ./data/funannotate_output:/opt/funannotate/output
+    working_dir: /data
+    networks:
+      - fungigt-network
+    restart: unless-stopped
+    command: tail -f /dev/null  # Mantiene el contenedor activo
+    profiles:
+      - tools  # Solo se inicia con perfil "tools"
+
   # Dr. Fungito AI Agent - Análisis inteligente de imágenes genómicas
   drfungito-agent:
     build:

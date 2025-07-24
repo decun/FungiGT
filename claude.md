@@ -17,7 +17,7 @@ FungiGT es una plataforma completa de análisis genómico especializada en hongo
 - **Containerización**: Docker & Docker Compose
 - **AI/ML**: Anthropic Claude API para análisis inteligente
 
-### Microservicios (15 contenedores)
+### Microservicios (17 contenedores)
 
 #### Servicios Core
 1. **MongoDB** (`fungigt-mongodb`) - Puerto 27017
@@ -79,19 +79,29 @@ FungiGT es una plataforma completa de análisis genómico especializada en hongo
     - API personalizada sobre nanozoo/eggnog-mapper
     - Análisis COG, GO, KEGG
 
+12. **Funannotate Server** (`fungigt-funannotate-server`) - Puerto 3005
+    - API para anotación genómica completa con Funannotate
+    - Workflows: predict, annotate, compare
+    - Especializada en genómica fúngica
+
 #### Servicios Especializados
 
-12. **CheckM Tool** (`fungigt-checkm`)
+13. **CheckM Tool** (`fungigt-checkm`)
     - Herramienta CheckM oficial (nanozoo/checkm:latest)
     - Evaluación de calidad genómica
     - Perfiles: solo con `--profile tools`
 
-13. **BLAST Tool** (`fungigt-blast`)
+14. **BLAST Tool** (`fungigt-blast`)
     - NCBI BLAST oficial (ncbi/blast:latest)
     - Análisis de homología
     - Bases de datos personalizables
 
-14. **Dr. Fungito AI Agent** (`fungigt-drfungito-agent`) - Puerto 4009
+15. **Funannotate Tool** (`fungigt-funannotate`)
+    - Herramienta Funannotate oficial (nextgenusfs/funannotate:latest)
+    - Anotación genómica completa para hongos
+    - Perfiles: solo con `--profile tools`
+
+16. **Dr. Fungito AI Agent** (`fungigt-drfungito-agent`) - Puerto 4009
     - Agente de IA especializado en genómica
     - Análisis automático de imágenes/gráficos
     - Generación de reportes inteligentes
@@ -128,6 +138,7 @@ FungiGT es una plataforma completa de análisis genómico especializada en hongo
 | BinDash | 4007 | Análisis filogenético |
 | BRAKER3 API | 3004 | Anotación genómica |
 | eggNOG API | 3002 | Anotación funcional |
+| Funannotate API | 3005 | Anotación completa |
 | Dr. Fungito | 4009 | Agente de IA |
 | MongoDB | 27017 | Base de datos |
 
@@ -174,22 +185,68 @@ python scripts/setup/stop_services.py
 python scripts/setup/fix_docker_network.py
 ```
 
-### Comandos Docker Compose Avanzados
+### Comandos Docker Compose
 ```bash
-# Inicio completo
-docker-compose up -d
+# Inicio completo con project name
+docker-compose -p fungigt up -d
 
 # Solo servicios web (sin herramientas pesadas)
-docker-compose up -d --profile web
+docker-compose -p fungigt --profile web up -d
 
 # Con todas las herramientas bioinformáticas
-docker-compose --profile tools up -d
+docker-compose -p fungigt --profile tools up -d
 
 # Logs de servicio específico
 docker-compose -p fungigt logs -f <service-name>
 
 # Reconstruir servicios
-docker-compose build --no-cache <service-name>
+docker-compose -p fungigt build --no-cache <service-name>
+
+# Ver estado de servicios
+docker-compose -p fungigt ps
+
+# Parar todos los servicios
+docker-compose -p fungigt down
+```
+
+### Comandos de Desarrollo por Servicio
+```bash
+# Frontend (Node.js + EJS)
+cd src/frontend
+npm run start    # usa nodemon para hot reload
+npm test         # placeholder, no hay tests implementados
+
+# Auth Service (Node.js + JWT)
+cd src/core/auth
+npm run dev      # desarrollo con nodemon
+npm start        # producción
+npm test         # placeholder, no hay tests implementados
+
+# Servicios de análisis (patrón similar)
+cd src/modules/<service>
+npm run dev      # desarrollo con nodemon
+npm start        # producción
+
+# Servicios Python (visualización)
+cd src/modules/visualization
+pip install -r requirements.txt
+python app.py    # Flask development server
+```
+
+### Debugging y Monitoreo
+```bash
+# Ver logs en tiempo real
+docker-compose -p fungigt logs -f
+
+# Inspeccionar contenedor específico
+docker exec -it fungigt-<service-name> /bin/sh
+
+# Ver estado de red
+docker network ls | grep fungigt
+docker network inspect fungigt-network
+
+# Verificar estado de base de datos
+docker exec -it fungigt-mongodb mongo -u admin -p admin123 --authenticationDatabase admin
 ```
 
 ## Casos de Uso Típicos
@@ -293,4 +350,50 @@ MONGODB_URI=mongodb://admin:admin123@mongodb:27017/fungigt?authSource=admin
 - Red interna: `fungigt-network` (bridge)
 - Servicios se comunican por nombre de contenedor
 - Puertos expuestos solo para desarrollo/debugging
-- Balanceador de carga interno para escalabilidad 
+- Balanceador de carga interno para escalabilidad
+
+## Stack Tecnológico Detallado
+
+### Servicios Node.js
+**Dependencias Principales:**
+- Express 4.18+ (framework web)
+- Mongoose 6.9+ / MongoDB 6.8+ (base de datos)
+- JWT (jsonwebtoken 9.0+) + bcryptjs 2.4+ (autenticación)
+- EJS templates (frontend)
+- Multer (manejo de archivos)
+- Nodemon (desarrollo con hot reload)
+
+### Servicios Python
+**Dependencias Principales:**
+- Flask 2.0+ (framework web)
+- Matplotlib 3.5+, Seaborn 0.11+, Plotly 5.0+ (visualización)
+- Pandas 1.3+, NumPy (análisis de datos)
+- BioPython 1.79+ (procesamiento bioinformático)
+- DNA Features Viewer 3.1+ (visualización genómica)
+
+### Base de Datos
+- MongoDB 4.4 con autenticación
+- Conexiones con pooling y retry logic
+- Colecciones: usuarios, proyectos, análisis, resultados
+
+### Herramientas Bioinformáticas Externas
+- BRAKER3 (teambraker/braker3:latest)
+- CheckM (nanozoo/checkm:latest)
+- eggNOG-mapper (nanozoo/eggnog-mapper)
+- BLAST (ncbi/blast:latest)
+
+## Notas de Desarrollo Importantes
+
+### Testing
+- **Estado actual**: No hay tests unitarios implementados
+- **Recomendación**: Usar Jest para Node.js, pytest para Python
+- **Comandos**: `npm test` actualmente devuelve placeholder
+
+### Linting y Formateo
+- **Estado actual**: No hay configuración de ESLint/Prettier
+- **Recomendación**: Configurar ESLint + Prettier para consistencia
+
+### Hot Reload y Desarrollo
+- Todos los servicios Node.js usan `nodemon` para auto-reload
+- Bind mounts configurados para desarrollo en tiempo real
+- Variables de entorno separadas para desarrollo/producción 

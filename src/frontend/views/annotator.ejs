@@ -33,7 +33,8 @@
                             <select id="toolSelector" class="form-select w-full">
                                 <option value="checkm">CheckM - Control de Calidad</option>
                                 <option value="braker3">BRAKER3 - Anotación de Genes</option>
-                                <option value="both">Ambas Herramientas</option>
+                                <option value="funannotate">Funannotate - Anotación Funcional Completa</option>
+                                <option value="both">Múltiples Herramientas</option>
                             </select>
                         </div>
                     </div>
@@ -404,6 +405,279 @@
                         </form>
                     </div>
 
+                    <!-- Configuración de Funannotate -->
+                    <div id="funannotateConfig" class="theme-bg-primary p-8 rounded-xl theme-shadow-light-lg mb-8 border theme-border" style="display:none;">
+                        <div class="border-l-4 border-orange-500 pl-6 mb-6">
+                            <h3 class="text-2xl font-semibold mb-2 flex items-center theme-text-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                </svg>
+                                Configuración de Funannotate
+                            </h3>
+                            <p class="theme-text-secondary text-sm">Plataforma completa de anotación genómica especializada en hongos</p>
+                        </div>
+
+                        <!-- Selector de Workflow -->
+                        <div class="theme-bg-secondary p-6 rounded-lg mb-6">
+                            <h4 class="text-lg font-semibold mb-4 theme-text-primary">Seleccionar Workflow</h4>
+                            <select id="funannotateWorkflow" class="form-select w-full mb-4">
+                                <option value="predict">Predict - Predicción de Genes</option>
+                                <option value="annotate">Annotate - Anotación Funcional</option>
+                                <option value="compare">Compare - Genómica Comparativa</option>
+                            </select>
+                            <p class="text-xs theme-text-muted">Predict: Predicción ab initio de genes. Annotate: Anotación funcional. Compare: Análisis comparativo.</p>
+                        </div>
+
+                        <form id="funannotateForm" class="space-y-6">
+                            <!-- Configuración Principal -->
+                            <div class="theme-bg-secondary p-6 rounded-lg">
+                                <h4 class="text-lg font-semibold mb-4 theme-text-primary">Configuración Principal</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
+                                            Especie (--species) *
+                                        </label>
+                                        <input type="text" id="funannotateSpecies" name="species" 
+                                               class="form-input w-full" 
+                                               placeholder="Ej: Aspergillus fumigatus" required />
+                                        <p class="text-xs theme-text-muted mt-1">Nombre completo de la especie</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
+                                            Archivo de Entrada *
+                                        </label>
+                                        <input type="text" id="funannotateInput" name="input" 
+                                               class="form-input w-full" 
+                                               placeholder="genome.fasta" required />
+                                        <p class="text-xs theme-text-muted mt-1">Archivo FASTA del genoma (para predict)</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
+                                            CPUs (--cpus)
+                                        </label>
+                                        <input type="number" id="funannotateCpus" name="cpus" 
+                                               class="form-input w-full" 
+                                               min="1" max="32" value="4" />
+                                    </div>
+                                    <div id="funannotateOrganismDiv">
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
+                                            Organismo (--organism)
+                                        </label>
+                                        <select id="funannotateOrganism" name="organism" class="form-select w-full">
+                                            <option value="">Seleccionar...</option>
+                                            <option value="fungus">Fungus</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Configuraciones Específicas para Predict -->
+                            <div id="funannotatePredictOptions" class="theme-bg-secondary p-6 rounded-lg">
+                                <h4 class="text-lg font-semibold mb-4 theme-text-primary">Opciones para Predicción</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
+                                            Base de Datos BUSCO
+                                        </label>
+                                        <select id="funannotateBusco" name="busco_db" class="form-select w-full">
+                                            <option value="">Automático</option>
+                                            <option value="fungi">Fungi</option>
+                                            <option value="ascomycota">Ascomycota</option>
+                                            <option value="basidiomycota">Basidiomycota</option>
+                                            <option value="saccharomycetes">Saccharomycetes</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
+                                            Ploidía (--ploidy)
+                                        </label>
+                                        <input type="number" id="funannotatePloidy" name="ploidy" 
+                                               class="form-input w-full" 
+                                               min="1" max="10" value="1" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
+                                            Evidencia Proteica
+                                        </label>
+                                        <input type="text" id="funannotateProtein" name="protein_evidence" 
+                                               class="form-input w-full" 
+                                               placeholder="proteins.fasta" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
+                                            RNA-seq BAM
+                                        </label>
+                                        <input type="text" id="funannotateRnaBam" name="rna_bam" 
+                                               class="form-input w-full" 
+                                               placeholder="rnaseq.bam" />
+                                    </div>
+                                </div>
+
+                                <!-- Flags para Predict -->
+                                <div class="mt-6">
+                                    <h5 class="text-md font-semibold mb-3 theme-text-primary">Opciones Avanzadas</h5>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div class="flex items-center p-3 theme-bg-primary rounded-lg border theme-border">
+                                            <input type="checkbox" id="funannotateOptimizeAugustus" name="optimize_augustus" 
+                                                   class="h-4 w-4 text-orange-600 focus:ring-orange-500 theme-border rounded theme-input">
+                                            <label for="funannotateOptimizeAugustus" class="ml-3 text-sm theme-text-secondary font-medium">--optimize_augustus</label>
+                                        </div>
+                                        <div class="flex items-center p-3 theme-bg-primary rounded-lg border theme-border">
+                                            <input type="checkbox" id="funannotateRepeats2evm" name="repeats2evm" 
+                                                   class="h-4 w-4 text-orange-600 focus:ring-orange-500 theme-border rounded theme-input">
+                                            <label for="funannotateRepeats2evm" class="ml-3 text-sm theme-text-secondary font-medium">--repeats2evm</label>
+                                        </div>
+                                        <div class="flex items-center p-3 theme-bg-primary rounded-lg border theme-border">
+                                            <input type="checkbox" id="funannotateStringtieFPKM" name="stringtie_FPKM" 
+                                                   class="h-4 w-4 text-orange-600 focus:ring-orange-500 theme-border rounded theme-input">
+                                            <label for="funannotateStringtieFPKM" class="ml-3 text-sm theme-text-secondary font-medium">--stringtie_FPKM</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Configuraciones Específicas para Annotate -->
+                            <div id="funannotateAnnotateOptions" class="theme-bg-secondary p-6 rounded-lg" style="display:none;">
+                                <h4 class="text-lg font-semibold mb-4 theme-text-primary">Opciones para Anotación Funcional</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="flex items-center p-3 theme-bg-primary rounded-lg border theme-border">
+                                        <input type="checkbox" id="funannotateAntismash" name="antismash" 
+                                               class="h-4 w-4 text-orange-600 focus:ring-orange-500 theme-border rounded theme-input">
+                                        <label for="funannotateAntismash" class="ml-3 text-sm theme-text-secondary font-medium">--antismash</label>
+                                    </div>
+                                    <div class="flex items-center p-3 theme-bg-primary rounded-lg border theme-border">
+                                        <input type="checkbox" id="funannotateIprscan" name="iprscan" 
+                                               class="h-4 w-4 text-orange-600 focus:ring-orange-500 theme-border rounded theme-input">
+                                        <label for="funannotateIprscan" class="ml-3 text-sm theme-text-secondary font-medium">--iprscan</label>
+                                    </div>
+                                    <div class="flex items-center p-3 theme-bg-primary rounded-lg border theme-border">
+                                        <input type="checkbox" id="funannotatePhobius" name="phobius" 
+                                               class="h-4 w-4 text-orange-600 focus:ring-orange-500 theme-border rounded theme-input">
+                                        <label for="funannotatePhobius" class="ml-3 text-sm theme-text-secondary font-medium">--phobius</label>
+                                    </div>
+                                    <div class="flex items-center p-3 theme-bg-primary rounded-lg border theme-border">
+                                        <input type="checkbox" id="funannotateSignalp" name="signalp" 
+                                               class="h-4 w-4 text-orange-600 focus:ring-orange-500 theme-border rounded theme-input">
+                                        <label for="funannotateSignalp" class="ml-3 text-sm theme-text-secondary font-medium">--signalp</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Configuración de Rutas -->
+                            <div class="theme-bg-secondary p-6 rounded-lg">
+                                <h4 class="text-lg font-semibold mb-4 theme-text-primary">Configuración de Rutas</h4>
+                                <div class="grid grid-cols-1 gap-6">
+                                    <div>
+                                        <label class="flex items-center text-sm font-medium theme-text-secondary mb-2">
+                                            Ruta de entrada (carpeta con archivos) *
+                                            <div class="relative ml-2 group">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                                                    <div class="text-center">
+                                                        <div class="font-semibold mb-1">Formato para Funannotate:</div>
+                                                        <div>Windows: C:/ruta/completa/carpeta</div>
+                                                        <div>Linux/Mac: /ruta/completa/carpeta</div>
+                                                        <div class="mt-1 text-yellow-300">¡Usar "/" en lugar de "\" para Windows!</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </label>
+                                        <input type="text" id="funannotateInputFolderPath" name="inputFolder" 
+                                               class="form-input w-full" 
+                                               placeholder="C:/Memoriacosas/FungiGT/data/raw/genomes/funannotate" required />
+                                    </div>
+                                    <div>
+                                        <label class="flex items-center text-sm font-medium theme-text-secondary mb-2">
+                                            Ruta de salida (resultados) *
+                                            <div class="relative ml-2 group">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                                                    <div class="text-center">
+                                                        <div class="font-semibold mb-1">Formato para Funannotate:</div>
+                                                        <div>Windows: C:/ruta/completa/carpeta</div>
+                                                        <div>Linux/Mac: /ruta/completa/carpeta</div>
+                                                        <div class="mt-1 text-yellow-300">Los resultados se guardarán aquí</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </label>
+                                        <input type="text" id="funannotateOutputFolderPath" name="outputFolder" 
+                                               class="form-input w-full" 
+                                               placeholder="C:/Memoriacosas/FungiGT/data/results/funannotate" required />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Subida de Archivos y Configuración Avanzada -->
+                            <div class="theme-bg-secondary p-6 rounded-lg">
+                                <h4 class="text-lg font-semibold mb-4 theme-text-primary">Subir Archivos</h4>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium theme-text-secondary mb-2">
+                                            Subir archivos a la carpeta de entrada
+                                        </label>
+                                        <input type="file" id="funannotateFiles" name="files" multiple accept=".fasta,.fna,.faa,.bam,.gff,.gff3" 
+                                               class="w-full p-3 border theme-border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 theme-input" />
+                                    </div>
+                                    
+                                    <!-- Configuración de Preprocesamiento -->
+                                    <div class="border-t theme-border pt-4">
+                                        <h5 class="text-md font-semibold mb-3 theme-text-primary">Preprocesamiento Automático</h5>
+                                        <div class="flex items-start p-4 theme-bg-primary rounded-lg border theme-border">
+                                            <input type="checkbox" id="funannotateAutoCleanHeaders" name="autoCleanHeaders" checked
+                                                   class="h-4 w-4 text-orange-600 focus:ring-orange-500 theme-border rounded theme-input mt-1">
+                                            <div class="ml-3">
+                                                <label for="funannotateAutoCleanHeaders" class="text-sm theme-text-secondary font-medium">
+                                                    Auto-limpiar headers FASTA
+                                                </label>
+                                                <p class="text-xs theme-text-muted mt-1">
+                                                    Corrige automáticamente headers que excedan 16 caracteres (requerido por Funannotate).
+                                                    <br><strong>Recomendado:</strong> Mantener activado para evitar errores.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <button type="button" id="uploadFunannotateButton" 
+                                            class="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg theme-shadow-light text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        Subir Archivos
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Botón de Ejecución -->
+                            <div class="flex justify-center">
+                                <button type="submit" 
+                                        class="inline-flex items-center px-8 py-4 border border-transparent text-lg font-medium rounded-lg theme-shadow-light text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                    </svg>
+                                    <span id="funannotateSubmitText">Ejecutar Funannotate</span>
+                                </button>
+                            </div>
+
+                            <!-- Mostrar Comando -->
+                            <div class="flex justify-center mt-4">
+                                <button type="button" id="showFunannotateCommandBtn" 
+                                        class="text-orange-600 hover:text-orange-700 text-sm font-medium">
+                                    Mostrar comando Docker
+                                </button>
+                            </div>
+
+                            <div id="funannotateCommandDisplay" class="mt-4 p-4 theme-bg-tertiary rounded-lg hidden">
+                                <h5 class="font-semibold theme-text-primary mb-2">Comando Docker:</h5>
+                                <pre id="funannotateDockerCommand" class="text-sm theme-text-primary whitespace-pre-wrap theme-bg-primary p-3 rounded border"></pre>
+                            </div>
+                        </form>
+                    </div>
 
                     <!-- Estado de Análisis -->
                     <div class="theme-bg-primary p-6 rounded-xl theme-shadow-light-lg mb-8 border theme-border">
@@ -1606,14 +1880,19 @@
                 // Ocultar todos los paneles de configuración
                 document.getElementById('checkMConfig').style.display = 'none';
                 document.getElementById('braker3Config').style.display = 'none';
+                document.getElementById('funannotateConfig').style.display = 'none';
                 
                 // Mostrar los paneles según la selección
-                if (selectedTool === 'checkm' || selectedTool === 'both') {
+                if (selectedTool === 'checkm') {
                     document.getElementById('checkMConfig').style.display = 'block';
-                }
-                
-                if (selectedTool === 'braker3' || selectedTool === 'both') {
+                } else if (selectedTool === 'braker3') {
                     document.getElementById('braker3Config').style.display = 'block';
+                } else if (selectedTool === 'funannotate') {
+                    document.getElementById('funannotateConfig').style.display = 'block';
+                } else if (selectedTool === 'both') {
+                    document.getElementById('checkMConfig').style.display = 'block';
+                    document.getElementById('braker3Config').style.display = 'block';
+                    document.getElementById('funannotateConfig').style.display = 'block';
                 }
             }
             
@@ -1684,6 +1963,340 @@
                     // Mostrar el comando
                     commandPre.textContent = command;
                     commandDisplay.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
+
+    <!-- Script para funcionalidad de Funannotate -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Manejar cambio de workflow de Funannotate
+            const workflowSelector = document.getElementById('funannotateWorkflow');
+            const predictOptions = document.getElementById('funannotatePredictOptions');
+            const annotateOptions = document.getElementById('funannotateAnnotateOptions');
+            const submitText = document.getElementById('funannotateSubmitText');
+
+            function handleWorkflowChange() {
+                const workflow = workflowSelector.value;
+                
+                // Ocultar todas las opciones específicas
+                predictOptions.style.display = 'none';
+                annotateOptions.style.display = 'none';
+                
+                // Mostrar opciones según el workflow seleccionado
+                if (workflow === 'predict') {
+                    predictOptions.style.display = 'block';
+                    submitText.textContent = 'Ejecutar Funannotate Predict';
+                } else if (workflow === 'annotate') {
+                    annotateOptions.style.display = 'block';
+                    submitText.textContent = 'Ejecutar Funannotate Annotate';
+                } else if (workflow === 'compare') {
+                    submitText.textContent = 'Ejecutar Funannotate Compare';
+                }
+            }
+
+            if (workflowSelector) {
+                workflowSelector.addEventListener('change', handleWorkflowChange);
+                handleWorkflowChange(); // Ejecutar al cargar
+            }
+
+            // Función para monitorear progreso de Funannotate
+            function monitorFunannotateProgress(uniqueId) {
+                if (window.funannotateProgressSource) {
+                    window.funannotateProgressSource.close();
+                }
+                
+                window.funannotateProgressSource = new EventSource('http://localhost:3005/funannotate-progress-stream');
+                
+                window.funannotateProgressSource.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
+                    
+                    // Actualizar progreso en la tabla
+                    const progressBar = document.querySelector(`#progress-${uniqueId}`);
+                    const progressText = document.querySelector(`#progressText-${uniqueId}`);
+                    const statusCell = progressText.closest('tr').querySelector('td:nth-child(2) span');
+                    
+                    if (progressBar && progressText) {
+                        progressBar.style.width = `${data.progress}%`;
+                        progressText.textContent = `${data.progress}%`;
+                        
+                        // Actualizar estado visual
+                        if (data.progress < 30) {
+                            statusCell.textContent = 'Preparando análisis';
+                            statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800';
+                        } else if (data.progress < 80) {
+                            statusCell.textContent = 'Ejecutando Funannotate';
+                            statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800';
+                        } else {
+                            statusCell.textContent = 'Finalizando';
+                            statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800';
+                        }
+                    }
+                    
+                    // Cerrar conexión cuando llegue a 100%
+                    if (data.progress >= 100) {
+                        console.log('Proceso Funannotate completado al 100%, cerrando conexión SSE');
+                        window.funannotateProgressSource.close();
+                        window.funannotateProgressSource = null;
+                        
+                        // Actualizar estado final
+                        statusCell.textContent = 'Completado';
+                        statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800';
+                        
+                        // Agregar botones de acción
+                        const actionsCell = document.getElementById(`actions-${uniqueId}`);
+                        const outputFolder = document.getElementById('funannotateOutputFolderPath').value;
+                        actionsCell.innerHTML = `
+                            <div class="flex space-x-2">
+                                <button class="view-results-btn bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs" data-output="${outputFolder}">
+                                    Ver Resultados
+                                </button>
+                                <button class="download-results-btn bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs" data-output="${outputFolder}">
+                                    Descargar
+                                </button>
+                            </div>
+                        `;
+                    }
+                };
+                
+                window.funannotateProgressSource.onerror = function(error) {
+                    console.error('Error en la conexión SSE de Funannotate:', error);
+                    window.funannotateProgressSource.close();
+                };
+            }
+
+            // Manejo del formulario de Funannotate
+            const funannotateForm = document.getElementById('funannotateForm');
+            if (funannotateForm) {
+                funannotateForm.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    
+                    const workflow = document.getElementById('funannotateWorkflow').value;
+                    const species = document.getElementById('funannotateSpecies').value;
+                    const input = document.getElementById('funannotateInput').value;
+                    const cpus = document.getElementById('funannotateCpus').value;
+                    const inputFolder = document.getElementById('funannotateInputFolderPath').value;
+                    const outputFolder = document.getElementById('funannotateOutputFolderPath').value;
+                    
+                    // Validación básica
+                    if (!species || !input || !inputFolder || !outputFolder) {
+                        alert('Por favor, completa todos los campos obligatorios de Funannotate.');
+                        return;
+                    }
+                    
+                    // Recopilar parámetros específicos del workflow
+                    const data = {
+                        species: species,
+                        input: input,
+                        cpus: cpus,
+                        inputFolder: inputFolder,
+                        outputFolder: outputFolder,
+                        autoCleanHeaders: document.getElementById('funannotateAutoCleanHeaders').checked
+                    };
+                    
+                    // Agregar parámetros específicos para predict
+                    if (workflow === 'predict') {
+                        const organism = document.getElementById('funannotateOrganism').value;
+                        const busco_db = document.getElementById('funannotateBusco').value;
+                        const ploidy = document.getElementById('funannotatePloidy').value;
+                        const protein_evidence = document.getElementById('funannotateProtein').value;
+                        const rna_bam = document.getElementById('funannotateRnaBam').value;
+                        
+                        if (organism) data.organism = organism;
+                        if (busco_db) data.busco_db = busco_db;
+                        if (ploidy) data.ploidy = ploidy;
+                        if (protein_evidence) data.protein_evidence = protein_evidence;
+                        if (rna_bam) data.rna_bam = rna_bam;
+                        
+                        // Agregar flags opcionales
+                        data.optimize_augustus = document.getElementById('funannotateOptimizeAugustus').checked;
+                        data.repeats2evm = document.getElementById('funannotateRepeats2evm').checked;
+                        data.stringtie_FPKM = document.getElementById('funannotateStringtieFPKM').checked;
+                    }
+                    
+                    // Agregar parámetros específicos para annotate
+                    if (workflow === 'annotate') {
+                        data.antismash = document.getElementById('funannotateAntismash').checked;
+                        data.iprscan = document.getElementById('funannotateIprscan').checked;
+                        data.phobius = document.getElementById('funannotatePhobius').checked;
+                        data.signalp = document.getElementById('funannotateSignalp').checked;
+                    }
+                    
+                    console.log('Request Data Funannotate:', data);
+                    
+                    // Agregar trabajo a la tabla
+                    const uniqueId = addAnalysisToTable({
+                        type: `Anotación (Funannotate ${workflow})`,
+                        status: 'Procesando',
+                        progress: 0
+                    });
+                    
+                    // Iniciar monitoreo en tiempo real
+                    monitorFunannotateProgress(uniqueId);
+                    
+                    // Enviar solicitud a la API
+                    const endpoint = workflow === 'predict' ? '/predict' : 
+                                   workflow === 'annotate' ? '/annotate' : '/compare';
+                    
+                    fetch(`http://localhost:3005${endpoint}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Success Funannotate:', data);
+                    })
+                    .catch((error) => {
+                        console.error('Error Funannotate:', error);
+                        
+                        // Mostrar error en la interfaz
+                        const statusCell = document.querySelector(`#progressText-${uniqueId}`).closest('tr').querySelector('td:nth-child(2) span');
+                        statusCell.textContent = 'Error';
+                        statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800';
+                        
+                        // Cerrar conexión SSE en caso de error
+                        if (window.funannotateProgressSource) {
+                            window.funannotateProgressSource.close();
+                        }
+                        
+                        alert('Error al ejecutar Funannotate: ' + error.message);
+                    });
+                });
+            }
+
+            // Función para subir archivos de Funannotate
+            const uploadFunannotateButton = document.getElementById('uploadFunannotateButton');
+            if (uploadFunannotateButton) {
+                uploadFunannotateButton.addEventListener('click', function() {
+                    const files = document.getElementById('funannotateFiles').files;
+                    const inputFolder = document.getElementById('funannotateInputFolderPath').value;
+                    const outputFolder = document.getElementById('funannotateOutputFolderPath').value;
+                    
+                    if (files.length === 0) {
+                        alert('Selecciona al menos un archivo para subir a Funannotate');
+                        return;
+                    }
+                    
+                    if (!inputFolder || !outputFolder) {
+                        alert('Por favor, ingresa las rutas completas de las carpetas de entrada y salida para Funannotate');
+                        return;
+                    }
+                    
+                    const formData = new FormData();
+                    formData.append('inputFolderPath', inputFolder);
+                    formData.append('outputFolderPath', outputFolder);
+                    
+                    for (let i = 0; i < files.length; i++) {
+                        formData.append('files', files[i]);
+                    }
+                    
+                    fetch('http://localhost:3005/upload-files', {
+                        method: 'POST',
+                        body: formData,
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Archivos Funannotate subidos con éxito:', data);
+                        alert('Archivos subidos con éxito para Funannotate');
+                    })
+                    .catch(error => {
+                        console.error('Error al subir archivos Funannotate:', error);
+                        alert('Error al subir archivos para Funannotate');
+                    });
+                });
+            }
+
+            // Mostrar comando Docker para Funannotate
+            const showFunannotateCommandBtn = document.getElementById('showFunannotateCommandBtn');
+            const funannotateCommandDisplay = document.getElementById('funannotateCommandDisplay');
+            const funannotateDockerCommand = document.getElementById('funannotateDockerCommand');
+
+            if (showFunannotateCommandBtn) {
+                showFunannotateCommandBtn.addEventListener('click', function() {
+                    // Recopilar datos del formulario
+                    const workflow = document.getElementById('funannotateWorkflow').value;
+                    const species = document.getElementById('funannotateSpecies').value || 'Aspergillus_fumigatus';
+                    const input = document.getElementById('funannotateInput').value || 'genome.fasta';
+                    const cpus = document.getElementById('funannotateCpus').value || '4';
+                    const inputFolder = document.getElementById('funannotateInputFolderPath').value || 'C:/ruta/a/carpeta/entrada';
+                    const outputFolder = document.getElementById('funannotateOutputFolderPath').value || 'C:/ruta/a/carpeta/salida';
+                    
+                    // Convertir rutas de Windows a formato Docker
+                    const dockerInputPath = inputFolder.replace(/\\/g, '/');
+                    const dockerOutputPath = outputFolder.replace(/\\/g, '/');
+                    
+                    // Construir el comando de Docker
+                    let command = `docker run --rm \\
+  -v "${dockerInputPath}:/input" \\
+  -v "${dockerOutputPath}:/output" \\
+  nextgenusfs/funannotate:latest \\
+  funannotate ${workflow} \\
+  --input /input/${input} \\
+  --species "${species}" \\
+  --cpus ${cpus}`;
+                    
+                    if (workflow === 'predict') {
+                        command += ` \\
+  --out /output`;
+                        
+                        // Agregar parámetros opcionales para predict
+                        const organism = document.getElementById('funannotateOrganism').value;
+                        const busco_db = document.getElementById('funannotateBusco').value;
+                        const ploidy = document.getElementById('funannotatePloidy').value;
+                        const protein_evidence = document.getElementById('funannotateProtein').value;
+                        const rna_bam = document.getElementById('funannotateRnaBam').value;
+                        
+                        if (organism && organism.trim() !== '') {
+                            command += ` \\\n  --organism ${organism}`;
+                        }
+                        if (busco_db && busco_db.trim() !== '') {
+                            command += ` \\\n  --busco_db ${busco_db}`;
+                        }
+                        if (ploidy && ploidy.trim() !== '' && ploidy !== '1') {
+                            command += ` \\\n  --ploidy ${ploidy}`;
+                        }
+                        if (protein_evidence && protein_evidence.trim() !== '') {
+                            command += ` \\\n  --protein_evidence /input/${protein_evidence}`;
+                        }
+                        if (rna_bam && rna_bam.trim() !== '') {
+                            command += ` \\\n  --rna_bam /input/${rna_bam}`;
+                        }
+                        
+                        // Agregar flags opcionales
+                        if (document.getElementById('funannotateOptimizeAugustus').checked) {
+                            command += ` \\\n  --optimize_augustus`;
+                        }
+                        if (document.getElementById('funannotateRepeats2evm').checked) {
+                            command += ` \\\n  --repeats2evm`;
+                        }
+                        if (document.getElementById('funannotateStringtieFPKM').checked) {
+                            command += ` \\\n  --stringtie_FPKM`;
+                        }
+                    }
+                    
+                    if (workflow === 'annotate') {
+                        // Agregar flags opcionales para annotate
+                        if (document.getElementById('funannotateAntismash').checked) {
+                            command += ` \\\n  --antismash`;
+                        }
+                        if (document.getElementById('funannotateIprscan').checked) {
+                            command += ` \\\n  --iprscan`;
+                        }
+                        if (document.getElementById('funannotatePhobius').checked) {
+                            command += ` \\\n  --phobius`;
+                        }
+                        if (document.getElementById('funannotateSignalp').checked) {
+                            command += ` \\\n  --signalp`;
+                        }
+                    }
+                    
+                    // Mostrar el comando
+                    funannotateDockerCommand.textContent = command;
+                    funannotateCommandDisplay.classList.toggle('hidden');
                 });
             }
         });
